@@ -1,9 +1,19 @@
-// import BusinessDeveloperScreens from '@/screens/business-dev';
-// import BusinessOwnerScreen from '@/screens/business-owner';
-// import AuthenticationScreen from '@/screens/authentication';
-// import AdministrationScreen from '@/screens/administration';
-import LandingPageScreen from '@/screens/landing-page';
+// import BusinessOwnerScreen from '@/screens/BusinessOwner';
+// import BusinessDeveloperScreens from '@/screens/BusinessDev';
+// import AuthenticationScreen from '@/screens/Authentication';
+// import AdministrationScreen from '@/screens/Administration';
+
+import LandingPageScreen from '@/screens/LandingPage';
+import { BrowserRouter } from 'react-router';
 
 export default function OctaPAppEntryPoint() {
-  return <LandingPageScreen />;
+  return <ProvidedApp />;
+}
+
+function ProvidedApp() {
+  return (
+    <BrowserRouter>
+      <LandingPageScreen />
+    </BrowserRouter>
+  );
 }
