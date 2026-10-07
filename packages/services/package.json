@@ -1,0 +1,9 @@
+{
+  "name": "@octap/services",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./styles/*": "./src/styles/*",
+    ".": "./src/index.ts"
+  }
+}
