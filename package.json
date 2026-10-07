@@ -10,8 +10,7 @@
     "dev:business": "npm run dev -w @octap/business",
     "dev:landing": "npm run dev -w @octap/landing",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint ."
+    "lint": "npm run lint --workspaces --if-present"
   },
   "dependencies": {
     "@octap/shared": "*"

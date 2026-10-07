@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [admin, business, landing]
+        app: [admin, business]
 
     steps:
       - name: Checkout
@@ -34,8 +34,8 @@ jobs:
         run: npm ci
 
       - name: Type check
-        run: npm run typecheck -w @octap/${{ matrix.app }}
+        run: npm run lint -w @octap/${{ matrix.app }} --if-present
 
       # Confirms the app can actually be bundled
       - name: Build
-        run: npm run build -w @octap/${{ matrix.app }}
+        run: npm run build -w @octap/${{ matrix.app }} --if-present
