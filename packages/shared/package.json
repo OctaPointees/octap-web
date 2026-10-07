@@ -1,0 +1,13 @@
+{
+  "name": "@octap/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./styles/index.css": "./src/styles/index.css",
+    "./styles/*": "./src/styles/*",
+    "./*": "./src/*/index.ts"
+  },
+  "devDependencies": {
+    "daisyui": "^5.7.47"
+  }
+}

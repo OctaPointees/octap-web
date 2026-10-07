@@ -1,0 +1,7 @@
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+@utility text-balance-pretty {
+  text-wrap: balance;
+}
