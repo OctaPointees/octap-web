@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Trang-1" id="jSeIqUnqPkfZhvU-_5f7">
+    <mxGraphModel dx="4151" dy="2322" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="APt-mv6-PyeVjI2f-vim-1" connectable="0" parent="1" style="group;movable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;rounded=0;strokeColor=#6c8ebf;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=default;resizable=1;fillColor=#FFFFFF;noLabel=1;" value="" vertex="1">
+          <mxGeometry height="1668" width="1262" x="568.5" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-2" parent="APt-mv6-PyeVjI2f-vim-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=19;fontStyle=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;h4&gt;&lt;span&gt;&amp;nbsp;OctaP - Credit-as-a-Service Platform&lt;/span&gt;&lt;/h4&gt;" vertex="1">
+          <mxGeometry height="52" width="1262" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-3" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Monitor &amp;amp; Audit Platform" vertex="1">
+          <mxGeometry height="50" width="118.08968926553672" x="22.212316384180788" y="1359" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-4" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Monitor &amp;amp; Audit Platform" vertex="1">
+          <mxGeometry height="50" width="115.86" x="54.52" y="1284" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-5" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Provision Business Possesion" vertex="1">
+          <mxGeometry height="50" width="115.86158192090396" x="195.06615819209037" y="1286" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-6" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Provision Partner Account" vertex="1">
+          <mxGeometry height="46" width="115.86158192090396" x="318.0026553672317" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-7" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Partner Management" vertex="1">
+          <mxGeometry height="50" width="118" x="22.21" y="1421" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-8" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Subdomain Management" vertex="1">
+          <mxGeometry height="52" width="115.86" x="26.82" y="1483" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-9" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Disable&lt;br&gt;Sub-domain" vertex="1">
+          <mxGeometry height="50" width="89.12429378531074" x="35.73474576271187" y="1560" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-10" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-9" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-8" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="482.6080508474576" y="1851" as="sourcePoint" />
+            <mxPoint x="378.33262711864404" y="1810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-11" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Edit &lt;br&gt;Sub-domain" vertex="1">
+          <mxGeometry height="50" width="89.12429378531074" x="161.5036723163842" y="1484" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-12" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-11" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-8" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="463.2890493184875" y="1580" as="sourcePoint" />
+            <mxPoint x="289.2083333333333" y="1727" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-13" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Configurate&lt;br&gt;Sub-domain" vertex="1">
+          <mxGeometry height="50" width="86.45056497175142" x="164.18146892655366" y="1558" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-14" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-13" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-8" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="442.79046174786606" y="1520" as="sourcePoint" />
+            <mxPoint x="512.0190677966102" y="2300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-15" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Config Partner Sub-domain" vertex="1">
+          <mxGeometry height="52" width="118.09" x="359.15999999999997" y="1558" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-16" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-15" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-13" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="302.1313559322034" y="1660" as="sourcePoint" />
+            <mxPoint x="241.52683615819208" y="1678" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-17" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Activate Partner Account" vertex="1">
+          <mxGeometry height="50" width="117.07232704402514" x="359.1627044025157" y="1370" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-18" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-17" style="edgeStyle=none;html=1;endSize=9;endArrow=block;endFill=0;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="APt-mv6-PyeVjI2f-vim-7" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="464.3207547169811" y="1308" as="sourcePoint" />
+            <mxPoint x="409.2570754716981" y="1344" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-19" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Ban Partner Account" vertex="1">
+          <mxGeometry height="50" width="117.07232704402514" x="359.1612578616352" y="1430" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-20" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-19" style="edgeStyle=none;html=1;endSize=9;endArrow=block;endFill=0;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="APt-mv6-PyeVjI2f-vim-7" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="487.63600628930817" y="1424.5699999999997" as="sourcePoint" />
+            <mxPoint x="432.0762578616352" y="1446" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-21" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="View partner subcription" vertex="1">
+          <mxGeometry height="50" width="117.07232704402514" x="363.1112578616352" y="1496" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-22" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-21" style="edgeStyle=none;html=1;endSize=9;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-7" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="859.687893081761" y="1416" as="sourcePoint" />
+            <mxPoint x="414.21776729559747" y="1467" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-23" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Request&lt;br&gt;&amp;nbsp;Sub-domain Change" vertex="1">
+          <mxGeometry height="50" width="115" x="754" y="752" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-24" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Business Information Update" vertex="1">
+          <mxGeometry height="50" width="115" x="851.5" y="676" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-25" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-23" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-24">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="988" y="770" as="sourcePoint" />
+            <mxPoint x="1138" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-26" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="&lt;div&gt;Create Organization&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="115" x="851.5" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-27" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Manage Member&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="108" x="880" y="548" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-28" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Manage Vouchers" vertex="1">
+          <mxGeometry height="50" width="108" x="931.5" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-29" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Manage Customers&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="108" x="1031.5" y="452" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-30" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Manage Campaign" vertex="1">
+          <mxGeometry height="50" width="108" x="1141.5" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-31" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Organaziation Management" vertex="1">
+          <mxGeometry height="60" width="130" x="1086" y="574" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-32" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-24" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-33" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-31" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;startArrow=block;startFill=0;endSize=1;startSize=11;" target="APt-mv6-PyeVjI2f-vim-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-34" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-30" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-35" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-28" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-31">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1020.75" y="748" as="sourcePoint" />
+            <mxPoint x="1100.75" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-36" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-27" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-31">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965.3121994485646" y="581.5550561029345" as="sourcePoint" />
+            <mxPoint x="942.5" y="532" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-37" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-26" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endSize=10;" target="APt-mv6-PyeVjI2f-vim-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-38" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="&lt;div&gt;Generate/View Report&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="108" x="1086.5" y="654" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-39" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Send sales notification" vertex="1">
+          <mxGeometry height="50" width="108" x="1086.5" y="724" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-40" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;strokeColor=default;fillColor=default;" value="Expired Rewards Processing" vertex="1">
+          <mxGeometry height="50" width="120" x="1025.5" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-41" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Remove Expired Vouchers" vertex="1">
+          <mxGeometry height="50" width="109" x="951.5" y="1038" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-42" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-41" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-40">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="676" y="1079" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-43" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Remove Expired Points" vertex="1">
+          <mxGeometry height="50" width="106" x="1110" y="1038" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-44" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-43" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-40">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="892" y="1056" as="sourcePoint" />
+            <mxPoint x="676" y="1013" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-45" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Choose Billing Plan" vertex="1">
+          <mxGeometry height="50" width="126" x="748.5" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-46" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="View Billing History" vertex="1">
+          <mxGeometry height="50" width="126" x="748.5" y="372" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-47" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Update Payment Method" vertex="1">
+          <mxGeometry height="56" width="128" x="741" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-48" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="&lt;span style=&quot;color: rgb(31, 31, 31); font-family: Arial, sans-serif; white-space: pre-wrap;&quot;&gt;&lt;font&gt;Mock Transaction Suite&lt;/font&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="118" x="661.5" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-49" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="&lt;span style=&quot;color: rgb(31, 31, 31); font-family: Arial, sans-serif; white-space: pre-wrap;&quot;&gt;&lt;font&gt;Isolated Testing&lt;/font&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="118" x="661.5" y="77" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-50" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="&lt;span style=&quot;background-color: transparent; color: rgb(31, 31, 31); font-family: Arial, sans-serif; white-space: pre-wrap;&quot;&gt;&lt;font&gt; Sandbox Testing&lt;/font&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="56" width="130" x="831.5" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-51" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-48" style="edgeStyle=none;html=1;endSize=10;endArrow=block;endFill=0;rounded=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-50" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="926.5" y="377" as="sourcePoint" />
+            <mxPoint x="840.5" y="377" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-52" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-49" style="edgeStyle=none;html=1;endSize=10;endArrow=block;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-50" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="906.5" y="337" as="sourcePoint" />
+            <mxPoint x="921.5" y="287" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-53" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Configure Scopes" vertex="1">
+          <mxGeometry height="54" width="128" x="832.5" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-54" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Manage API Keys &amp;amp; Secret Tokens" vertex="1">
+          <mxGeometry height="60" width="132.5" x="831.5" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-55" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="View API / SDK Real-time Logs" vertex="1">
+          <mxGeometry height="54" width="120" x="981.5" y="77" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-56" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Register Webhook Endpoints" vertex="1">
+          <mxGeometry height="50" width="115" x="1121.5" y="77" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-57" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Technical Management" vertex="1">
+          <mxGeometry height="60" width="138" x="1056.5" y="208" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-58" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-56" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-59" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-54" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-60" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-53" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="922.5" y="212" as="sourcePoint" />
+            <mxPoint x="1005.5" y="212" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-61" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-50" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1122.5" y="232" as="sourcePoint" />
+            <mxPoint x="1157.5" y="272" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-62" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-55" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1152.5" y="212" as="sourcePoint" />
+            <mxPoint x="1191.5" y="313" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-63" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;resizable=1;fillColor=default;" value="Manage Billing Plan" vertex="1">
+          <mxGeometry height="60" width="144" x="970.5" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-64" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-63" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=8;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-65" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-46" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-66" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-47" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-63">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1033.5" y="342" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-67" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-45" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=10;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;" target="APt-mv6-PyeVjI2f-vim-63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-68" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="&lt;font&gt;View Sub-domain Websites&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="47" y="62" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-69" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Account Registration" vertex="1">
+          <mxGeometry height="50" width="120" x="47" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-70" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Register as a Partner" vertex="1">
+          <mxGeometry height="50" width="120" x="201.5" y="62" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-71" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-70" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endSize=10;" target="APt-mv6-PyeVjI2f-vim-69">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="172.28470968949478" y="-84.74088306678027" as="sourcePoint" />
+            <mxPoint x="87" y="-118" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-72" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="&lt;span style=&quot;text-decoration-line: inherit; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Register as&amp;nbsp;&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;text-decoration-line: inherit; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;an End-user&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="201.5" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-73" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-72" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;strokeColor=default;align=center;verticalAlign=middle;fontColor=default;labelBackgroundColor=default;endSize=10;" target="APt-mv6-PyeVjI2f-vim-69">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="180.92900730977453" y="-37.9777805668939" as="sourcePoint" />
+            <mxPoint x="87" y="-90" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-74" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Log-in via Google" vertex="1">
+          <mxGeometry height="50" width="120" x="221.5" y="213" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-75" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Log-in via Email" vertex="1">
+          <mxGeometry height="50" width="120" x="221.5" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-76" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Log-in via Phone" vertex="1">
+          <mxGeometry height="50" width="120" x="221.5" y="347" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-77" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Change Password" vertex="1">
+          <mxGeometry height="50" width="120" x="221.5" y="414" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-78" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Forget Password" vertex="1">
+          <mxGeometry height="50" width="120" x="221.5" y="481" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-79" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Verify with OTP" vertex="1">
+          <mxGeometry height="50" width="120" x="435.5" y="347" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-80" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-76" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-79">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="537" y="272" as="sourcePoint" />
+            <mxPoint x="427" y="272" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-81" connectable="0" parent="APt-mv6-PyeVjI2f-vim-80" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;include&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="10" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-82" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-75" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-79">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="397" y="282" as="sourcePoint" />
+            <mxPoint x="507" y="282" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-83" connectable="0" parent="APt-mv6-PyeVjI2f-vim-82" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;include&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="13" y="3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-84" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-77" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-79">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="355" y="414" as="sourcePoint" />
+            <mxPoint x="449" y="386" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-85" connectable="0" parent="APt-mv6-PyeVjI2f-vim-84" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;include&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="17" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-86" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-78" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-79">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="371" y="434" as="sourcePoint" />
+            <mxPoint x="447" y="422" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-87" connectable="0" parent="APt-mv6-PyeVjI2f-vim-86" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;include&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="19" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-88" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Password Reset" vertex="1">
+          <mxGeometry height="50" width="120" x="47" y="372" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-89" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-78" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endSize=10;" target="APt-mv6-PyeVjI2f-vim-88">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="351" y="459" as="sourcePoint" />
+            <mxPoint x="147" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-90" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-77" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-88">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-91" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Sub-domain&lt;br&gt;Authentication" vertex="1">
+          <mxGeometry height="50" width="120" x="47" y="296" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-92" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-76" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endSize=10;" target="APt-mv6-PyeVjI2f-vim-91">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="187" y="301" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-93" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-75" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endSize=10;" target="APt-mv6-PyeVjI2f-vim-91">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="332" as="sourcePoint" />
+            <mxPoint x="187" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-94" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-74" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endSize=10;" target="APt-mv6-PyeVjI2f-vim-91">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="347" y="352" as="sourcePoint" />
+            <mxPoint x="187" y="318" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-95" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Log-out" vertex="1">
+          <mxGeometry height="50" width="120" x="47" y="448" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-96" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Scan QR-Code" vertex="1">
+          <mxGeometry height="50" width="90" x="111.5" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-97" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Input Code" vertex="1">
+          <mxGeometry height="50" width="90" x="220.93" y="568" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-98" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Scan QR-Code" vertex="1">
+          <mxGeometry height="50" width="90" x="231.5" y="635" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-99" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Input Code" vertex="1">
+          <mxGeometry height="50" width="90" x="236.5" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-100" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Use Point" vertex="1">
+          <mxGeometry height="50" width="90" x="216.5" y="778" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-101" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Redeem Vouchers" vertex="1">
+          <mxGeometry height="50" width="120" x="51.690000000000055" y="692" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-102" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-98" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-101">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="141" y="789" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-103" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-99" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-101">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="345" y="825" as="sourcePoint" />
+            <mxPoint x="141" y="811" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-104" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-100" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-101">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="263" y="766" as="sourcePoint" />
+            <mxPoint x="226" y="764" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-105" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;" value="Earn Points" vertex="1">
+          <mxGeometry height="50" width="120" x="47" y="626" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-106" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-96" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-105">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-107" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-97" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-105">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="381" y="676" as="sourcePoint" />
+            <mxPoint x="271" y="709" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-108" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Apply Voucher" vertex="1">
+          <mxGeometry height="50" width="120" x="63" y="758" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-109" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="View transaction history" vertex="1">
+          <mxGeometry height="50" width="122.5" x="63" y="824" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-110" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="View&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Points &amp;amp; Vouchers&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="63" y="896" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-111" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Update profile" vertex="1">
+          <mxGeometry height="50" width="120" x="21.26" y="964" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-112" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;strokeColor=default;fillColor=default;" value="Via Push Notification" vertex="1">
+          <mxGeometry height="50" width="120" x="361.1399999999999" y="734" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-113" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;strokeColor=default;fillColor=default;" value="Via Email" vertex="1">
+          <mxGeometry height="50" width="120" x="481.1399999999999" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-114" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;strokeColor=default;fillColor=default;" value="Expiration Warning" vertex="1">
+          <mxGeometry height="50" width="120" x="361.1399999999999" y="828" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-115" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-100" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-114">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="365" y="920" as="sourcePoint" />
+            <mxPoint x="286" y="920" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-116" connectable="0" parent="APt-mv6-PyeVjI2f-vim-115" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪&lt;i&gt; extend&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="11" y="4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-117" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-109" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-114">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="342" y="872" as="sourcePoint" />
+            <mxPoint x="416" y="902" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-118" connectable="0" parent="APt-mv6-PyeVjI2f-vim-117" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;extend&amp;nbsp;&lt;/i&gt;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="21" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-119" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-113" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-114">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="466" y="952" as="sourcePoint" />
+            <mxPoint x="508" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-120" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-112" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-114">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="582" y="846" as="sourcePoint" />
+            <mxPoint x="530" y="874" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-121" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;strokeColor=default;fillColor=default;" value="Display expiration warning" vertex="1">
+          <mxGeometry height="50" width="120" x="256.67999999999984" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-122" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-121" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-110">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="345" y="920" as="sourcePoint" />
+            <mxPoint x="254" y="956" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-123" connectable="0" parent="APt-mv6-PyeVjI2f-vim-122" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪&lt;i&gt; extend&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-124" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Verify point/voucher&#39;s integrity" vertex="1">
+          <mxGeometry height="50" width="120" x="256.67999999999984" y="946" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-125" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-124" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-110">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="482" y="816" as="sourcePoint" />
+            <mxPoint x="618" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-126" connectable="0" parent="APt-mv6-PyeVjI2f-vim-125" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪&lt;i&gt; extend&amp;nbsp;&lt;/i&gt;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="-12" y="-4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-127" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Administrate Platform API/SDK&amp;nbsp;" vertex="1">
+          <mxGeometry height="50" width="120" x="53.49999999999987" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-128" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="&lt;br&gt;Configure Credit Engine" vertex="1">
+          <mxGeometry height="50" width="118" x="54.519999999999996" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-129" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Administrate Platform Reward" vertex="1">
+          <mxGeometry height="50" width="120" x="53.51999999999998" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-130" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Review Partner Change Request" vertex="1">
+          <mxGeometry height="50" width="130" x="191.5" y="1148" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-131" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-26" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;edgeStyle=orthogonalEdgeStyle;" target="APt-mv6-PyeVjI2f-vim-130">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="741.5" y="635" />
+              <mxPoint x="741.5" y="1176" />
+            </Array>
+            <mxPoint x="837" y="684" as="sourcePoint" />
+            <mxPoint x="770" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-132" connectable="0" parent="APt-mv6-PyeVjI2f-vim-131" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;&amp;nbsp;≪ &lt;/span&gt;&lt;i style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;include&lt;/i&gt;&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt; ≫&amp;nbsp;&lt;/span&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.3412" y="-1" as="geometry">
+            <mxPoint x="-6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-133" connectable="0" parent="APt-mv6-PyeVjI2f-vim-131" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;&amp;nbsp;≪ &lt;/span&gt;&lt;i style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;include&lt;/i&gt;&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt; ≫&amp;nbsp;&lt;/span&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.8682" as="geometry">
+            <mxPoint x="21" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-134" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="&amp;nbsp;Approve Request" vertex="1">
+          <mxGeometry height="46" width="109" x="202" y="1072" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-135" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-134" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-130" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="240.75" y="1636" as="sourcePoint" />
+            <mxPoint x="190.75" y="1645" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-136" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Reject Request" vertex="1">
+          <mxGeometry height="46" width="109" x="326.5" y="1072" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-137" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-136" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-130" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="321.75" y="1530" as="sourcePoint" />
+            <mxPoint x="240.75" y="1496" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-138" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="Send SMS / OTP" vertex="1">
+          <mxGeometry height="50" width="120" x="591.5" y="431" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-139" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-79" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-138">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="517" y="462" as="sourcePoint" />
+            <mxPoint x="657" y="376" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-140" connectable="0" parent="APt-mv6-PyeVjI2f-vim-139" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;include&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-141" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=10;fontColor=default;resizable=1;fillColor=default;" value="Set Org. &lt;br&gt;Sub-domain" vertex="1">
+          <mxGeometry height="50" width="115" x="717.5" y="524" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-142" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-26" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;" target="APt-mv6-PyeVjI2f-vim-141">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="913" y="778" as="sourcePoint" />
+            <mxPoint x="987" y="808" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-143" connectable="0" parent="APt-mv6-PyeVjI2f-vim-142" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=9;" value="&amp;nbsp;≪ &lt;i&gt;include&lt;/i&gt;&amp;nbsp;≫&amp;nbsp;" vertex="1">
+          <mxGeometry relative="1" x="-0.3309" as="geometry">
+            <mxPoint x="-10" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-144" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Approve Partner Registration" vertex="1">
+          <mxGeometry height="50" width="130" x="191.5" y="1212" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-145" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-6" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" target="APt-mv6-PyeVjI2f-vim-144" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="458" y="1568" as="sourcePoint" />
+            <mxPoint x="483" y="1598" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-146" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-5" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" target="APt-mv6-PyeVjI2f-vim-144" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="496" y="1694" as="sourcePoint" />
+            <mxPoint x="528" y="1668" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-147" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-23" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=open;endFill=0;edgeStyle=orthogonalEdgeStyle;" target="APt-mv6-PyeVjI2f-vim-144">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="811.5" y="1237" />
+            </Array>
+            <mxPoint x="1389" y="862" as="sourcePoint" />
+            <mxPoint x="998" y="1736" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-148" connectable="0" parent="APt-mv6-PyeVjI2f-vim-147" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;&amp;nbsp;≪ &lt;/span&gt;&lt;i style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;include&lt;/i&gt;&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt; ≫&amp;nbsp;&lt;/span&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.736" as="geometry">
+            <mxPoint x="-1" y="-83" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-149" connectable="0" parent="APt-mv6-PyeVjI2f-vim-147" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;&amp;nbsp;≪ &lt;/span&gt;&lt;i style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt;include&lt;/i&gt;&lt;span style=&quot;font-family: &amp;quot;Space Grotesk&amp;quot;; font-size: 9px;&quot;&gt; ≫&amp;nbsp;&lt;/span&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.3253" as="geometry">
+            <mxPoint x="41" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-150" parent="APt-mv6-PyeVjI2f-vim-1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;fontStyle=0;fillColor=default;" value="Trace Sui Blockchain Transactions" vertex="1">
+          <mxGeometry height="48" width="120" x="196.5" y="1348" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-151" edge="1" parent="APt-mv6-PyeVjI2f-vim-1" source="APt-mv6-PyeVjI2f-vim-150" style="edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;rounded=0;" target="APt-mv6-PyeVjI2f-vim-3" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="361" y="1442" as="sourcePoint" />
+            <mxPoint x="310" y="1764" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-152" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-68" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" target="APt-mv6-PyeVjI2f-vim-154">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="515.5" y="572.7352941176468" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-153" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="100" width="50" x="475.5" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-154" parent="APt-mv6-PyeVjI2f-vim-153" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="100" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-155" parent="APt-mv6-PyeVjI2f-vim-153" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Guest" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-156" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="116" width="50" x="475.5" y="736" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-157" parent="APt-mv6-PyeVjI2f-vim-156" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="108" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-158" parent="APt-mv6-PyeVjI2f-vim-156" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Registered&lt;br&gt;User" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-159" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-157" style="edgeStyle=none;html=1;endSize=10;endArrow=block;endFill=0;rounded=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" target="APt-mv6-PyeVjI2f-vim-154" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="408.5" y="662" as="sourcePoint" />
+            <mxPoint x="340.5" y="662" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-160" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-69" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=none;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-154">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-161" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-91" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=none;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-157">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-162" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-88" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-157">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-163" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-95" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-157">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545.5" y="860" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-164" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-138" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=none;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-166">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="1278" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-165" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="100" width="50" x="1876.5" y="1246" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-166" parent="APt-mv6-PyeVjI2f-vim-165" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="100" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-167" parent="APt-mv6-PyeVjI2f-vim-165" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="≪ System&amp;nbsp;≫" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-168" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="100" width="50" x="476.5" y="1098" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-169" parent="APt-mv6-PyeVjI2f-vim-168" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="100" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-170" parent="APt-mv6-PyeVjI2f-vim-168" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="End-user&lt;div&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;(Authenticated)&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-171" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-105" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-169">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-172" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-101" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-169">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-173" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-110" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-169">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-174" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-109" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-169">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="731.5" y="1078" as="sourcePoint" />
+            <mxPoint x="632.5" y="1097" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-175" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-169" style="edgeStyle=none;html=1;endSize=10;endArrow=block;endFill=0;rounded=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" target="APt-mv6-PyeVjI2f-vim-157" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="672.5" y="1082" as="sourcePoint" />
+            <mxPoint x="672.5" y="918" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-176" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-108" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-169">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-177" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-114" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=none;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-166">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1210" y="1243.03" />
+              <mxPoint x="1210" y="1288" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-178" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=none;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-166">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1656.5299999999997" y="1298" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-179" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="108" width="50" x="742.5" y="1096" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-180" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="116" width="50" x="476.5" y="1508" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-181" parent="APt-mv6-PyeVjI2f-vim-180" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="100" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-182" parent="APt-mv6-PyeVjI2f-vim-180" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="Admin&lt;br&gt;&lt;span style=&quot;font-size: 8px;&quot;&gt;(Authenticated)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-183" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-111" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-169">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-184" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-191" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-57">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1882.5" y="626.1505699062889" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-185" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-63" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-194">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1736.5" y="740" />
+              <mxPoint x="1910.5" y="740" />
+              <mxPoint x="1908.5" y="898" />
+            </Array>
+            <mxPoint x="1892.5" y="976.1962616822434" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-186" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-194" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-38">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1892.5" y="1003.0703481225196" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-187" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-194" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-31">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1892.5" y="994" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-188" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;" target="APt-mv6-PyeVjI2f-vim-166">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1709.0299999999997" y="1268" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-189" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-194" style="endArrow=none;html=1;rounded=0;" target="APt-mv6-PyeVjI2f-vim-39" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1892.5" y="1010.3533993502087" as="sourcePoint" />
+            <mxPoint x="1501" y="1182" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-190" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="100" width="50" x="1882.5" y="578" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-191" parent="APt-mv6-PyeVjI2f-vim-190" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="100" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-192" parent="APt-mv6-PyeVjI2f-vim-190" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="&lt;div&gt;Partnered Business&amp;nbsp;&lt;/div&gt;&lt;div&gt;Developer&lt;br&gt;&lt;span style=&quot;font-size: 8px;&quot;&gt;(Authenticated)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-193" connectable="0" parent="1" style="group;strokeWidth=0;" value="" vertex="1">
+          <mxGeometry height="100" width="50" x="1882.5" y="944" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-194" parent="APt-mv6-PyeVjI2f-vim-193" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="100" width="50" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-195" parent="APt-mv6-PyeVjI2f-vim-193" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" value="&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;Partnered Business&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;Owner&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;font-size: 8px;&quot;&gt;(Authenticated)&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-196" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-144" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-197" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-128" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520.5" y="1588" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-198" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-129" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="546.5" y="1933" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-199" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-127" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="546.5" y="1959" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-200" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-4" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="519.5" y="1706" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-201" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="818.5" y="2218" as="sourcePoint" />
+            <mxPoint x="564.5" y="1984" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-202" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-8" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="501.5" y="1900" />
+            </Array>
+            <mxPoint x="476.5" y="1638" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-203" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-7" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="501.5" y="1836" />
+            </Array>
+            <mxPoint x="704.5" y="1833" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-204" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-130" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="APt-mv6-PyeVjI2f-vim-181" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="756.5" y="1562" as="sourcePoint" />
+            <mxPoint x="526.5" y="1558" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-205" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-191" style="edgeStyle=orthogonalEdgeStyle;html=1;endSize=10;endArrow=block;endFill=0;rounded=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;" target="APt-mv6-PyeVjI2f-vim-157" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1970" y="628" />
+              <mxPoint x="1970" y="2140" />
+              <mxPoint x="400" y="2140" />
+              <mxPoint x="400" y="770" />
+            </Array>
+            <mxPoint x="1932.5" y="639.9988235294118" as="sourcePoint" />
+            <mxPoint x="475.5" y="791.9988235294122" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-206" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-181" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-157">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420.0300000000002" y="1558" />
+              <mxPoint x="420.0300000000002" y="790" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="APt-mv6-PyeVjI2f-vim-207" edge="1" parent="1" source="APt-mv6-PyeVjI2f-vim-194" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Space Grotesk;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DSpace%2BGrotesk;fontSize=11;fontColor=default;labelBackgroundColor=default;resizable=1;endArrow=block;endFill=0;endSize=10;" target="APt-mv6-PyeVjI2f-vim-157">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1960" y="994" />
+              <mxPoint x="1960" y="2130" />
+              <mxPoint x="410" y="2130" />
+              <mxPoint x="410" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

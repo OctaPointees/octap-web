@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Caveat:ital,wght@1,600;1,700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.48.0/dist/tabler-icons.min.css');
+
+@import 'tailwindcss';
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.font-accent {
+  font-family: 'Caveat', cursive;
+}
+
+.font-mono {
+  font-family: 'Space Mono', monospace;
+}
+
+/* Dark (default) / light theme tokens. The toggle only flips the variables below — the Mystic
+   Tech accent palette (pink/purple/cyan) stays identical in both modes; only background, ink
+   and glass/border tones invert. */
+[data-name='landing page root'] {
+  --bg: #07040f;
+  --ink: #f5eefc;
+  --grid-line: rgba(255, 255, 255, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-spotlight: rgba(255, 255, 255, 0.12);
+  --card-bg: #120a22;
+  --card-border: rgba(255, 255, 255, 0.12);
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+[data-name='landing page root'][data-theme='light'] {
+  --bg: #fdf7ff;
+  --ink: #1a1025;
+  --grid-line: rgba(26, 16, 45, 0.45);
+  --glass-bg: rgba(26, 16, 45, 0.035);
+  --glass-border: rgba(26, 16, 45, 0.09);
+  --glass-spotlight: rgba(26, 16, 45, 0.08);
+  --card-bg: #fffafe;
+  --card-border: rgba(26, 16, 45, 0.12);
+}
+/* Blanket text/border re-theming: these Tailwind arbitrary-value utilities repeat across ~150
+   elements, so flipping them for light mode here avoids touching every element's markup. */
+[data-theme='light'] [class*='text-white'] {
+  color: #1a1025;
+}
+[data-theme='light'] [class*='text-[#f5eefc]'] {
+  color: #1a1025;
+}
+[data-theme='light'] [class*='text-[#e4def2]'] {
+  color: #241733;
+}
+[data-theme='light'] [class*='text-[#c8bcdb]'] {
+  color: #5c5270;
+}
+[data-theme='light'] [class*='text-[#8a7fa3]'] {
+  color: #79708f;
+}
+[data-theme='light'] [class*='border-white/10'] {
+  border-color: rgba(26, 16, 45, 0.1);
+}
+[data-theme='light'] [class*='border-white/15'] {
+  border-color: rgba(26, 16, 45, 0.14);
+}
+[data-theme='light'] [class*='border-white/20'] {
+  border-color: rgba(26, 16, 45, 0.18);
+}
+[data-theme='light'] [class*='border-white/40'] {
+  border-color: rgba(26, 16, 45, 0.32);
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+}
+@layer components {
+  :where(.glass) {
+    position: relative;
+    overflow: hidden;
+  }
+}
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), var(--glass-spotlight), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.glass:hover::before {
+  opacity: 1;
+}
+.glow-pink {
+  box-shadow: 0 0 60px rgba(255, 95, 196, 0.25);
+}
+[data-tilt] {
+  will-change: transform;
+}
+[data-parallax] {
+  will-change: transform;
+}
+[data-gsap='page-cursor-glow'] {
+  will-change: transform, opacity;
+}
+[data-magnetic] {
+  will-change: transform;
+}
+[data-magnetic] > * {
+  pointer-events: none;
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(20px, -24px);
+  }
+}
+.drift-slow {
+  animation: drift 14s ease-in-out infinite;
+}
+.drift-slower {
+  animation: drift 20s ease-in-out infinite reverse;
+}
+.flip-stage {
+  position: relative;
+  width: 100%;
+  height: 380px;
+}
+.flip-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 230px;
+  height: 330px;
+  margin-top: -165px;
+  margin-left: -115px;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+  will-change: transform;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease;
+}
+.flip-back {
+  transform: rotateY(0deg) translateZ(0);
+}
+.flip-front {
+  transform: rotateY(180deg) translateZ(0);
+}
+/* The back face's icon+number used to be flex-centered as one stacked group, which centers the
+   PAIR correctly on average but leaves the number (the visually dominant element) sitting in the
+   lower half, overflowing the diamond badge's point instead of sitting on its crosshair. Pin each
+   piece to the diamond's actual center (50%/50% of the face, same math the SVG frame uses) instead. */
+.flip-back i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% - 44px));
+  margin: 0;
+}
+.flip-back span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.card-frame {
+  position: absolute;
+  inset: 10px;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  pointer-events: none;
+}
