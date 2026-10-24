@@ -7,4 +7,3 @@ export const DEV_TABS = [
   ['webhooks', 'Webhooks', 'ti-webhook'],
   ['mcp', 'MCP', 'ti-robot'],
 ] as const;
-

@@ -11,5 +11,9 @@ export default function MockPage() {
     return () => clearTimeout(t);
   }, [running]);
 
-  return running ? <MockTransactionsRunning /> : <MockTransactions onRun={() => setRunning(true)} />;
+  return running ? (
+    <MockTransactionsRunning />
+  ) : (
+    <MockTransactions onRun={() => setRunning(true)} />
+  );
 }
