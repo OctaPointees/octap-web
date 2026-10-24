@@ -1,3 +1,5 @@
+import { BUSINESS_URL } from '../config';
+
 export default function SiteHeader() {
   return (
     <>
@@ -18,8 +20,8 @@ export default function SiteHeader() {
       </nav>
       <div className="flex items-center gap-3">
         <button className="hidden sm:flex items-center gap-1 text-xs font-mono font-semibold text-white border border-white/30 rounded-md px-3 py-1.5"><i className="ri-global-line text-sm"></i> EN / VI</button>
-        <a href="#" className="text-sm font-bold hidden sm:block text-white">Sign in</a>
-        <a href="#" className="btn-pill text-sm px-5 py-2.5 bg-white" style={{"color": "var(--purple)"}}>Get started</a>
+        <a href={BUSINESS_URL} className="text-sm font-bold hidden sm:block text-white">Sign in</a>
+        <a href={BUSINESS_URL} className="btn-pill text-sm px-5 py-2.5 bg-white" style={{"color": "var(--purple)"}}>Get started</a>
       </div>
     </div>
   </header>
