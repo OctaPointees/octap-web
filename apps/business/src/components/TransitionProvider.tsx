@@ -17,6 +17,10 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   const busy = useRef(false);
 
   const enterDeveloper = useCallback(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      navigate('/developers/overview');
+      return;
+    }
     const wrap = videoWrap.current;
     const v = video.current;
     if (!wrap || !v || busy.current) return;
@@ -47,12 +51,17 @@ export default function TransitionProvider({ children }: { children: ReactNode }
 
   const exitDeveloper = useCallback(
     (e?: React.MouseEvent) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        navigate('/dashboard');
+        return;
+      }
       const w = wipe.current;
       const m = mark.current;
       if (!w || !m || busy.current) return;
       busy.current = true;
 
-      const rect = e?.currentTarget instanceof HTMLElement ? e.currentTarget.getBoundingClientRect() : null;
+      const rect =
+        e?.currentTarget instanceof HTMLElement ? e.currentTarget.getBoundingClientRect() : null;
       const x = rect ? rect.left + rect.width / 2 : 80;
       const y = rect ? rect.top + rect.height / 2 : 60;
       const cx = window.innerWidth / 2;
@@ -75,7 +84,12 @@ export default function TransitionProvider({ children }: { children: ReactNode }
         .fromTo(
           w,
           { clipPath: `circle(${R}px at ${cx}px ${cy}px)` },
-          { clipPath: `circle(0px at ${cx}px ${cy}px)`, duration: 0.8, ease: 'power3.inOut', immediateRender: false },
+          {
+            clipPath: `circle(0px at ${cx}px ${cy}px)`,
+            duration: 0.8,
+            ease: 'power3.inOut',
+            immediateRender: false,
+          },
           '<0.05',
         )
         .set(w, { display: 'none' });
@@ -88,16 +102,42 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   return (
     <TransitionContext.Provider value={value}>
       {children}
-      <div ref={videoWrap} className="fixed inset-0 pointer-events-none" style={{ display: 'none', zIndex: 1000, background: '#04030c' }} aria-hidden="true">
-        <video ref={video} src="/videos/octap_to_dev_short.mp4" muted playsInline preload="auto" className="w-full h-full object-cover" />
+      <div
+        ref={videoWrap}
+        className="fixed inset-0 pointer-events-none"
+        style={{ display: 'none', zIndex: 1000, background: '#04030c' }}
+        aria-hidden="true"
+      >
+        <video
+          ref={video}
+          src="/videos/octap_to_dev_short.mp4"
+          muted
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover"
+        />
       </div>
       <div
         ref={wipe}
         className="fixed inset-0 items-center justify-center pointer-events-none"
-        style={{ display: 'none', zIndex: 1001, background: 'linear-gradient(155deg,#D6177E 0%,#C200AB 62%,#B4106A 100%)' }}
+        style={{
+          display: 'none',
+          zIndex: 1001,
+          background: 'linear-gradient(155deg,#D6177E 0%,#C200AB 62%,#B4106A 100%)',
+        }}
         aria-hidden="true"
       >
-        <div ref={mark} style={{ width: 120, height: 120, background: '#fff', WebkitMask: "url('/icons/logo_light.png') center/contain no-repeat", mask: "url('/icons/logo_light.png') center/contain no-repeat", filter: 'drop-shadow(0 0 24px rgba(255,255,255,.55))' }} />
+        <div
+          ref={mark}
+          style={{
+            width: 120,
+            height: 120,
+            background: '#fff',
+            WebkitMask: "url('/icons/logo_light.png') center/contain no-repeat",
+            mask: "url('/icons/logo_light.png') center/contain no-repeat",
+            filter: 'drop-shadow(0 0 24px rgba(255,255,255,.55))',
+          }}
+        />
       </div>
     </TransitionContext.Provider>
   );
