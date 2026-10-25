@@ -22,28 +22,36 @@ import SiteFooter from './sections/SiteFooter';
 
 export default function App() {
   return (
-    <div className="font-body antialiased relative bg-[#FAF8FC] text-(--ink)" style={{ overflowX: 'clip' }}>
+    <div
+      className="font-body antialiased relative bg-ground text-ink"
+      style={{ overflowX: 'clip' }}
+    >
       <div className="relative" style={{ zIndex: 1 }}>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <SiteHeader />
-        <Hero />
-        <WaveDivider />
-        <PromoStrip />
-        <WhatIsOctap />
-        <HowItWorks />
-        <PartnerLogoWall />
-        <Features />
-        <LaunchOffer />
-        <GoodToKnow />
-        <Testimonials />
-        <UseCases />
-        <StatsBand />
-        <Developers />
-        <Compare />
-        <Press />
-        <LeadGen />
-        <SdkCta />
-        <Faq />
-        <FinalCta />
+        <main id="main-content" tabIndex={-1}>
+          <Hero />
+          <WaveDivider />
+          <PromoStrip />
+          <WhatIsOctap />
+          <HowItWorks />
+          <PartnerLogoWall />
+          <Features />
+          <LaunchOffer />
+          <GoodToKnow />
+          <Testimonials />
+          <UseCases />
+          <StatsBand />
+          <Developers />
+          <Compare />
+          <Press />
+          <LeadGen />
+          <SdkCta />
+          <Faq />
+          <FinalCta />
+        </main>
         <SiteFooter />
       </div>
     </div>
