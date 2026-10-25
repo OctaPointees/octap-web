@@ -1,0 +1,15 @@
+@import '@octap/shared/styles/brand.css';
+
+@theme inline {
+  --color-tint-deep: var(--tint-deep);
+  --color-tint: var(--tint);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-ground: var(--ground);
+  --color-ink: var(--ink);
+  --color-amber: var(--amber);
+  --color-bloom: var(--bloom);
+  --color-magenta: var(--magenta);
+  --color-pink: var(--pink);
+  --color-purple: var(--purple);
+}

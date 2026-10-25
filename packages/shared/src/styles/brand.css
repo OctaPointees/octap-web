@@ -1,0 +1,19 @@
+/* Shared foundation for the marketing site and partner portal, aligned with admin. */
+@theme {
+  --font-sans: 'Google Sans', sans-serif;
+  --font-head: 'Google Sans', sans-serif;
+  --font-body: 'Google Sans', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --color-brand: #9f0261;
+  --color-brand-secondary: #002b49;
+  --color-surface: #ffffff;
+  --color-ground: #fafafa;
+  --color-ink: #17171b;
+  --color-muted: #62626d;
+  --color-line: #eaeaea;
+  --color-tint: #faf0f6;
+  --color-tint-deep: #f3dfeb;
+  --radius-field: 0.4rem;
+  --radius-box: 0.7rem;
+  --shadow-panel: 0 0.25rem 1rem -0.75rem rgb(0 0 0 / 0.12);
+}
