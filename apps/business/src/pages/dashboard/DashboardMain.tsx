@@ -3,9 +3,10 @@ type Props = {
   onEnv: (env: 'live' | 'test') => void;
   scrolled: boolean;
   onTx: (index: number) => void;
+  onIssue: () => void;
 };
 
-export default function DashboardMain({ env, onEnv, scrolled, onTx }: Props) {
+export default function DashboardMain({ env, onEnv, scrolled, onTx, onIssue }: Props) {
   return (
     <>
       <div
@@ -108,6 +109,10 @@ export default function DashboardMain({ env, onEnv, scrolled, onTx }: Props) {
             <a
               href="#"
               className="btn-pill text-sm px-5 py-2.5 flex items-center gap-1.5 font-bold"
+              onClick={(event) => {
+                event.preventDefault();
+                onIssue();
+              }}
               style={{ background: '#fff', color: 'var(--purple)' }}
             >
               <i className="ri-store-2-line"></i>Issue points
