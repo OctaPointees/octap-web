@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+@import '../styles/theme.css';
+
+body {
+  margin: 0;
+}
+button:not(:disabled),
+a {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+}
+:focus-visible {
+  outline: 0.15rem solid var(--partner);
+  outline-offset: 0.25rem;
+}

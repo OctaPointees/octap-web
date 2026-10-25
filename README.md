@@ -7,9 +7,12 @@ Source code for the OctaP websites, organised as an npm-workspaces monorepo (Rea
 | Landing page (V4b Magenta Pulse) | `apps/landing` | http://localhost:3000 | Implemented |
 | Business / Partner Dashboard + Developer Console | `apps/business` | http://localhost:4000 | Implemented (prototype, mock data) |
 | Admin Dashboard | `apps/admin` | http://localhost:5000 | Implemented (mock services) |
+| Customer partner portal (Next.js) | `apps/partner-website` | http://localhost:4001 | Coffee rewards demo with live identity, points, and vouchers |
 | Shared styles and utilities | `packages/shared`, `packages/services` | – | Theme tokens only |
 
-Everything runs on mock data. Partner names, quotes, milestones, transactions and API keys are fictional.
+The marketing and dashboard overview prototypes use mock data. The customer partner portal and
+local merchant demo forms connect to Core for identity, points, and vouchers. See the
+[demo walkthrough](docs/DEMO_GUIDE.md) and [partner setup guide](apps/partner-website/README.md).
 
 ## Getting started
 
@@ -23,6 +26,7 @@ Other scripts (run from the repo root):
 | Command | What it does |
 | --- | --- |
 | `npm run dev:landing` / `dev:business` / `dev:admin` | Run a single app |
+| `npm run dev:partner-website` | Run the customer subdomain portal on port 4001 |
 | `npm run build` | Type-check and build every workspace |
 | `npm run lint` | Lint every workspace |
 

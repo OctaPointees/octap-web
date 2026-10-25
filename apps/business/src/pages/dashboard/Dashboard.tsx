@@ -8,6 +8,8 @@ import TransactionDrawer from './TransactionDrawer';
 import { TRANSACTIONS } from './transactions';
 import { useTransition } from '../../components/transitionContext';
 import { clearSession } from '../../auth';
+import IssuePoints from './IssuePoints';
+import RedeemVoucher from './RedeemVoucher';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -18,6 +20,11 @@ export default function Dashboard() {
   const [env, setEnv] = useState<'live' | 'test'>('live');
   const [scrolled, setScrolled] = useState(false);
   const [txIndex, setTxIndex] = useState<number | null>(null);
+  const [issuing, setIssuing] = useState(false);
+  const [redeemingVoucher, setRedeemingVoucher] = useState(false);
+  const openIssue = () => {
+    if (import.meta.env.DEV) setIssuing(true);
+  };
   const fromDev = (location.state as { from?: string } | null)?.from === 'dev';
 
   useEffect(() => {
@@ -48,6 +55,16 @@ export default function Dashboard() {
     <div ref={root} className="theme-light">
       <MobileNavigation title="Business">
         <a href="/dashboard">Dashboard</a>
+        {import.meta.env.DEV && (
+          <button type="button" onClick={openIssue}>
+            Issue demo points
+          </button>
+        )}
+        {import.meta.env.DEV && (
+          <button type="button" onClick={() => setRedeemingVoucher(true)}>
+            Redeem demo voucher
+          </button>
+        )}
         <a href="/developers/overview">Developer console</a>
         <button
           type="button"
@@ -66,6 +83,10 @@ export default function Dashboard() {
         <DashboardSidebar
           collapsed={collapsed}
           onToggle={() => setCollapsed((c) => !c)}
+          onIssue={openIssue}
+          onRedeemVoucher={() => {
+            if (import.meta.env.DEV) setRedeemingVoucher(true);
+          }}
           onDev={(e) => {
             e.preventDefault();
             enterDeveloper(e);
@@ -76,10 +97,20 @@ export default function Dashboard() {
             navigate('/login');
           }}
         />
-        <DashboardMain env={env} onEnv={setEnv} scrolled={scrolled} onTx={setTxIndex} />
+        <DashboardMain
+          env={env}
+          onEnv={setEnv}
+          scrolled={scrolled}
+          onTx={setTxIndex}
+          onIssue={openIssue}
+        />
       </div>
       {txIndex !== null && (
         <TransactionDrawer tx={TRANSACTIONS[txIndex]} onClose={() => setTxIndex(null)} />
+      )}
+      {import.meta.env.DEV && issuing && <IssuePoints onClose={() => setIssuing(false)} />}
+      {import.meta.env.DEV && redeemingVoucher && (
+        <RedeemVoucher onClose={() => setRedeemingVoucher(false)} />
       )}
     </div>
   );

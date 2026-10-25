@@ -6,4 +6,7 @@ import { defineConfig } from 'vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), babel({ presets: [reactCompilerPreset()] }), tailwindcss()],
+  server: {
+    proxy: { '/api/demo': { target: 'http://localhost:4001', changeOrigin: true } },
+  },
 });

@@ -1,11 +1,20 @@
 type Props = {
   collapsed: boolean;
   onToggle: () => void;
+  onIssue: () => void;
+  onRedeemVoucher: () => void;
   onDev: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onLogout: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 
-export default function DashboardSidebar({ collapsed, onToggle, onDev, onLogout }: Props) {
+export default function DashboardSidebar({
+  collapsed,
+  onToggle,
+  onDev,
+  onLogout,
+  onIssue,
+  onRedeemVoucher,
+}: Props) {
   return (
     <>
       <aside
@@ -43,12 +52,28 @@ export default function DashboardSidebar({ collapsed, onToggle, onDev, onLogout 
           </a>
 
           <div className="side-group-label nav-group-label px-3">LOYALTY</div>
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              className="nav-item flex items-center gap-2.5 px-3.5 py-2.5"
+              aria-label="Redeem voucher"
+              data-tooltip="Redeem voucher"
+              onClick={onRedeemVoucher}
+            >
+              <i className="ri-coupon-line shrink-0" />
+              <span className="side-label">Redeem voucher</span>
+            </button>
+          )}
           <div className="nav-divider" aria-hidden="true"></div>
           <a
             href="#"
             className="nav-item flex items-center gap-2.5 px-3.5 py-2.5"
             data-tooltip="Issue points"
             aria-label="Issue points"
+            onClick={(event) => {
+              event.preventDefault();
+              onIssue();
+            }}
           >
             <i className="ri-store-2-line shrink-0"></i>
             <span className="side-label">Issue points</span>
