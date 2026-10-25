@@ -6,7 +6,7 @@ Source code for the OctaP websites, organised as an npm-workspaces monorepo (Rea
 | --- | --- | --- | --- |
 | Landing page (V4b Magenta Pulse) | `apps/landing` | http://localhost:3000 | Implemented |
 | Business / Partner Dashboard + Developer Console | `apps/business` | http://localhost:4000 | Implemented (prototype, mock data) |
-| Admin Dashboard | `apps/admin` | – | Placeholder |
+| Admin Dashboard | `apps/admin` | http://localhost:5000 | Implemented (mock services) |
 | Shared styles and utilities | `packages/shared`, `packages/services` | – | Theme tokens only |
 
 Everything runs on mock data. Partner names, quotes, milestones, transactions and API keys are fictional.
@@ -98,15 +98,15 @@ apps/
     src/pages/dashboard   Light dashboard and transaction drawer
     src/pages/developers  Dark Developer Console (7 routes)
     src/styles/           One scoped stylesheet per theme (login, light, dev)
-  admin/      Placeholder
+  admin/      Standalone admin portal with local mock services and regression tests
 packages/
   shared/     Shared theme tokens (daisyUI `octap` theme)
   services/   Placeholder
 sources/      Design references and specs (git-ignored)
 ```
 
-`apps/landing` and `apps/business` ship their own palette and do not use the shared daisyUI theme. The business stylesheets are scoped under `.theme-login`, `.theme-light` and `.theme-dev` so class names such as `.card` do not collide.
+`apps/landing` and `apps/business` import the shared brand foundation from `packages/shared/src/styles/brand.css`. Their `src/styles/theme.css` files register scoped colors with Tailwind v4; the developer console retains a dark palette. These apps do not load daisyUI component styles. The business stylesheets are scoped under `.theme-login`, `.theme-light` and `.theme-dev` so class names such as `.card` do not collide.
 
 ## Coding conventions
 
-See [DISCLAIMER.md](./DISCLAIMER.md) for coding styles, including the Tailwind CSS v4 rules. Note that the code ported from design mockups in `apps/landing` and `apps/business` still uses `var(--token)` styles and has not yet been migrated to theme tokens.
+See [DISCLAIMER.md](./DISCLAIMER.md) for coding styles, including the Tailwind CSS v4 rules. Landing and business components use registered color utilities and spacing-scale classes. Keep new theme values in `src/styles/theme.css` or the shared brand foundation; reserve inline styles for data-driven values and bespoke chart/illustration layouts. Both portals support reduced motion, and the business dialogs use native modal focus handling.
