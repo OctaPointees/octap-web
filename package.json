@@ -9,6 +9,7 @@
     "dev:admin": "npm run dev -w @octap/admin",
     "dev:business": "npm run dev -w @octap/business",
     "dev:landing": "npm run dev -w @octap/landing",
+    "dev:partner-website": "npm run dev -w @octap/partner-website",
     "dev": "concurrently -k -n landing,business -c magenta,cyan \"npm:dev:landing\" \"npm:dev:business\"",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"

@@ -1,0 +1,32 @@
+@theme {
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-head: Arial, Helvetica, sans-serif;
+  --color-ground: #f7f8f5;
+  --color-surface: #ffffff;
+  --color-ink: #1e3932;
+  --color-muted: #61716a;
+  --color-line: #dce5df;
+  --color-evergreen: #1e3932;
+  --color-mint: #d4e9e2;
+  --color-gold: #b69254;
+  --color-coffee: #9b7155;
+  --color-coffee-dark: #573d2b;
+  --color-cream: #f2eadb;
+  --color-danger: #b42318;
+  --color-success: #286343;
+}
+
+:root {
+  --partner: #852345;
+  --partner-soft: #f4e5eb;
+}
+
+[data-theme='forest'] {
+  --partner: #00754a;
+  --partner-soft: #eaf3ed;
+}
+
+@theme inline {
+  --color-partner: var(--partner);
+  --color-partner-soft: var(--partner-soft);
+}
