@@ -1,0 +1,37 @@
+@import '@octap/shared/styles/brand.css';
+
+@theme inline {
+  --color-tint-deep: var(--tint-deep);
+  --color-tint: var(--tint);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-ground: var(--ground);
+  --color-ink: var(--ink);
+  --color-amber: var(--amber);
+  --color-bg: var(--bg);
+  --color-bloom: var(--bloom);
+  --color-campaign-bg: var(--campaign-bg);
+  --color-campaign-track: var(--campaign-track);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-coral: var(--coral);
+  --color-cyan: var(--cyan);
+  --color-danger: var(--danger);
+  --color-divider: var(--divider);
+  --color-err: var(--err);
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-green: var(--green);
+  --color-grid-line: var(--grid-line);
+  --color-ink-2: var(--ink-2);
+  --color-magenta: var(--magenta);
+  --color-pink: var(--pink);
+  --color-pink-deep: var(--pink-deep);
+  --color-purple: var(--purple);
+  --color-success: var(--success);
+  --color-text-2: var(--text-2);
+  --color-text-faint: var(--text-faint);
+  --color-text-muted: var(--text-muted);
+  --color-violet-grey: var(--violet-grey);
+  --color-warning: var(--warning);
+}
