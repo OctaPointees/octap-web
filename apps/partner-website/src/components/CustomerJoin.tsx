@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { loadGoogleIdentity } from '../services/google-identity';
-import { prepareZkLogin, assertLoginNonce } from '../services/zklogin';
+import {
+  prepareZkLogin,
+  assertLoginNonce,
+  completeZkLogin,
+  type CustomerSigningSession,
+} from '../services/zklogin';
 import CustomerPoints from './CustomerPoints';
 import CustomerRewards from './CustomerRewards';
 
@@ -32,6 +37,8 @@ export default function CustomerJoin({
 }) {
   const button = useRef<HTMLDivElement>(null);
   const inFlight = useRef(false);
+  const signingSession = useRef<CustomerSigningSession | null>(null);
+  const [loginAttempt, setLoginAttempt] = useState(0);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [memberId, setMemberId] = useState('');
   const [busy, setBusy] = useState(false);
@@ -66,14 +73,19 @@ export default function CustomerJoin({
             setBusy(true);
             setError('');
             void identityRequest<Identity>('login', { idToken: credential })
-              .then((customer) => {
+              .then(async (customer) => {
+                const signer = showPoints
+                  ? await completeZkLogin(session, credential, customer.suiAddress)
+                  : null;
                 if (active) {
+                  signingSession.current = signer;
                   setIdentity(customer);
                   setMemberId('');
                   setCopied(false);
                 }
               })
               .catch((reason: unknown) => {
+                signingSession.current = null;
                 if (active)
                   setError(
                     reason instanceof Error ? reason.message : 'Sign-in failed. Please try again.',
@@ -98,8 +110,9 @@ export default function CustomerJoin({
       });
     return () => {
       active = false;
+      signingSession.current = null;
     };
-  }, [clientId]);
+  }, [clientId, showPoints, loginAttempt]);
 
   async function enroll() {
     if (!identity || busy) return;
@@ -208,7 +221,9 @@ export default function CustomerJoin({
                     return;
                   }
                 }
+                signingSession.current = null;
                 window.google?.accounts.id.disableAutoSelect();
+                setLoginAttempt((value) => value + 1);
                 setIdentity(null);
                 setMemberId('');
                 setError('');
