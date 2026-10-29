@@ -6,6 +6,7 @@ import {
   prepareZkLogin,
   assertLoginNonce,
   completeZkLogin,
+  signCustomerClaim,
   type CustomerSigningSession,
 } from '../services/zklogin';
 import CustomerPoints from './CustomerPoints';
@@ -199,7 +200,18 @@ export default function CustomerJoin({
             {memberId && showPoints && (
               <>
                 <CustomerPoints key={pointsVersion} />
-                <CustomerRewards onClaim={() => setPointsVersion((value) => value + 1)} />
+                <CustomerRewards
+                  memberId={memberId}
+                  signClaim={async (bytes, digest) => {
+                    const session = signingSession.current;
+                    if (!session) throw new Error('Sign in again to authorize this claim.');
+                    const signature = await signCustomerClaim(session, bytes, digest);
+                    if (session !== signingSession.current)
+                      throw new Error('Account changed. Sign in again before continuing.');
+                    return signature;
+                  }}
+                  onClaim={() => setPointsVersion((value) => value + 1)}
+                />
               </>
             )}
             <details className="text-sm">
