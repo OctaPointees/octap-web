@@ -39,7 +39,7 @@ export default function SidePanel({ subtitle, options, roleLabel, footer }: Prop
       </div>
 
       <div className="flex h-4 items-center justify-center">
-        <div className="w-6/10 border-b border-primary"></div>
+        <div className="w-6/10 border-b-8 border-primary"></div>
       </div>
 
       <nav className="space-y-1">

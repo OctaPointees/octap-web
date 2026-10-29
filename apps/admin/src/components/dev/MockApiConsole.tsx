@@ -58,9 +58,9 @@ export default function MockApiConsole() {
 
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="btn btn-ghost gap-2" aria-label="Open mock API console">
+      <Dialog.Trigger className="btn btn-ghost gap-2" aria-label="Open API console">
         <Broadcast size={20} />
-        <span className="hidden xl:inline">Mock API</span>
+        <span className="hidden xl:inline">API</span>
         {errors > 0 && <span className="badge badge-error badge-xs">{errors}</span>}
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -68,7 +68,7 @@ export default function MockApiConsole() {
         <Dialog.Popup className="fixed top-0 right-0 z-50 flex h-dvh w-full max-w-lg flex-col bg-base-100 shadow-2xl transition-transform duration-200 data-starting-style:translate-x-full data-ending-style:translate-x-full">
           <div className="flex items-center justify-between border-b border-base-300 p-4">
             <div>
-              <Dialog.Title className="font-bold">Mock API console</Dialog.Title>
+              <Dialog.Title className="font-bold">API console</Dialog.Title>
               <Dialog.Description className="text-xs opacity-60">
                 No real server is contacted. Requests are served by in-browser pseudo services and
                 persisted to localStorage.
