@@ -217,3 +217,88 @@ test('new claims use the authenticated member and a stable member/voucher key', 
   };
   assert.equal((await rewardsPost(req)).status, 200);
 });
+
+let identitySource = await readFile(
+  new URL('../src/app/api/identity/[action]/route.ts', import.meta.url),
+  'utf8',
+);
+identitySource = identitySource.replace("'next/server'", JSON.stringify(nextUrl));
+for (const name of ['tenant', 'customer-demo-session']) {
+  identitySource = identitySource.replace(
+    `'../../../../lib/${name}'`,
+    JSON.stringify(new URL(`../src/lib/${name}.ts`, import.meta.url).href),
+  );
+}
+const identityOutput = ts.transpileModule(identitySource, {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const { POST: identityPost } = await import(
+  `data:text/javascript;base64,${Buffer.from(identityOutput).toString('base64')}`
+);
+function proofRequest(
+  body,
+  cookie = encodeCustomerSession(session()),
+  origin = 'http://localhost:4001',
+) {
+  return new NextRequest('http://localhost:4001/api/identity/proof', {
+    method: 'POST',
+    headers: {
+      Host: 'localhost:4001',
+      Origin: origin,
+      Cookie: `${CUSTOMER_COOKIE}=${cookie}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+const proofBody = {
+  idToken: 'google-jwt',
+  ephemeralPublicKey: 'public-only',
+  randomness: 'randomness',
+  maxEpoch: 10,
+};
+const proofContext = { params: Promise.resolve({ action: 'proof' }) };
+
+test('proof proxy requires the same signed customer identity and never forwards a merchant key', async () => {
+  configure();
+  const paths = [];
+  globalThis.fetch = async (url, options) => {
+    paths.push(url);
+    assert.equal(options.headers.Authorization, undefined);
+    if (url.endsWith('/google-login')) {
+      assert.deepEqual(JSON.parse(options.body), { idToken: 'google-jwt' });
+      return Response.json({ endUserId: 'customer', suiAddress: '0x123' });
+    }
+    assert.ok(url.endsWith('/zklogin/proof'));
+    assert.deepEqual(JSON.parse(options.body), proofBody);
+    return Response.json({ addressSeed: '123', proofPoints: {} });
+  };
+  const response = await identityPost(proofRequest(proofBody), proofContext);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal((await response.json()).addressSeed, '123');
+  assert.equal(paths.length, 2);
+});
+
+test('missing login, cross-origin, malformed session, and a different Google identity cannot obtain a proof', async () => {
+  configure();
+  globalThis.fetch = () => assert.fail('must not call Core');
+  assert.equal((await identityPost(proofRequest(proofBody, ''), proofContext)).status, 401);
+  assert.equal(
+    (
+      await identityPost(
+        proofRequest(proofBody, encodeCustomerSession(session()), 'https://evil.test'),
+        proofContext,
+      )
+    ).status,
+    403,
+  );
+  assert.equal(
+    (await identityPost(proofRequest({ ...proofBody, maxEpoch: -1 }), proofContext)).status,
+    400,
+  );
+  globalThis.fetch = async (url) => {
+    assert.ok(url.endsWith('/google-login'));
+    return Response.json({ endUserId: 'someone-else', suiAddress: '0xother' });
+  };
+  assert.equal((await identityPost(proofRequest(proofBody), proofContext)).status, 401);
+});
