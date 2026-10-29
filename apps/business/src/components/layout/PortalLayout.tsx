@@ -52,7 +52,7 @@ export default function PortalLayout({
           className="sticky top-0"
         />
 
-        <main className="flex-1 *:pr-4 *:max-w-[1920px]">
+        <main className="flex-1 pr-4 *:max-w-[1920px] flex flex-col gap-4">
           <Outlet />
 
           <footer className="mt-32 h-1/3 max-h-80 rounded-box bg-base-200"></footer>

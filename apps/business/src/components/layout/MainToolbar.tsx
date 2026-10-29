@@ -67,7 +67,7 @@ export default function MainToolbar({
   return (
     <div
       className="flex items-center gap-2 p-2 bg-base-100/70 backdrop-blur-md border border-base-100/20 rounded-box"
-      style={{ boxShadow: '0 0 8px #0000002a' }}
+      style={{ boxShadow: '0 0 4px #0000002a' }}
     >
       <div className="h-9 flex items-center gap-3">
         <img src="/icons/logo_light.png" className="h-full mx-2" />

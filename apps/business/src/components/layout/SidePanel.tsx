@@ -32,7 +32,12 @@ export default function SidePanel({ options, roleLabel, footer, className }: Pro
   );
 
   return (
-    <aside className={clss}>
+    <aside
+      className={clss}
+      style={{
+        background: 'linear-gradient(165deg, var(--color-primary) 0%, #a2007b 48%, #7a1068 100%)',
+      }}
+    >
       <div className="flex items-center gap-4 rounded-field bg-base-200 text-base-content p-2">
         <img src={user?.avatarUrl} className="size-16 rounded-box object-cover" alt="" />
         <div className="min-w-0">
@@ -51,7 +56,10 @@ export default function SidePanel({ options, roleLabel, footer, className }: Pro
           <NavLink key={opt.path} to={opt.path} end={opt.end}>
             {({ isActive }) => (
               <span
-                className={cn('btn btn-block justify-between p-4', isActive ? '' : 'btn-primary')}
+                className={cn(
+                  'btn btn-block justify-between p-4',
+                  isActive ? '' : 'btn-ghost not-hover:text-white',
+                )}
               >
                 <span className="flex items-center gap-2">
                   {opt.label}
