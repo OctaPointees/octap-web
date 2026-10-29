@@ -192,9 +192,131 @@ test('new claims use the authenticated member and a stable member/voucher key', 
     const payload = JSON.parse(options.body);
     assert.equal(payload.organizationEndUserId, 'verified-member');
     assert.equal(payload.idempotencyKey, `web-demo-claim-${voucherId}-verified-member`);
-    return Response.json({ serialCode: 'NEW', status: 'AVAILABLE' }, { status: 201 });
+    return Response.json(
+      {
+        voucherId,
+        organizationEndUserId: 'verified-member',
+        serialCode: 'NEW',
+        status: 'AVAILABLE',
+      },
+      { status: 201 },
+    );
   };
   assert.equal((await rewardsPost(req)).status, 200);
+});
+
+const voucher = '22222222-2222-4222-8222-222222222222';
+const owner = '33333333-3333-4333-8333-333333333333';
+function rewardRequest(body) {
+  return new NextRequest('http://localhost:4001/api/customer/rewards', {
+    method: 'POST',
+    headers: {
+      Host: 'localhost:4001',
+      Origin: 'http://localhost:4001',
+      Cookie: `${CUSTOMER_COOKIE}=${encodeCustomerSession(session())}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+const reserved = {
+  voucherOwnershipId: owner,
+  voucherId: voucher,
+  organizationEndUserId: 'verified-member',
+  status: 'RESERVED',
+  pointsDeducted: 0,
+  pointsCost: 25,
+  digest: 'digest',
+  transactionBytes: 'bytes',
+  serialCode: 'SERIAL',
+};
+
+test('an existing RESERVED claim resumes the stable Core operation and returns bytes rather than issuing a coupon', async () => {
+  configure();
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/members/verified-member/vouchers'))
+      return Response.json([{ id: owner, voucherId: voucher, status: 'RESERVED' }]);
+    assert.ok(url.endsWith(`/vouchers/${voucher}/claim`));
+    assert.equal(
+      JSON.parse(options.body).idempotencyKey,
+      `web-demo-claim-${voucher}-verified-member`,
+    );
+    return Response.json(reserved);
+  };
+  const result = await rewardsPost(rewardRequest({ action: 'claim', voucherId: voucher }));
+  assert.equal(result.status, 200);
+  assert.deepEqual(await result.json(), reserved);
+});
+
+test('finalize verifies member ownership and the cached digest, and sends no merchant key with the customer signature', async () => {
+  configure();
+  let executed = 0;
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/members/verified-member/vouchers'))
+      return Response.json([{ id: owner, voucherId: voucher, status: 'RESERVED' }]);
+    if (url.endsWith('/claim')) return Response.json(reserved);
+    if (url.endsWith('/finalize')) {
+      executed++;
+      assert.equal(options.headers.Authorization, undefined);
+      assert.deepEqual(JSON.parse(options.body), {
+        digest: 'digest',
+        signature: 'customer-zklogin-signature',
+      });
+      return Response.json({ status: 'CONFIRMED' });
+    }
+    assert.ok(url.endsWith(`/claims/${owner}`));
+    return Response.json({ ...reserved, status: 'AVAILABLE', pointsDeducted: 25 });
+  };
+  assert.equal(
+    (
+      await rewardsPost(
+        rewardRequest({
+          action: 'finalize',
+          ownershipId: owner,
+          digest: 'wrong',
+          signature: 'sig',
+        }),
+      )
+    ).status,
+    409,
+  );
+  assert.equal(executed, 0);
+  assert.equal(
+    (
+      await rewardsPost(
+        rewardRequest({
+          action: 'finalize',
+          ownershipId: '44444444-4444-4444-8444-444444444444',
+          digest: 'digest',
+          signature: 'sig',
+        }),
+      )
+    ).status,
+    404,
+  );
+  const response = await rewardsPost(
+    rewardRequest({
+      action: 'finalize',
+      ownershipId: owner,
+      digest: 'digest',
+      signature: 'customer-zklogin-signature',
+    }),
+  );
+  assert.equal((await response.json()).status, 'AVAILABLE');
+  assert.equal(executed, 1);
+});
+
+test('only definitively cancelled claims receive a new server-generated retry key', async () => {
+  configure();
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/vouchers'))
+      return Response.json([{ id: owner, voucherId: voucher, status: 'CANCELLED' }]);
+    assert.equal(JSON.parse(options.body).idempotencyKey, `web-retry-${owner}`);
+    return Response.json(reserved);
+  };
+  assert.equal(
+    (await rewardsPost(rewardRequest({ action: 'claim', voucherId: voucher }))).status,
+    200,
+  );
 });
 
 let identitySource = await readFile(
