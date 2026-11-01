@@ -1,20 +1,10 @@
-import {
-  Code,
-  Gear,
-  Layout,
-  Megaphone,
-  Receipt,
-  Storefront,
-  Ticket,
-  UsersThree,
-} from 'phosphor-react';
-import PortalLayout from '../../components/layout/PortalLayout';
-import type { SearchResult } from '../../components/layout/MainToolbar';
-import type { NavOption } from '../../components/layout/SidePanel';
-import { useMembers, useMerchantTenant } from '../../queries/merchant';
-import { useSession } from '../../queries/useSession';
-import { hasMerchantRole } from '../../services/session';
-import { toTitle } from '../../utils/format';
+import { Gear, Layout, Megaphone, Receipt, Storefront, Ticket, UsersThree } from 'phosphor-react';
+
+import PortalLayout from '@/components/layout/PortalLayout';
+import type { SearchResult } from '@/components/layout/MainToolbar';
+import type { NavOption } from '@/components/layout/SidePanel';
+import { useMembers, useMerchantTenant } from '@/queries/merchant';
+import { toTitle } from '@/utils/format';
 
 function useMerchantSearch(q: string) {
   const active = q.trim().length >= 2;
@@ -32,7 +22,6 @@ function useMerchantSearch(q: string) {
 }
 
 export default function MerchantLayout() {
-  const role = useSession()?.user.merchantRole;
   const tenant = useMerchantTenant().data;
 
   const nav: NavOption[] = [
@@ -42,16 +31,13 @@ export default function MerchantLayout() {
     { label: 'Rewards', path: '/merchant/rewards', icon: Ticket },
     { label: 'Members', path: '/merchant/members', icon: UsersThree },
     { label: 'Transactions', path: '/merchant/transactions', icon: Receipt },
-    ...(hasMerchantRole(role, 'manager')
-      ? [{ label: 'Developers', path: '/merchant/developers', icon: Code }]
-      : []),
     { label: 'Settings', path: '/merchant/settings', icon: Gear },
   ];
 
   return (
     <PortalLayout
-      subtitle={tenant?.name ?? 'Merchant'}
-      roleLabel="Merchant"
+      subtitle={tenant?.name ?? 'Business'}
+      roleLabel="Business"
       nav={nav}
       useSearch={useMerchantSearch}
       searchPlaceholder="Search members by name, phone or address…"

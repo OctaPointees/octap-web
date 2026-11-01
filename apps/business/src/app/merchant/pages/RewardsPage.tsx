@@ -1,27 +1,48 @@
-import { Form } from "@base-ui/react/form";
-import { Gift, Info, Plus, Ticket } from "phosphor-react";
-import { useState } from "react";
-import { Button } from "../../../components/shared/Button";
-import { FormField, Segmented, TextInput } from "../../../components/shared/Controls";
-import { EmptyState, ErrorState, LoadingBlock, PageHeader, StatusBadge, UsageBar } from "../../../components/shared/Display";
-import { Modal } from "../../../components/shared/Modal";
-import { Select } from "../../../components/shared/Select";
-import { useCreateReward, useMerchantTenant, useRestockReward, useRewards, useSetRewardStatus } from "../../../queries/merchant";
-import { useSession } from "../../../queries/useSession";
-import type { RewardInput } from "../../../services/merchant.service";
-import { hasMerchantRole } from "../../../services/session";
-import type { Reward } from "../../../types/domain";
-import { fieldErrorsOf } from "../../../utils/errors";
-import { fmtDate, fmtNumber, fmtVnd, toTitle } from "../../../utils/format";
-import { notify } from "../../../utils/toast";
+import { Form } from '@base-ui/react/form';
+import { Gift, Info, Plus, Ticket } from 'phosphor-react';
+import { useState } from 'react';
+import { Button } from '@/components/shared/Button';
+import { FormField, Segmented, TextInput } from '@/components/shared/Controls';
+import {
+  EmptyState,
+  ErrorState,
+  LoadingBlock,
+  PageHeader,
+  StatusBadge,
+  UsageBar,
+} from '@/components/shared/Display';
+import { Modal } from '@/components/shared/Modal';
+import { Select } from '@/components/shared/Select';
+import {
+  useCreateReward,
+  useMerchantTenant,
+  useRestockReward,
+  useRewards,
+  useSetRewardStatus,
+} from '@/queries/merchant';
+import { useSession } from '@/queries/useSession';
+import type { RewardInput } from '@/services/merchant.service';
+import { hasMerchantRole } from '@/services/session';
+import type { Reward } from '@/types/domain';
+import { fieldErrorsOf } from '@/utils/errors';
+import { fmtDate, fmtNumber, fmtVnd, toTitle } from '@/utils/format';
+import { notify } from '@/utils/toast';
 
-const CATEGORIES: Reward["category"][] = ["discount", "free_item", "gift", "experience"];
+const CATEGORIES: Reward['category'][] = ['discount', 'free_item', 'gift', 'experience'];
 
-function NewRewardModal({ open, onOpenChange, symbol }: { open: boolean; onOpenChange: (o: boolean) => void; symbol: string }) {
+function NewRewardModal({
+  open,
+  onOpenChange,
+  symbol,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  symbol: string;
+}) {
   const [form, setForm] = useState<RewardInput>(() => ({
-    title: "",
-    description: "",
-    category: "discount",
+    title: '',
+    description: '',
+    category: 'discount',
     pointCost: 500,
     faceValueVnd: 50_000,
     stock: 200,
@@ -29,7 +50,8 @@ function NewRewardModal({ open, onOpenChange, symbol }: { open: boolean; onOpenC
   }));
   const create = useCreateReward();
   const errors = fieldErrorsOf(create.error);
-  const set = <K extends keyof RewardInput>(k: K, v: RewardInput[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const set = <K extends keyof RewardInput>(k: K, v: RewardInput[K]) =>
+    setForm((f) => ({ ...f, [k]: v }));
 
   return (
     <Modal
@@ -40,8 +62,15 @@ function NewRewardModal({ open, onOpenChange, symbol }: { open: boolean; onOpenC
       size="lg"
       footer={
         <>
-          <Button className="btn-ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button type="submit" form="reward-form" className="btn-primary" disabled={create.isPending}>
+          <Button className="btn-ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="reward-form"
+            className="btn-primary"
+            disabled={create.isPending}
+          >
             {create.isPending && <span className="loading loading-spinner loading-sm" />}
             Submit for review
           </Button>
@@ -55,7 +84,10 @@ function NewRewardModal({ open, onOpenChange, symbol }: { open: boolean; onOpenC
           e.preventDefault();
           create.mutate(form, {
             onSuccess: () => {
-              notify.success("Reward submitted", "OctaP compliance usually reviews listings within 1 business day.");
+              notify.success(
+                'Reward submitted',
+                'OctaP compliance usually reviews listings within 1 business day.',
+              );
               onOpenChange(false);
             },
             onError: (err) => !Object.keys(fieldErrorsOf(err)).length && notify.error(err),
@@ -63,28 +95,72 @@ function NewRewardModal({ open, onOpenChange, symbol }: { open: boolean; onOpenC
         }}
       >
         <FormField label="Title" error={errors.title} className="sm:col-span-2">
-          <TextInput value={form.title} onChange={(e) => set("title", e.target.value)} invalid={!!errors.title} placeholder="e.g. Free signature drink" />
+          <TextInput
+            value={form.title}
+            onChange={(e) => set('title', e.target.value)}
+            invalid={!!errors.title}
+            placeholder="e.g. Free signature drink"
+          />
         </FormField>
         <FormField label="Description / terms" className="sm:col-span-2">
-          <textarea className="textarea w-full" rows={2} value={form.description} onChange={(e) => set("description", e.target.value)} />
+          <textarea
+            className="textarea w-full"
+            rows={2}
+            value={form.description}
+            onChange={(e) => set('description', e.target.value)}
+          />
         </FormField>
         <FormField label="Category">
-          <Select value={form.category} onValueChange={(v) => set("category", v)} options={CATEGORIES.map((c) => ({ label: toTitle(c), value: c }))} />
+          <Select
+            value={form.category}
+            onValueChange={(v) => set('category', v)}
+            options={CATEGORIES.map((c) => ({ label: toTitle(c), value: c }))}
+          />
         </FormField>
         <FormField label={`Point cost (${symbol})`} error={errors.pointCost}>
-          <TextInput type="number" value={form.pointCost} onChange={(e) => set("pointCost", Number(e.target.value))} invalid={!!errors.pointCost} />
+          <TextInput
+            type="number"
+            value={form.pointCost}
+            onChange={(e) => set('pointCost', Number(e.target.value))}
+            invalid={!!errors.pointCost}
+          />
         </FormField>
-        <FormField label="Face value (VND)" error={errors.faceValueVnd} hint={form.pointCost > 0 ? `≈ ${Math.round(form.faceValueVnd / form.pointCost)} ₫ per point` : undefined}>
-          <TextInput type="number" step={1000} value={form.faceValueVnd} onChange={(e) => set("faceValueVnd", Number(e.target.value))} invalid={!!errors.faceValueVnd} />
+        <FormField
+          label="Face value (VND)"
+          error={errors.faceValueVnd}
+          hint={
+            form.pointCost > 0
+              ? `≈ ${Math.round(form.faceValueVnd / form.pointCost)} ₫ per point`
+              : undefined
+          }
+        >
+          <TextInput
+            type="number"
+            step={1000}
+            value={form.faceValueVnd}
+            onChange={(e) => set('faceValueVnd', Number(e.target.value))}
+            invalid={!!errors.faceValueVnd}
+          />
         </FormField>
         <FormField label="Stock" error={errors.stock}>
-          <TextInput type="number" value={form.stock} onChange={(e) => set("stock", Number(e.target.value))} invalid={!!errors.stock} />
+          <TextInput
+            type="number"
+            value={form.stock}
+            onChange={(e) => set('stock', Number(e.target.value))}
+            invalid={!!errors.stock}
+          />
         </FormField>
         <FormField label="Expires on" error={errors.expiresAt}>
-          <TextInput type="date" value={form.expiresAt} onChange={(e) => set("expiresAt", e.target.value)} invalid={!!errors.expiresAt} />
+          <TextInput
+            type="date"
+            value={form.expiresAt}
+            onChange={(e) => set('expiresAt', e.target.value)}
+            invalid={!!errors.expiresAt}
+          />
         </FormField>
         <div className="alert alert-info alert-soft text-xs sm:col-span-2">
-          <Info size={16} /> Rewards can only be redeemed with {symbol} points and cannot be exchanged for cash (LI-1, LI-2).
+          <Info size={16} /> Rewards can only be redeemed with {symbol} points and cannot be
+          exchanged for cash (LI-1, LI-2).
         </div>
       </Form>
     </Modal>
@@ -106,14 +182,33 @@ function RestockModal({ reward, onClose }: { reward: Reward; onClose: () => void
         <Button
           className="btn-primary"
           disabled={restock.isPending}
-          onClick={() => restock.mutate({ id: reward.id, add }, { onSuccess: () => { notify.success("Stock updated"); onClose(); } })}
+          onClick={() =>
+            restock.mutate(
+              { id: reward.id, add },
+              {
+                onSuccess: () => {
+                  notify.success('Stock updated');
+                  onClose();
+                },
+              },
+            )
+          }
         >
           Add stock
         </Button>
       }
     >
-      <FormField label="Units to add" error={err} hint={`Currently ${reward.stock - reward.redeemedCount} left of ${reward.stock}`}>
-        <TextInput type="number" value={add} onChange={(e) => setAdd(Number(e.target.value))} invalid={!!err} />
+      <FormField
+        label="Units to add"
+        error={err}
+        hint={`Currently ${reward.stock - reward.redeemedCount} left of ${reward.stock}`}
+      >
+        <TextInput
+          type="number"
+          value={add}
+          onChange={(e) => setAdd(Number(e.target.value))}
+          invalid={!!err}
+        />
       </FormField>
     </Modal>
   );
@@ -122,14 +217,18 @@ function RestockModal({ reward, onClose }: { reward: Reward; onClose: () => void
 export default function RewardsPage() {
   const { data, isLoading, error, refetch } = useRewards();
   const tenant = useMerchantTenant().data;
-  const canEdit = hasMerchantRole(useSession()?.user.merchantRole, "manager");
-  const [filter, setFilter] = useState<"all" | "active" | "pending_review" | "inactive">("all");
+  const canEdit = hasMerchantRole(useSession()?.user.merchantRole, 'manager');
+  const [filter, setFilter] = useState<'all' | 'active' | 'pending_review' | 'inactive'>('all');
   const [creating, setCreating] = useState(false);
   const [restocking, setRestocking] = useState<Reward | null>(null);
   const setStatus = useSetRewardStatus();
 
   const rows = data?.filter((r) =>
-    filter === "all" ? true : filter === "inactive" ? ["paused", "expired", "rejected"].includes(r.status) : r.status === filter,
+    filter === 'all'
+      ? true
+      : filter === 'inactive'
+        ? ['paused', 'expired', 'rejected'].includes(r.status)
+        : r.status === filter,
   );
 
   return (
@@ -149,21 +248,30 @@ export default function RewardsPage() {
         value={filter}
         onValueChange={setFilter}
         options={[
-          { label: "All", value: "all" },
-          { label: "Live", value: "active" },
-          { label: "In review", value: "pending_review" },
-          { label: "Inactive", value: "inactive" },
+          { label: 'All', value: 'all' },
+          { label: 'Live', value: 'active' },
+          { label: 'In review', value: 'pending_review' },
+          { label: 'Inactive', value: 'inactive' },
         ]}
       />
       {error && <ErrorState error={error} onRetry={refetch} />}
       {isLoading && <LoadingBlock rows={2} />}
-      {rows && rows.length === 0 && <EmptyState icon={Ticket} title="No rewards here" description="List a reward to give members something to save up for." />}
+      {rows && rows.length === 0 && (
+        <EmptyState
+          icon={Ticket}
+          title="No rewards here"
+          description="List a reward to give members something to save up for."
+        />
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {rows?.map((r) => {
           const left = r.stock - r.redeemedCount;
           return (
-            <article key={r.id} className="flex flex-col gap-3 rounded-box border border-base-300 bg-base-100 p-5">
+            <article
+              key={r.id}
+              className="flex flex-col gap-3 rounded-box border border-base-300 bg-base-100 p-5"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="rounded-box bg-primary/10 p-2.5 text-primary">
                   <Gift size={22} />
@@ -186,21 +294,36 @@ export default function RewardsPage() {
                   <span>{fmtNumber(left)} left</span>
                 </div>
               </div>
-              {r.reviewNote && <div className="rounded-box bg-base-200 p-2 text-xs italic">OctaP review: “{r.reviewNote}”</div>}
+              {r.reviewNote && (
+                <div className="rounded-box bg-base-200 p-2 text-xs italic">
+                  OctaP review: “{r.reviewNote}”
+                </div>
+              )}
               <div className="mt-auto flex items-center justify-between border-t border-base-300 pt-3 text-xs">
                 <span className="opacity-60">Expires {fmtDate(r.expiresAt)}</span>
                 {canEdit && (
                   <div className="flex gap-1">
-                    {(r.status === "active" || r.status === "paused") && (
+                    {(r.status === 'active' || r.status === 'paused') && (
                       <Button
                         className="btn-ghost btn-xs"
                         disabled={setStatus.isPending}
-                        onClick={() => setStatus.mutate({ id: r.id, status: r.status === "active" ? "paused" : "active" }, { onSuccess: (x) => notify.success(`Reward ${x.status === "active" ? "resumed" : "paused"}`), onError: (e) => notify.error(e) })}
+                        onClick={() =>
+                          setStatus.mutate(
+                            { id: r.id, status: r.status === 'active' ? 'paused' : 'active' },
+                            {
+                              onSuccess: (x) =>
+                                notify.success(
+                                  `Reward ${x.status === 'active' ? 'resumed' : 'paused'}`,
+                                ),
+                              onError: (e) => notify.error(e),
+                            },
+                          )
+                        }
                       >
-                        {r.status === "active" ? "Pause" : "Resume"}
+                        {r.status === 'active' ? 'Pause' : 'Resume'}
                       </Button>
                     )}
-                    {r.status !== "rejected" && r.status !== "expired" && (
+                    {r.status !== 'rejected' && r.status !== 'expired' && (
                       <Button className="btn-ghost btn-xs" onClick={() => setRestocking(r)}>
                         Restock
                       </Button>
@@ -213,7 +336,9 @@ export default function RewardsPage() {
         })}
       </div>
 
-      {creating && <NewRewardModal open onOpenChange={setCreating} symbol={tenant?.pointSymbol ?? "points"} />}
+      {creating && (
+        <NewRewardModal open onOpenChange={setCreating} symbol={tenant?.pointSymbol ?? 'points'} />
+      )}
       {restocking && <RestockModal reward={restocking} onClose={() => setRestocking(null)} />}
     </>
   );

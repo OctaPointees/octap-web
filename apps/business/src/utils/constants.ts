@@ -1,4 +1,4 @@
-import type { PortalRole, Range } from "../types/domain";
+import type { Range, SessionUser } from "../types/domain";
 
 export const RANGE_OPTIONS: { label: string; value: Range }[] = [
   { label: "7 days", value: "7d" },
@@ -6,4 +6,5 @@ export const RANGE_OPTIONS: { label: string; value: Range }[] = [
   { label: "90 days", value: "90d" },
 ];
 
-export const homeFor = (role: PortalRole) => (role === "admin" ? "/admin" : "/merchant");
+export const homeFor = (user: Pick<SessionUser, "role" | "merchantRole">) =>
+  user.role === "admin" ? "/admin" : user.merchantRole === "developer" ? "/developer" : "/merchant";

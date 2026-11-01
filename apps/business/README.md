@@ -69,10 +69,10 @@ The **password for every account is:** `octap123`
 
 | Who you are testing as                            | Email                  | What this account can do                                                                                                            |
 | ------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **OctaP administrator** (runs the whole platform) | `admin@octap.io`       | See all merchants, add new merchants, approve or reject rewards, view platform statistics and the security log                      |
-| **Store owner** (Lotus Mart)                      | `owner@lotusmart.vn`   | Full access to one store: give points, create campaigns and rewards, manage staff, API keys and AI-agent settings                   |
-| **Store cashier** (Lotus Mart)                    | `cashier@lotusmart.vn` | **Limited access.** Can give points to customers and view data, but **cannot** edit campaigns, rewards, settings or developer tools |
-| **Store manager** (Phố Cà Phê, a different store) | `manager@phocaphe.vn`  | Manages a different store. Use it to check that one store can't see another store's data                                            |
+| **Business owner** (Lotus Mart)                    | `owner@lotusmart.vn`   | Business operations, team settings, and access to developer mode                                                                   |
+| **Business developer** (Lotus Mart)                | `developer@lotusmart.vn` | API keys, webhook settings, and MCP tools for the same Lotus Mart business                                                       |
+| **Business cashier** (Lotus Mart)                  | `cashier@lotusmart.vn` | **Limited access.** Can give points to customers and view data, but **cannot** edit campaigns, rewards, settings or developer tools |
+| **Business manager** (Phố Cà Phê, a different business) | `manager@phocaphe.vn` | Manages a different business. Use it to check that one business can't see another business's data                                 |
 
 ### Customer (shopper) app
 
@@ -96,34 +96,26 @@ Each area below matches a feature in the project scope. Use these as a starting 
 - [ ] Click **Forgot password?** and submit an email address.
 - [ ] Click **Log-out** at the bottom left.
 
-### ✅ Administrator - `admin@octap.io`
-
-- [ ] **Dashboard:** switch between 7 / 30 / 90 days. The numbers and charts should update.
-- [ ] **Partners → Onboard partner:** create a new store.
-  - [ ] Try the token symbol `LTM`. You should get an error because it's already taken.
-  - [ ] Change it to something new, such as `ABC`, and submit.
-  - [ ] On the new store's page, click **Publish to Sui & activate**. The status should change to **Active**.
-- [ ] **Partners → open a store → Suspend:** a reason is required. Then click **Reinstate**.
-- [ ] **Vouchers:** approve one reward. Then reject another; rejecting requires a reason.
-- [ ] **System Audit:** search and filter. Click a row, then click **Verify against Sui**. Try **Export CSV**.
-- [ ] **Search bar** at the top: type a store name, such as "Lotus", and pick a result.
-
-### ✅ Store owner - `owner@lotusmart.vn`
+### ✅ Business owner - `owner@lotusmart.vn`
 
 - [ ] **Issue points:** enter a phone number and a bill amount. Check the points preview, then click **Award points** and look at the receipt.
 - [ ] **Campaigns → New campaign:** set an end date _before_ the start date and check for an error. Fix it and save.
 - [ ] **Campaigns:** use the **⋮** menu to pause, resume or end a campaign.
 - [ ] **Rewards → New reward:** submit it. It should show **Pending Review**.
-  - [ ] Then sign in as the admin and approve it under **Vouchers**.
 - [ ] **Members:** click a member, then add or remove points. A reason is required.
 - [ ] **Transactions:** filter by type and by channel.
-- [ ] **Developers:**
-  - [ ] Create an API key. The full key is shown **only once**.
-  - [ ] Revoke a key.
-  - [ ] Turn the AI-agent (MCP) tools on and off.
 - [ ] **Settings:** change the program settings, invite a teammate, and change a teammate's role.
 
-### ✅ Store cashier - `cashier@lotusmart.vn`
+### ✅ Business developer - `developer@lotusmart.vn`
+
+- [ ] The account opens directly in **Developer** mode.
+- [ ] **Dashboard:** review API activity and integration status.
+- [ ] **API keys:** create a key, verify the secret is shown only once, and revoke a key.
+- [ ] **Webhooks:** configure an HTTPS endpoint, select events, and rotate its signing secret.
+- [ ] **MCP tools:** enable the server and change available tools.
+- [ ] Sign in as the owner to switch between **Business mode** and **Developer mode**.
+
+### ✅ Business cashier - `cashier@lotusmart.vn`
 
 - [ ] The **Developers** menu should **not** appear.
 - [ ] **Campaigns** and **Rewards** should be read-only, with no create or edit buttons.
@@ -149,7 +141,7 @@ Each area below matches a feature in the project scope. Use these as a starting 
 
 ## Part 4 - Handy tools for testers
 
-In the admin or store dashboards, click **Mock API** in the top-right corner to open a testing panel. From there you can:
+In the store dashboard, click **Mock API** in the top-right corner to open a testing panel. From there you can:
 
 | Tool                         | What it's for                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------- |

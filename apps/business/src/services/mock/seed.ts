@@ -221,6 +221,21 @@ export function createSeed(): Database {
         lastLoginAt: j === 3 ? undefined : daysAgo(rng.int(0, 10), rng),
       });
     });
+    if (i === 0) {
+      staff.push({
+        id: "usr_lotus_developer",
+        email: "developer@lotusmart.vn",
+        password: "octap123",
+        displayName: "Lotus Developer",
+        avatarUrl: "https://picsum.photos/id/12/200/200",
+        role: "merchant",
+        tenantId: t.id,
+        merchantRole: "developer",
+        status: "active",
+        createdAt: t.createdAt,
+        lastLoginAt: daysAgo(1),
+      });
+    }
   });
 
   // End users (shared identity, zkLogin address) ------------------------------

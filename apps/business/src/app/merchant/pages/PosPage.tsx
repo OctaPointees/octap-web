@@ -1,14 +1,14 @@
-import { Form } from "@base-ui/react/form";
-import { CheckCircle, Sparkle, Storefront } from "phosphor-react";
-import { useEffect, useState } from "react";
-import { Button } from "../../../components/shared/Button";
-import { ChainRef, FormField, TextInput } from "../../../components/shared/Controls";
-import { Card, PageHeader } from "../../../components/shared/Display";
-import { Select } from "../../../components/shared/Select";
-import { useEarnQuote, useIssuePoints, useMerchantTenant } from "../../../queries/merchant";
-import type { TxChannel } from "../../../types/domain";
-import { fieldErrorsOf, formErrorOf } from "../../../utils/errors";
-import { fmtNumber, fmtSui, fmtVnd } from "../../../utils/format";
+import { Form } from '@base-ui/react/form';
+import { CheckCircle, Sparkle, Storefront } from 'phosphor-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/shared/Button';
+import { ChainRef, FormField, TextInput } from '@/components/shared/Controls';
+import { Card, PageHeader } from '@/components/shared/Display';
+import { Select } from '@/components/shared/Select';
+import { useEarnQuote, useIssuePoints, useMerchantTenant } from '@/queries/merchant';
+import type { TxChannel } from '@/types/domain';
+import { fieldErrorsOf, formErrorOf } from '@/utils/errors';
+import { fmtNumber, fmtSui, fmtVnd } from '@/utils/format';
 
 const QUICK_AMOUNTS = [85_000, 250_000, 520_000, 1_200_000];
 
@@ -23,9 +23,9 @@ function useDebounced<T>(value: T, ms = 300) {
 
 export default function PosPage() {
   const tenant = useMerchantTenant().data;
-  const [phone, setPhone] = useState("0901 234 567");
+  const [phone, setPhone] = useState('0901 234 567');
   const [amount, setAmount] = useState(250_000);
-  const [channel, setChannel] = useState<Extract<TxChannel, "pos" | "sdk" | "dashboard">>("pos");
+  const [channel, setChannel] = useState<Extract<TxChannel, 'pos' | 'sdk' | 'dashboard'>>('pos');
   const debouncedAmount = useDebounced(amount);
   const quote = useEarnQuote(debouncedAmount);
   const issue = useIssuePoints();
@@ -50,27 +50,49 @@ export default function PosPage() {
             }}
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="Member phone number" error={errors.phone} hint="New numbers are enrolled automatically">
-                <TextInput value={phone} onChange={(e) => setPhone(e.target.value)} invalid={!!errors.phone} inputMode="tel" />
+              <FormField
+                label="Member phone number"
+                error={errors.phone}
+                hint="New numbers are enrolled automatically"
+              >
+                <TextInput
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  invalid={!!errors.phone}
+                  inputMode="tel"
+                />
               </FormField>
               <FormField label="Channel">
                 <Select
                   value={channel}
                   onValueChange={setChannel}
                   options={[
-                    { label: "POS terminal", value: "pos" },
-                    { label: "SDK (e-commerce)", value: "sdk" },
-                    { label: "Dashboard (manual)", value: "dashboard" },
+                    { label: 'POS terminal', value: 'pos' },
+                    { label: 'SDK (e-commerce)', value: 'sdk' },
+                    { label: 'Dashboard (manual)', value: 'dashboard' },
                   ]}
                 />
               </FormField>
             </div>
             <FormField label="Bill amount (VND)" error={errors.amountVnd}>
-              <TextInput type="number" min={0} step={1000} value={amount} onChange={(e) => setAmount(Number(e.target.value))} invalid={!!errors.amountVnd} className="text-lg font-semibold" />
+              <TextInput
+                type="number"
+                min={0}
+                step={1000}
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                invalid={!!errors.amountVnd}
+                className="text-lg font-semibold"
+              />
             </FormField>
             <div className="flex flex-wrap gap-2">
               {QUICK_AMOUNTS.map((a) => (
-                <button key={a} type="button" className="btn btn-sm btn-soft" onClick={() => setAmount(a)}>
+                <button
+                  key={a}
+                  type="button"
+                  className="btn btn-sm btn-soft"
+                  onClick={() => setAmount(a)}
+                >
                   {fmtVnd(a)}
                 </button>
               ))}
@@ -114,8 +136,12 @@ export default function PosPage() {
             )}
 
             <Button type="submit" className="btn-primary btn-lg" disabled={issue.isPending}>
-              {issue.isPending ? <span className="loading loading-spinner" /> : <Storefront size={20} />}
-              {issue.isPending ? "Submitting sponsored transaction…" : "Award points"}
+              {issue.isPending ? (
+                <span className="loading loading-spinner" />
+              ) : (
+                <Storefront size={20} />
+              )}
+              {issue.isPending ? 'Submitting sponsored transaction…' : 'Award points'}
             </Button>
           </Form>
         </Card>
@@ -130,7 +156,9 @@ export default function PosPage() {
                 </div>
                 <div className="text-sm opacity-70">
                   {result.memberName}
-                  {result.newMember && <span className="badge badge-primary badge-sm ml-2">New member</span>}
+                  {result.newMember && (
+                    <span className="badge badge-primary badge-sm ml-2">New member</span>
+                  )}
                 </div>
                 <div className="text-sm">
                   New balance: <b>{fmtNumber(result.balance)}</b>
@@ -160,13 +188,13 @@ export default function PosPage() {
 const octap = new OctaP({ apiKey: process.env.OCTAP_KEY });
 
 const receipt = await octap.points.earn({
-  phone: "${phone.replace(/\s/g, "")}",
+  phone: "${phone.replace(/\s/g, '')}",
   amount: ${amount},          // VND
   currency: "VND",
   channel: "${channel}",
 });
 
-// receipt.points     → ${quote.data?.totalPoints ?? "…"}
+// receipt.points     → ${quote.data?.totalPoints ?? '…'}
 // receipt.txDigest   → Sui transaction digest`}
             </pre>
           </Card>

@@ -30,7 +30,7 @@ import { toPublicStaff } from "./core/staff";
 import { getDb } from "./mock/db";
 import { badRequest, conflict, forbidden, notFound, simulate } from "./mock/http";
 import { hex, live, uid } from "./mock/random";
-import { requireMerchant, sessionStore } from "./session";
+import { requireIntegrationRole, requireMerchant, sessionStore } from "./session";
 
 export type CampaignInput = {
   name: string;
@@ -453,7 +453,7 @@ export const merchantService = {
 
   listApiKeys() {
     return simulate("GET /v1/merchant/api-keys", () => {
-      const tenantId = requireMerchant("manager");
+      const tenantId = requireIntegrationRole();
       return getDb()
         .apiKeys.filter((k) => k.tenantId === tenantId)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -464,7 +464,7 @@ export const merchantService = {
     return simulate(
       "POST /v1/merchant/api-keys",
       () => {
-        const tenantId = requireMerchant("owner");
+        const tenantId = requireIntegrationRole();
         const errors: Record<string, string> = {};
         if (input.name.trim().length < 3) errors.name = "At least 3 characters";
         if (!input.scopes.length) errors.scopes = "Select at least one scope";
@@ -492,7 +492,7 @@ export const merchantService = {
 
   revokeApiKey(id: string) {
     return simulate(`DELETE /v1/merchant/api-keys/${id}`, () => {
-      const tenantId = requireMerchant("owner");
+      const tenantId = requireIntegrationRole();
       const key = getDb().apiKeys.find((k) => k.id === id && k.tenantId === tenantId);
       if (!key) throw notFound("API key");
       key.status = "revoked";
@@ -505,7 +505,7 @@ export const merchantService = {
     return simulate(
       "PATCH /v1/merchant/mcp",
       () => {
-        const tenantId = requireMerchant("owner");
+        const tenantId = requireIntegrationRole();
         const t = tenantOf(tenantId);
         if (t.plan === "starter") throw forbidden("The MCP server is available on Growth and Enterprise plans.");
         if (patch.enabled !== undefined) t.mcp.enabled = patch.enabled;

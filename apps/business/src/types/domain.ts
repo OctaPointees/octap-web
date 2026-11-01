@@ -11,7 +11,7 @@ export type ISODate = string;
  * ------------------------------------------------------------------------- */
 
 export type PortalRole = "admin" | "merchant";
-export type MerchantRole = "owner" | "manager" | "cashier" | "viewer";
+export type MerchantRole = "owner" | "developer" | "manager" | "cashier" | "viewer";
 
 export type SessionUser = {
   id: ID;

@@ -1,6 +1,10 @@
+import { useState } from 'react';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+
+import { useMutation } from '@tanstack/react-query';
+
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Form } from '@base-ui/react/form';
-import { useMutation } from '@tanstack/react-query';
 import {
   Check,
   DeviceMobile,
@@ -11,21 +15,22 @@ import {
   Warning,
   ArrowLeft,
 } from 'phosphor-react';
-import { useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router';
-import { FormField, TextInput } from '../../components/shared/Controls';
-import { Button } from '../../components/shared/Button';
-import { Modal } from '../../components/shared/Modal';
-import { useSession } from '../../queries/useSession';
-import { authService, DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../services/auth.service';
-import { fieldErrorsOf, formErrorOf } from '../../utils/errors';
-import { homeFor } from '../../utils/constants';
+
+import { FormField, TextInput } from '@/components/shared/Controls';
+import { Button } from '@/components/shared/Button';
+import { Modal } from '@/components/shared/Modal';
+
+import { authService, DEMO_ACCOUNTS, DEMO_PASSWORD } from '@/services/auth.service';
+import { useSession } from '@/queries/useSession';
+
+import { fieldErrorsOf, formErrorOf } from '@/utils/errors';
+import { homeFor } from '@/utils/constants';
 
 const PILLARS = [
   {
     icon: Stack,
     title: 'Tenant-isolated points',
-    text: 'Every merchant runs its own point token and treasury on Sui.',
+    text: 'Every business runs its own point token and treasury on Sui.',
   },
   {
     icon: ShieldCheck,
@@ -104,14 +109,14 @@ export default function AuthenticationEntryPoint() {
     mutationFn: authService.login,
     onSuccess: (s) => {
       const from = (location.state as { from?: string } | null)?.from;
-      navigate(from?.startsWith(homeFor(s.user.role)) ? from : homeFor(s.user.role), {
+      navigate(from?.startsWith(homeFor(s.user)) ? from : homeFor(s.user), {
         replace: true,
       });
     },
   });
 
   if (session && !login.isPending && !login.isSuccess)
-    return <Navigate to={homeFor(session.user.role)} replace />;
+    return <Navigate to={homeFor(session.user)} replace />;
 
   const errors = fieldErrorsOf(login.error);
   const formError = formErrorOf(login.error);
@@ -165,7 +170,7 @@ export default function AuthenticationEntryPoint() {
               <span>Back to OctaP Home</span>
             </Link>
             <h2 className="text-2xl font-bold">Sign in</h2>
-            <p className="text-sm opacity-65">Merchant dashboard & OctaP operator console</p>
+            <p className="text-sm opacity-65">Business dashboard & OctaP operator console</p>
           </div>
 
           {formError && (

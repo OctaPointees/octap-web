@@ -8,9 +8,10 @@ import { sessionStore } from './session';
 export type LoginInput = { email: string; password: string; remember: boolean };
 
 export const DEMO_ACCOUNTS = [
-  { label: 'Merchant owner', email: 'owner@lotusmart.vn', hint: 'Full access to Lotus Mart' },
-  { label: 'Merchant cashier', email: 'cashier@lotusmart.vn', hint: 'Limited RBAC role' },
-  { label: 'Merchant manager', email: 'manager@phocaphe.vn', hint: 'Phố Cà Phê tenant' },
+  { label: 'Business owner', email: 'owner@lotusmart.vn', hint: 'Business operations and team settings' },
+  { label: 'Business developer', email: 'developer@lotusmart.vn', hint: 'API keys, webhooks and MCP tools' },
+  { label: 'Business cashier', email: 'cashier@lotusmart.vn', hint: 'Limited RBAC role' },
+  { label: 'Business manager', email: 'manager@phocaphe.vn', hint: 'Phố Cà Phê tenant' },
 ];
 export const DEMO_PASSWORD = 'octap123';
 

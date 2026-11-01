@@ -43,7 +43,7 @@ export function requireSession(role?: PortalRole) {
   return s;
 }
 
-const RANK: Record<MerchantRole, number> = { viewer: 0, cashier: 1, manager: 2, owner: 3 };
+const RANK: Record<MerchantRole, number> = { viewer: 0, developer: 0, cashier: 1, manager: 2, owner: 3 };
 
 /** Merchant RBAC: returns the tenant id the caller is scoped to. */
 export function requireMerchant(min: MerchantRole = "viewer") {
@@ -57,4 +57,13 @@ export function requireMerchant(min: MerchantRole = "viewer") {
 
 export function hasMerchantRole(role: MerchantRole | undefined, min: MerchantRole) {
   return RANK[role ?? "viewer"] >= RANK[min];
+}
+
+/** Integration settings are available to business owners and developers. */
+export function requireIntegrationRole() {
+  const s = requireSession("merchant");
+  if (s.user.merchantRole !== "owner" && s.user.merchantRole !== "developer") {
+    throw forbidden("Only a business owner or developer can manage integrations.");
+  }
+  return s.user.tenantId!;
 }
