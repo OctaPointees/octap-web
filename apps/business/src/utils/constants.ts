@@ -6,5 +6,10 @@ export const RANGE_OPTIONS: { label: string; value: Range }[] = [
   { label: '90 days', value: '90d' },
 ];
 
-export const homeFor = (user: Pick<SessionUser, 'role' | 'merchantRole'>) =>
-  user.role === 'admin' ? '/admin' : '/merchant';
+export const homeFor = (user: Pick<SessionUser, 'merchantRole'>) => {
+  if (user.merchantRole === 'developer') {
+    return '/developer';
+  }
+
+  return '/merchant';
+};

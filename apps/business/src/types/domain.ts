@@ -10,8 +10,8 @@ export type ISODate = string;
  * Identity & access
  * ------------------------------------------------------------------------- */
 
-export type PortalRole = "admin" | "merchant";
-export type MerchantRole = "owner" | "developer" | "manager" | "cashier" | "viewer";
+export type PortalRole = 'admin' | 'merchant';
+export type MerchantRole = 'owner' | 'developer' | 'manager' | 'cashier' | 'viewer';
 
 export type SessionUser = {
   id: ID;
@@ -32,7 +32,7 @@ export type Session = {
 
 export type StaffAccount = SessionUser & {
   password: string;
-  status: "active" | "invited" | "disabled";
+  status: 'active' | 'invited' | 'disabled';
   lastLoginAt?: ISODate;
   createdAt: ISODate;
 };
@@ -41,16 +41,16 @@ export type StaffAccount = SessionUser & {
  * Tenants (merchants / business partners)
  * ------------------------------------------------------------------------- */
 
-export type TenantStatus = "provisioning" | "active" | "suspended";
-export type TenantPlan = "starter" | "growth" | "enterprise";
+export type TenantStatus = 'provisioning' | 'active' | 'suspended';
+export type TenantPlan = 'starter' | 'growth' | 'enterprise';
 
 export type McpTool =
-  | "get_balance"
-  | "list_campaigns"
-  | "create_campaign"
-  | "issue_points"
-  | "list_rewards"
-  | "get_member_history";
+  | 'get_balance'
+  | 'list_campaigns'
+  | 'create_campaign'
+  | 'issue_points'
+  | 'list_rewards'
+  | 'get_member_history';
 
 export type Tenant = {
   id: ID;
@@ -80,17 +80,8 @@ export type Tenant = {
  * Campaigns, rewards, members, ledger
  * ------------------------------------------------------------------------- */
 
-export type CampaignType =
-  | "multiplier"
-  | "spend_threshold"
-  | "signup_bonus"
-  | "fixed_bonus";
-export type CampaignStatus =
-  | "draft"
-  | "scheduled"
-  | "active"
-  | "paused"
-  | "ended";
+export type CampaignType = 'multiplier' | 'spend_threshold' | 'signup_bonus' | 'fixed_bonus';
+export type CampaignStatus = 'draft' | 'scheduled' | 'active' | 'paused' | 'ended';
 
 export type Campaign = {
   id: ID;
@@ -117,19 +108,14 @@ export type Campaign = {
   createdAt: ISODate;
 };
 
-export type RewardStatus =
-  | "pending_review"
-  | "active"
-  | "paused"
-  | "rejected"
-  | "expired";
+export type RewardStatus = 'pending_review' | 'active' | 'paused' | 'rejected' | 'expired';
 
 export type Reward = {
   id: ID;
   tenantId: ID;
   title: string;
   description: string;
-  category: "discount" | "free_item" | "gift" | "experience";
+  category: 'discount' | 'free_item' | 'gift' | 'experience';
   pointCost: number;
   faceValueVnd: number;
   stock: number;
@@ -140,7 +126,7 @@ export type Reward = {
   createdAt: ISODate;
 };
 
-export type MemberTier = "bronze" | "silver" | "gold" | "platinum";
+export type MemberTier = 'bronze' | 'silver' | 'gold' | 'platinum';
 
 export type EndUser = {
   id: ID;
@@ -170,9 +156,9 @@ export type Member = Membership & {
   suiAddress: string;
 };
 
-export type TxKind = "earn" | "redeem" | "adjust" | "expire";
-export type TxChannel = "pos" | "sdk" | "mcp" | "dashboard" | "wallet";
-export type TxStatus = "confirmed" | "pending" | "failed";
+export type TxKind = 'earn' | 'redeem' | 'adjust' | 'expire';
+export type TxChannel = 'pos' | 'sdk' | 'mcp' | 'dashboard' | 'wallet';
+export type TxStatus = 'confirmed' | 'pending' | 'failed';
 
 export type LedgerTx = {
   id: ID;
@@ -200,7 +186,7 @@ export type VoucherCode = {
   tenantId: ID;
   membershipId: ID;
   txDigest: string;
-  status: "issued" | "used" | "expired";
+  status: 'issued' | 'used' | 'expired';
   issuedAt: ISODate;
 };
 
@@ -209,21 +195,21 @@ export type VoucherCode = {
  * ------------------------------------------------------------------------- */
 
 export type ApiScope =
-  | "points:earn"
-  | "points:redeem"
-  | "balances:read"
-  | "campaigns:read"
-  | "campaigns:write"
-  | "members:read";
+  | 'points:earn'
+  | 'points:redeem'
+  | 'balances:read'
+  | 'campaigns:read'
+  | 'campaigns:write'
+  | 'members:read';
 
 export type ApiKey = {
   id: ID;
   tenantId: ID;
   name: string;
-  env: "live" | "test";
+  env: 'live' | 'test';
   prefix: string;
   scopes: ApiScope[];
-  status: "active" | "revoked";
+  status: 'active' | 'revoked';
   createdAt: ISODate;
   lastUsedAt?: ISODate;
   requests30d: number;
@@ -233,13 +219,8 @@ export type ApiKey = {
  * Audit & metrics
  * ------------------------------------------------------------------------- */
 
-export type AuditSeverity = "info" | "warning" | "critical";
-export type AuditActorType =
-  | "admin"
-  | "merchant"
-  | "api_key"
-  | "mcp_agent"
-  | "system";
+export type AuditSeverity = 'info' | 'warning' | 'critical';
+export type AuditActorType = 'admin' | 'merchant' | 'api_key' | 'mcp_agent' | 'system';
 
 export type AuditEvent = {
   id: ID;
@@ -277,4 +258,4 @@ export type Paged<T> = {
   total: number;
 };
 
-export type Range = "7d" | "30d" | "90d";
+export type Range = '7d' | '30d' | '90d';

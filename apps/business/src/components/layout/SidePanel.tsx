@@ -30,6 +30,7 @@ export default function SidePanel({ options, roleLabel, footer, className }: Pro
   const user = session?.user;
 
   const isDeveloperMode = location.pathname.startsWith('/developer');
+  const isOwner = ['owner'].includes(user?.merchantRole ?? '');
 
   const clss = cn(
     'flex w-80 shrink-0 flex-col max-lg:hidden p-3 rounded-box bg-primary text-primary-content',
@@ -54,13 +55,15 @@ export default function SidePanel({ options, roleLabel, footer, className }: Pro
         </div>
       </div>
 
-      <Button
-        className="btn-block justify-start btn-primary justify-between mt-2"
-        onClick={() => navigate(isDeveloperMode ? '/merchant' : '/developer')}
-      >
-        Switch to {isDeveloperMode ? 'Business' : 'Developer'} mode
-        <ArrowsLeftRight size="1.5em" />
-      </Button>
+      {isOwner && (
+        <Button
+          className="btn-block justify-start btn-primary justify-between mt-2"
+          onClick={() => navigate(isDeveloperMode ? '/merchant' : '/developer')}
+        >
+          Switch to {isDeveloperMode ? 'Business' : 'Developer'} mode
+          <ArrowsLeftRight size="1.5em" />
+        </Button>
+      )}
 
       <div className="border-b-2 border-dashed border-primary-content/67 my-2"></div>
 
