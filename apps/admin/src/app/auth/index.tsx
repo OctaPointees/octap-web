@@ -1,3 +1,4 @@
+import { ConsoleLogin } from '@octap/shared/google-auth';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Form } from '@base-ui/react/form';
 import { useMutation } from '@tanstack/react-query';
@@ -90,7 +91,7 @@ function ForgotPassword({
   );
 }
 
-export default function AuthenticationEntryPoint() {
+function DemoAuthenticationEntryPoint() {
   const session = useSession();
   const navigate = useNavigate();
   const location = useLocation();
@@ -117,41 +118,7 @@ export default function AuthenticationEntryPoint() {
 
   return (
     <div className="app-wrapper grid lg:grid-cols-2">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-secondary p-12 text-secondary-content lg:flex">
-        <div className="absolute -top-32 -right-32 size-96 rounded-full bg-primary/40 blur-3xl" />
-        <div className="absolute -bottom-40 -left-20 size-96 rounded-full bg-accent/20 blur-3xl" />
-        <div className="relative flex items-center gap-3">
-          <div className="size-11 rounded-box bg-primary p-2">
-            <img src="/icons/logo_dark.png" className="w-full" alt="" />
-          </div>
-          <span className="text-xl font-bold">OctaP</span>
-        </div>
-        <div className="relative max-w-md">
-          <h1 className="text-4xl leading-tight font-bold">
-            Credit-as-a-Service for modern loyalty.
-          </h1>
-          <p className="mt-4 opacity-75">
-            Launch secure, isolated loyalty programs backed by the Sui blockchain — with a Web2
-            experience your customers already know.
-          </p>
-          <ul className="mt-10 flex flex-col gap-6">
-            {PILLARS.map((p) => (
-              <li key={p.title} className="flex gap-4">
-                <div className="h-fit rounded-box bg-white/10 p-2.5">
-                  <p.icon size={22} />
-                </div>
-                <div>
-                  <div className="font-semibold">{p.title}</div>
-                  <div className="text-sm opacity-70">{p.text}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="relative text-xs opacity-50">
-          © 2026 OctaPoint · Design draft — all data is simulated
-        </div>
-      </section>
+      <AuthenticationBrandPanel />
 
       <section className="flex items-center justify-center overflow-y-auto p-6">
         <div className="flex w-full max-w-sm flex-col gap-6">
@@ -260,6 +227,59 @@ export default function AuthenticationEntryPoint() {
       </section>
 
       <ForgotPassword open={forgotOpen} onOpenChange={setForgotOpen} />
+    </div>
+  );
+}
+
+function AuthenticationBrandPanel() {
+  return (
+    <section className="relative hidden flex-col justify-between overflow-hidden bg-secondary p-12 text-secondary-content lg:flex">
+      <div className="absolute -top-32 -right-32 size-96 rounded-full bg-primary/40 blur-3xl" />
+      <div className="absolute -bottom-40 -left-20 size-96 rounded-full bg-accent/20 blur-3xl" />
+      <div className="relative flex items-center gap-3">
+        <div className="size-11 rounded-box bg-primary p-2">
+          <img src="/icons/logo_dark.png" className="w-full" alt="" />
+        </div>
+        <span className="text-xl font-bold">OctaP</span>
+      </div>
+      <div className="relative max-w-md">
+        <h1 className="text-4xl leading-tight font-bold">
+          Credit-as-a-Service for modern loyalty.
+        </h1>
+        <p className="mt-4 opacity-75">
+          Launch secure, isolated loyalty programs backed by the Sui blockchain — with a Web2
+          experience your customers already know.
+        </p>
+        <ul className="mt-10 flex flex-col gap-6">
+          {PILLARS.map((p) => (
+            <li key={p.title} className="flex gap-4">
+              <div className="h-fit rounded-box bg-white/10 p-2.5">
+                <p.icon size={22} />
+              </div>
+              <div>
+                <div className="font-semibold">{p.title}</div>
+                <div className="text-sm opacity-70">{p.text}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="relative text-xs opacity-50">
+        © 2026 OctaPoint · Design draft — all data is simulated
+      </div>
+    </section>
+  );
+}
+export default function AuthenticationEntryPoint() {
+  if (import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true') return <DemoAuthenticationEntryPoint />;
+  return (
+    <div className="app-wrapper grid lg:grid-cols-5">
+      <AuthenticationBrandPanel />
+      <section className="flex items-center justify-center overflow-y-auto p-6 col-span-2">
+        <div className="flex w-full max-w-sm flex-col gap-6">
+          <ConsoleLogin />
+        </div>
+      </section>
     </div>
   );
 }

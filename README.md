@@ -1,116 +1,102 @@
 # OctaP Web
 
-Source code for the OctaP websites, organised as an npm-workspaces monorepo (React 19 + TypeScript + Vite + Tailwind CSS v4).
+An npm-workspaces monorepo using React, TypeScript, Vite/Next.js and Tailwind CSS v4.
 
-| App | Path | Dev URL | Status |
-| --- | --- | --- | --- |
-| Landing page (V4b Magenta Pulse) | `apps/landing` | http://localhost:3000 | Implemented |
-| Business / Partner Dashboard + Developer Console | `apps/business` | http://localhost:4000 | Implemented (prototype, mock data) |
-| Admin Dashboard | `apps/admin` | http://localhost:5000 | Implemented (mock services) |
-| Customer partner portal (Next.js) | `apps/partner-website` | http://localhost:4001 | Coffee rewards demo with live identity, points, and vouchers |
-| Shared styles and utilities | `packages/shared`, `packages/services` | – | Theme tokens only |
+| App                            | Path                   | Default development URL | Current behavior                                                |
+| ------------------------------ | ---------------------- | ----------------------- | --------------------------------------------------------------- |
+| Landing page                   | `apps/landing`         | http://localhost:3000   | Marketing site                                                  |
+| Business / Developer dashboard | `apps/business`        | http://localhost:5173   | Google login and Core organization/access workflows             |
+| System Admin dashboard         | `apps/admin`           | http://localhost:5000   | Google login and Core organization request review               |
+| Customer partner portal        | `apps/partner-website` | http://localhost:4001   | Separate customer identity, points and voucher demo             |
+| Shared modules                 | `packages/shared`      | ?                       | Theme, utilities, portal authentication and reusable components |
 
-The marketing and dashboard overview prototypes use mock data. The customer partner portal and
-local merchant demo forms connect to Core for identity, points, and vouchers. See the
-[demo walkthrough](docs/DEMO_GUIDE.md) and [partner setup guide](apps/partner-website/README.md).
+The business and admin apps reuse their existing dashboard layouts. Their default mode
+calls Core directly for identity, tenant membership, onboarding, invitations, permitted
+profile updates and credential metadata. Other dashboard modules report that they are
+not connected yet instead of silently using sample data.
+
+The original sample dashboards and password login require `VITE_ENABLE_DEMO_AUTH=true`.
+They are demonstrations, not production authentication. Real mode neither initializes
+nor reads, resets or writes their browser-local mock databases.
 
 ## Getting started
 
-```bash
-npm install
-npm run dev        # landing (3000) + business (4000) together
+Use Node.js 24 when working with both Web and Core. From this repository:
+
+```sh
+npm ci
+npm run dev:business
 ```
 
-Other scripts (run from the repo root):
+For Google login, copy the relevant app's `.env.example` to `.env.local`, configure the
+public Google client ID and Core target, and start Core with its migrations applied.
+Authorize the actual browser origins in the Google client. See
+[Google portal configuration and workflows](docs/google-login.md).
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev:landing` / `dev:business` / `dev:admin` | Run a single app |
-| `npm run dev:partner-website` | Run the customer subdomain portal on port 4001 |
-| `npm run build` | Type-check and build every workspace |
-| `npm run lint` | Lint every workspace |
+Other entry points:
 
-`clean-install.ps1` removes every `node_modules` folder (Windows PowerShell) for a fresh install.
-
-### Linking the two apps
-
-The landing page sends visitors to the business login, and the login's "Back to octap.com" link returns to the landing page. Both URLs default to the local dev servers and can be overridden per app (see each `.env.example`):
-
-| App | Variable | Default |
-| --- | --- | --- |
-| `apps/landing` | `VITE_BUSINESS_URL` | `http://localhost:4000/login` |
-| `apps/business` | `VITE_LANDING_URL` | `http://localhost:3000/` |
-| `apps/business` | `VITE_DEMO_MODE` | on; set to `false` to hide the demo-account block on the login page |
-
-## Manual test flow
-
-Start `npm run dev` first.
-
-### 1. Landing to login
-1. Open http://localhost:3000.
-2. Click **Sign in** or **Get started** in the header (or **Get started** at the bottom). You land on http://localhost:4000/login.
-3. On the login page click **Back to octap.com** (top left) to return to the landing page.
-
-### 2. Sign in
-Quick path: click the **Owner** demo card (email and password are filled in and focus jumps to **Sign in**), then click **Sign in**. After the spinner you are redirected to `/dashboard`.
-
-Demo password for every account is `octap123`.
-
-| Check | How | Expected |
-| --- | --- | --- |
-| Wrong password | `owner@lotusmart.vn` with a wrong password | "Incorrect email or password." banner |
-| Lockout | Fail 5 times in a row | "Too many attempts…" banner, Sign in disabled |
-| Disabled button | Leave email or password empty | Sign in is disabled |
-| Show / hide password | Click the eye icon | Password toggles visibility |
-| Caps Lock | Type in the password field with Caps Lock on | "Caps Lock is on" warning |
-| Platform admin | Pick **Platform admin**, then Sign in | Pill switches to ADMIN, lands on `/admin` (info page only) |
-| Google | **Continue with Google** | "Choose organization" step; pick one and **Continue** to reach the dashboard |
-| Phone | **Sign in with phone number**, enter 9+ digits, **Send code**, enter `123456` | Dashboard. Any other code shows an error. **Resend code** unlocks after 30 s |
-
-### 3. Dashboard
-1. Click the arrow on the sidebar edge to collapse it; hover an icon for its tooltip.
-2. Click **Test** (top right) to show the "Test mode" strip, **Live** to hide it.
-3. Scroll down and click a row in **Latest transactions**: a detail drawer slides in (close with Esc, the X button, or by clicking outside).
-4. Issue points, Campaigns, Rewards, Members, Transactions and Settings have no pages yet, so those sidebar items do nothing.
-
-### 4. Enter the Developer Console (video transition)
-1. Click **Developers** in the sidebar. `public/videos/octap_to_dev_short.mp4` plays full screen for about one second, then `/developers/overview` appears.
-2. Browse the seven sections: Overview, API keys, Sandbox, Mock transactions, Logs, Webhooks, MCP.
-3. **API keys** → **Create API key** opens a modal. **Cancel** or X closes it; **Close** is enabled once "I've stored this secret" is ticked.
-4. **Mock transactions** → **Run scenario** shows the running state, then returns to idle after about 4.5 s.
-5. Use the arrow on the dark sidebar to collapse it to an icon rail.
-
-### 5. Back to the Dashboard (circle-wipe animation)
-Click **Back to Dashboard** (top left of the dark sidebar). A magenta circle grows from the button, the OctaP mark pulses, the circle closes to the centre and the dashboard cards animate in.
-
-### Good to know
-- The session lives in `sessionStorage`: opening `/dashboard` or `/developers/*` while signed out redirects to `/login`, and closing the tab ends the session.
-- The video only plays when you go Dashboard → Developers; loading `/developers/*` directly skips it.
-- Fonts and icon sets (Google Fonts, Remix Icon, Tabler Icons) load from CDNs, so icons need an internet connection.
-- The cashier role lands on the dashboard because the "Issue points" page does not exist yet.
-
-## Project structure
-
-```
-apps/
-  landing/    Landing page; one component per section in src/sections
-  business/   Partner Dashboard
-    public/videos/        Transition clip (Dashboard → Developers)
-    src/auth.ts           Demo accounts and sessionStorage helpers
-    src/components/       Transition provider (video and circle wipe)
-    src/pages/login       Sign-in, phone/OTP and organization steps
-    src/pages/dashboard   Light dashboard and transaction drawer
-    src/pages/developers  Dark Developer Console (7 routes)
-    src/styles/           One scoped stylesheet per theme (login, light, dev)
-  admin/      Standalone admin portal with local mock services and regression tests
-packages/
-  shared/     Shared theme tokens (daisyUI `octap` theme)
-  services/   Placeholder
-sources/      Design references and specs (git-ignored)
+```sh
+npm run dev:admin
+npm run dev:landing
+npm run dev:partner-website
 ```
 
-`apps/landing` and `apps/business` import the shared brand foundation from `packages/shared/src/styles/brand.css`. Their `src/styles/theme.css` files register scoped colors with Tailwind v4; the developer console retains a dark palette. These apps do not load daisyUI component styles. The business stylesheets are scoped under `.theme-login`, `.theme-light` and `.theme-dev` so class names such as `.card` do not collide.
+`npm run dev` starts landing and business together. Landing requests port 3000; if Core
+also uses that port, choose a different landing port and use Vite's printed URL. The
+landing page's current default business link is the older port 4000; set
+`VITE_BUSINESS_URL=http://localhost:5173/login` in its local environment when using the
+business app's default port. Explicit CLI port overrides take precedence.
 
-## Coding conventions
+## Live portal flows
 
-See [DISCLAIMER.md](./DISCLAIMER.md) for coding styles, including the Tailwind CSS v4 rules. Landing and business components use registered color utilities and spacing-scale classes. Keep new theme values in `src/styles/theme.css` or the shared brand foundation; reserve inline styles for data-driven values and bespoke chart/illustration layouts. Both portals support reduced motion, and the business dialogs use native modal focus handling.
+- Google establishes identity. Core owns system roles and organization memberships.
+- `SYSTEM_USER` is the default; `SYSTEM_ADMIN` must be explicitly provisioned.
+- Owner and Developer are per-organization personas. System Admin access grants no
+  tenant access without an explicit active membership.
+- No memberships leads to focused onboarding without a sidebar. Choose Individual /
+  Household business or Company, enter details, review and submit for admin approval.
+- Users with memberships can skip setup. Core permissions are refreshed first. One
+  organization opens directly; multiple organizations require selection.
+- Approval activates the organization and creates its first Owner membership. Owners
+  can manage permitted settings and invite Developers. Invitations require the addressed
+  Google identity to accept and are one-time.
+- CCCD can be saved or updated by an Owner and is encrypted by Core. Responses are masked;
+  CCCD and business registration verification are not implemented.
+- Google credentials stay in memory. Reloading requires sign-in again; account/organization
+  changes clear query caches. The real Web flows do not use the OctaP SDK.
+
+| Setting                    | App            | Purpose                                                                 |
+| -------------------------- | -------------- | ----------------------------------------------------------------------- |
+| `VITE_GOOGLE_CLIENT_ID`    | business/admin | Public Google OAuth Web client ID                                       |
+| `CORE_API_URL`             | business/admin | Development proxy target, default `http://127.0.0.1:3000`               |
+| `VITE_CORE_API_URL`        | business/admin | Optional direct API origin; otherwise use the proxy                     |
+| `VITE_ENABLE_DEMO_AUTH`    | business/admin | Exact value `true` enables mock/password demo mode; disabled by default |
+| `VITE_ADMIN_PORTAL_URL`    | business       | System Admin application URL                                            |
+| `VITE_BUSINESS_PORTAL_URL` | admin          | Business application URL; link appears only for tenant members          |
+
+Keep Google client secrets, merchant credentials and Core encryption keys out of Vite
+variables and committed environment files.
+
+## Validation
+
+```sh
+npm run build
+npm run lint
+npm test -w @octap/admin
+npm run test:google-login
+```
+
+The admin regression suite explicitly enables demo mode for its original session tests
+and separately verifies real-mode mock isolation in both apps. Browser tests replace
+Google/Core responses to check UI and routing. A real Google sign-in still requires
+valid OAuth configuration. Core's own suite verifies real API/database behavior.
+
+## Project conventions
+
+Follow [DISCLAIMER.md](DISCLAIMER.md) and `.prettierrc`: two-space indentation, single
+quotes, semicolons and print width 100. Use Tailwind v4 theme tokens and spacing utilities;
+keep app-specific dashboards and mock services in their respective apps.
+
+See the [business guide](apps/business/README.md), [admin guide](apps/admin/README.md),
+[customer partner guide](apps/partner-website/README.md) and
+[customer/merchant demo walkthrough](docs/DEMO_GUIDE.md) for their separate scopes.

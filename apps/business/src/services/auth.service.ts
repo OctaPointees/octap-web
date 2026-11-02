@@ -8,8 +8,16 @@ import { sessionStore } from './session';
 export type LoginInput = { email: string; password: string; remember: boolean };
 
 export const DEMO_ACCOUNTS = [
-  { label: 'Business owner', email: 'owner@lotusmart.vn', hint: 'Business operations and team settings' },
-  { label: 'Business developer', email: 'developer@lotusmart.vn', hint: 'API keys, webhooks and MCP tools' },
+  {
+    label: 'Business owner',
+    email: 'owner@lotusmart.vn',
+    hint: 'Business operations and team settings',
+  },
+  {
+    label: 'Business developer',
+    email: 'developer@lotusmart.vn',
+    hint: 'API keys, webhooks and MCP tools',
+  },
   { label: 'Business cashier', email: 'cashier@lotusmart.vn', hint: 'Limited RBAC role' },
   { label: 'Business manager', email: 'manager@phocaphe.vn', hint: 'Phố Cà Phê tenant' },
 ];
@@ -17,6 +25,8 @@ export const DEMO_PASSWORD = 'octap123';
 
 export const authService = {
   login(input: LoginInput) {
+    if (import.meta.env.VITE_ENABLE_DEMO_AUTH !== 'true')
+      return Promise.reject(new Error('Demo password login is disabled. Use Google sign-in.'));
     return simulate(
       'POST /v1/auth/sessions',
       (): Session => {

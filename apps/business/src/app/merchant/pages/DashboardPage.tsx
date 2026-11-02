@@ -1,3 +1,4 @@
+import ConnectedDashboard from '../../console/Dashboard';
 import { ArrowRight, Coins, Receipt, Storefront, UsersThree, Vault } from 'phosphor-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -34,7 +35,7 @@ const TIER_COLORS = {
   platinum: 'var(--color-secondary)',
 };
 
-export default function MerchantDashboardPage() {
+function DemoMerchantDashboardPage() {
   const [range, setRange] = useState<Range>('30d');
   const { data, isLoading, error, refetch } = useMerchantOverview(range);
 
@@ -213,5 +214,13 @@ export default function MerchantDashboardPage() {
         </>
       )}
     </>
+  );
+}
+
+export default function MerchantDashboardPage() {
+  return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
+    <DemoMerchantDashboardPage />
+  ) : (
+    <ConnectedDashboard />
   );
 }

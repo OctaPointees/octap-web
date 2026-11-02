@@ -17,6 +17,8 @@ export const DEMO_PASSWORD = 'octap123';
 
 export const authService = {
   login(input: LoginInput) {
+    if (import.meta.env.VITE_ENABLE_DEMO_AUTH !== 'true')
+      return Promise.reject(new Error('Demo password login is disabled. Use Google sign-in.'));
     return simulate(
       'POST /v1/auth/sessions',
       (): Session => {

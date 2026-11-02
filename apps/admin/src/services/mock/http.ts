@@ -73,6 +73,13 @@ export const settings = {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function simulate<T>(endpoint: string, handler: () => T, body?: unknown): Promise<T> {
+  if (import.meta.env.VITE_ENABLE_DEMO_AUTH !== 'true')
+    throw new ApiError(
+      503,
+      'feature_not_connected',
+      'This dashboard module is not connected to Core yet.',
+    );
+
   const [method, path] = endpoint.split(' ');
   const duration = live.int(settings.latency[0], settings.latency[1]);
   await sleep(duration);

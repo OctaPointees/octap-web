@@ -9,6 +9,7 @@ const KEY = 'octap.admin.session';
 const listeners = new Set<() => void>();
 
 function read(): Session | null {
+  if (import.meta.env.VITE_ENABLE_DEMO_AUTH !== 'true') return null;
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;

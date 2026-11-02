@@ -1,3 +1,4 @@
+import { useConsoleAuth } from '@octap/shared/google-auth';
 import { SignOut, type Icon } from 'phosphor-react';
 import { NavLink, useNavigate } from 'react-router';
 import { useSession } from '../../queries/useSession';
@@ -24,6 +25,7 @@ type Props = {
 
 export default function SidePanel({ subtitle, options, roleLabel, footer }: Props) {
   const session = useSession();
+  const auth = useConsoleAuth();
   const navigate = useNavigate();
   const user = session?.user;
 
@@ -74,7 +76,11 @@ export default function SidePanel({ subtitle, options, roleLabel, footer }: Prop
       {footer}
 
       <div className="flex items-center gap-4 rounded-box bg-base-200 p-2">
-        <img src={user?.avatarUrl} className="size-16 rounded-box object-cover" alt="" />
+        <img
+          src={user?.avatarUrl || '/icons/logo_light.png'}
+          className="size-16 rounded-box object-cover"
+          alt=""
+        />
         <div className="min-w-0">
           <div className="text-sm">
             {user?.merchantRole ? `${roleLabel} · ${toTitle(user.merchantRole)}` : roleLabel}
@@ -86,7 +92,11 @@ export default function SidePanel({ subtitle, options, roleLabel, footer }: Prop
 
       <Button
         className="btn-block btn-soft btn-error justify-between"
-        onClick={() => authService.logout().then(() => navigate('/login', { replace: true }))}
+        onClick={() =>
+          auth
+            ? auth.signOut()
+            : authService.logout().then(() => navigate('/login', { replace: true }))
+        }
       >
         Log-out
         <SignOut size="1.8em" />

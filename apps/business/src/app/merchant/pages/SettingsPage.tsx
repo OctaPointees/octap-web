@@ -1,3 +1,4 @@
+import ConnectedSettings from '../../console/Settings';
 import { Form } from '@base-ui/react/form';
 import { UserPlus } from 'phosphor-react';
 import { useState } from 'react';
@@ -192,7 +193,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default function SettingsPage() {
+function DemoSettingsPage() {
   const session = useSession();
   const isOwner = hasMerchantRole(session?.user.merchantRole, 'owner');
   const tenant = useMerchantTenant();
@@ -346,5 +347,13 @@ export default function SettingsPage() {
 
       {inviting && <InviteModal onClose={() => setInviting(false)} />}
     </>
+  );
+}
+
+export default function SettingsPage() {
+  return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
+    <DemoSettingsPage />
+  ) : (
+    <ConnectedSettings />
   );
 }

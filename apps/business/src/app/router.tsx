@@ -1,4 +1,7 @@
-import { createBrowserRouter, Navigate } from 'react-router';
+import ConsoleAccessLayout from './console/AccessLayout';
+import { ConsoleRoot, ConsoleSignedIn, ConsoleScreen } from '@octap/shared/google-auth';
+import { queryClient } from '../queries/client';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireRoles } from './guards';
 
 import AuthenticationEntryPoint from './auth';
@@ -19,7 +22,7 @@ import TransactionsPage from './merchant/pages/TransactionsPage';
 import NotFoundPage from './NotFoundPage';
 import WalletApp from './wallet';
 
-export const router = createBrowserRouter([
+const demoRoutes: RouteObject[] = [
   { path: '/wallet', element: <WalletApp /> },
   {
     element: <RequireRoles merchantRoles={['developer', 'owner']} />,
@@ -52,6 +55,7 @@ export const router = createBrowserRouter([
               { path: 'members', element: <MembersPage /> },
               { path: 'transactions', element: <TransactionsPage /> },
               { path: 'settings', element: <SettingsPage /> },
+              { path: 'team', element: <SettingsPage /> },
             ],
           },
         ],
@@ -61,4 +65,38 @@ export const router = createBrowserRouter([
   { path: '/login', element: <Navigate to="/" /> },
   { path: '/', element: <AuthenticationEntryPoint /> },
   { path: '*', element: <NotFoundPage /> },
-]);
+];
+
+const liveRoutes: RouteObject[] = [
+  ...demoRoutes,
+  {
+    element: <ConsoleSignedIn />,
+    children: [
+      {
+        element: <ConsoleAccessLayout />,
+        children: [
+          { path: '/onboarding', element: <ConsoleScreen /> },
+          { path: '/organizations', element: <ConsoleScreen /> },
+          { path: '/admin', element: <ConsoleScreen /> },
+        ],
+      },
+    ],
+  },
+];
+export const router = createBrowserRouter(
+  import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'
+    ? demoRoutes
+    : [
+        {
+          element: (
+            <ConsoleRoot
+              portal="business"
+              clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}
+              apiBaseUrl={import.meta.env.VITE_CORE_API_URL ?? ''}
+              onReset={() => queryClient.clear()}
+            />
+          ),
+          children: liveRoutes,
+        },
+      ],
+);

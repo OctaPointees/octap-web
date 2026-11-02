@@ -1,3 +1,4 @@
+import { ConsoleAccountControls, useConsoleAuth } from '@octap/shared/google-auth';
 import type { ReactNode } from 'react';
 import { Outlet } from 'react-router';
 import MockApiConsole from '../dev/MockApiConsole';
@@ -21,9 +22,10 @@ export default function PortalLayout({
   searchPlaceholder,
   sideFooter,
 }: Props) {
+  const auth = useConsoleAuth();
   // return (
   //     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-  //       <MainToolbar nav={nav} useResults={useSearch} placeholder={searchPlaceholder} actions={<MockApiConsole />} />
+  //       <MainToolbar nav={nav} useResults={useSearch} placeholder={searchPlaceholder} actions={auth ? <ConsoleAccountControls /> : <MockApiConsole />} />
   //       <main className="min-h-0 w-full flex-1 overflow-y-auto rounded-box bg-base-200 p-4 md:p-6">
   //         <div className="mx-auto flex max-w-[1920px] flex-col gap-6">
   //           <Outlet />
@@ -40,7 +42,7 @@ export default function PortalLayout({
           useResults={useSearch}
           subtitle={subtitle}
           placeholder={searchPlaceholder}
-          actions={<MockApiConsole />}
+          actions={auth ? <ConsoleAccountControls /> : <MockApiConsole />}
         />
       </div>
 

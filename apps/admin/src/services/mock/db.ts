@@ -18,13 +18,24 @@ function load(): Database | null {
   }
 }
 
-let db: Database = load() ?? createSeed();
+let db: Database | undefined;
 
-export function getDb() {
+function requireDemoMode() {
+  if (import.meta.env.VITE_ENABLE_DEMO_AUTH !== 'true')
+    throw new Error('Demo data is disabled outside demo mode');
+}
+
+export function getDb(): Database {
+  requireDemoMode();
+  if (!db) {
+    db = load() ?? createSeed();
+    commit();
+  }
   return db;
 }
 
 export function commit() {
+  if (import.meta.env.VITE_ENABLE_DEMO_AUTH !== 'true' || !db) return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   } catch {
@@ -33,8 +44,7 @@ export function commit() {
 }
 
 export function resetDb() {
+  requireDemoMode();
   db = createSeed();
   commit();
 }
-
-commit();
