@@ -122,22 +122,23 @@ export default function AuthenticationEntryPoint() {
   const formError = formErrorOf(login.error);
 
   return (
-    <div className="app-wrapper grid lg:grid-cols-2">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-secondary p-12 text-secondary-content lg:flex">
-        <div className="absolute -top-32 -right-32 size-96 rounded-full bg-primary/40 blur-3xl" />
-        <div className="absolute -bottom-40 -left-20 size-96 rounded-full bg-accent/20 blur-3xl" />
+    <div className="app-wrapper grid lg:grid-cols-5">
+      <section
+        className="relative lg:flex hidden flex-col justify-between overflow-hidden p-12 m-8 rounded-box text-white col-span-3"
+        style={{ background: "url('/display/auth.png')", backgroundSize: 'cover' }}
+      >
         <div className="relative flex items-center gap-3">
-          <div className="size-11 rounded-box bg-primary p-2">
+          <div className="size-14 rounded-box bg-primary p-2">
             <img src="/icons/logo_dark.png" className="w-full" alt="" />
           </div>
-          <span className="text-xl font-bold">OctaP</span>
+          <span className="text-xl font-bold">OctaP Credit System</span>
         </div>
-        <div className="relative max-w-md">
+        <div className="relative max-w-lg">
           <h1 className="text-4xl leading-tight font-bold">
             Credit-as-a-Service for modern loyalty.
           </h1>
           <p className="mt-4 opacity-75">
-            Launch secure, isolated loyalty programs backed by the Sui blockchain — with a Web2
+            Launch secure, isolated loyalty programs backed by the Sui blockchain, with a Web2
             experience your customers already know.
           </p>
           <ul className="mt-10 flex flex-col gap-6">
@@ -154,12 +155,10 @@ export default function AuthenticationEntryPoint() {
             ))}
           </ul>
         </div>
-        <div className="relative text-xs opacity-50">
-          © 2026 OctaPoint · Design draft — all data is simulated
-        </div>
+        <div className="relative text-xs opacity-50">© 2026 OctaPoint</div>
       </section>
 
-      <section className="flex items-center justify-center overflow-y-auto p-6">
+      <section className="flex items-center justify-center overflow-y-auto p-6 col-span-2">
         <div className="flex w-full max-w-sm flex-col gap-6">
           <div>
             <Link
@@ -237,10 +236,10 @@ export default function AuthenticationEntryPoint() {
             </Button>
           </Form>
 
-          <div className="rounded-box border border-dashed border-base-300 p-4">
-            <div className="mb-2 text-xs font-semibold tracking-wide uppercase opacity-60">
+          <details className="rounded-box border border-dashed border-base-300 p-4">
+            <summary className="mb-2 text-xs font-bold tracking-wide uppercase cursor-pointer">
               Demo accounts
-            </div>
+            </summary>
             <div className="flex flex-col gap-1">
               {DEMO_ACCOUNTS.map((a) => (
                 <button
@@ -261,7 +260,7 @@ export default function AuthenticationEntryPoint() {
                 </button>
               ))}
             </div>
-          </div>
+          </details>
 
           <Link to="/wallet" className="btn btn-ghost btn-sm gap-2 self-center">
             <DeviceMobile size={18} /> Open the end-user wallet (test harness)

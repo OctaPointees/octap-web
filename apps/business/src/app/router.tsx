@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router';
-import { RequireBusinessMode, RequireDeveloperAccess, RequireRole } from './guards';
+import { RequireBusinessMode, RequireRole } from './guards';
 
 import AuthenticationEntryPoint from './auth';
 import MerchantLayout from './merchant';
@@ -22,7 +22,7 @@ import WalletApp from './wallet';
 export const router = createBrowserRouter([
   { path: '/wallet', element: <WalletApp /> },
   {
-    element: <RequireDeveloperAccess />,
+    element: <RequireRole role="merchant" />,
     children: [
       {
         path: '/developer',
@@ -40,7 +40,6 @@ export const router = createBrowserRouter([
     element: <RequireRole role="merchant" />,
     children: [
       {
-        element: <RequireBusinessMode />,
         children: [
           {
             path: '/merchant',
