@@ -1,4 +1,4 @@
-import { ConsoleScreen, GovernanceReview } from '@octap/shared/google-auth';
+import { GovernanceReview } from '../console/GovernanceReview';
 import { Form } from '@base-ui/react/form';
 import { columnHelper } from '../../../components/shared/table';
 import { Plus, Storefront } from 'phosphor-react';
@@ -303,7 +303,6 @@ export default function PartnersPage() {
     <DemoPartnersPage />
   ) : (
     <>
-      <ConsoleScreen />
       <GovernanceReview />
     </>
   );

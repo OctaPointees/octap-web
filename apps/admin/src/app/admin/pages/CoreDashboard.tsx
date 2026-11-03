@@ -1,4 +1,4 @@
-import { ConsoleScreen, useConsoleAuth } from '@octap/shared/google-auth';
+import { useConsoleAuth } from '@octap/shared/google-auth';
 import { Buildings, ShieldCheck, UsersThree } from 'phosphor-react';
 import { PageHeader, StatCard } from '../../../components/shared/Display';
 export default function CoreDashboard() {
@@ -25,7 +25,6 @@ export default function CoreDashboard() {
         />
         <StatCard label="Your access" value="System Admin" icon={UsersThree} />
       </div>
-      <ConsoleScreen />
     </>
   );
 }

@@ -69,6 +69,7 @@ export interface GovernanceRequest {
   reason: string | null;
   requestedById: string;
   reviewedById: string | null;
+  reviewerEmail?: string | null;
   reviewedAt: string | null;
   organizationName?: string;
   requesterEmail?: string;
