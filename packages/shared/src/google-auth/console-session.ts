@@ -244,6 +244,7 @@ export function useConsoleController({
   }
 
   return {
+    client: api,
     identity,
     portal,
     clientId,

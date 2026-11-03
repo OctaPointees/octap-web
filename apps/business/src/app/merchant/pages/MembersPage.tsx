@@ -1,3 +1,5 @@
+import { useConsoleAuth } from '@octap/shared/google-auth';
+import ConnectedMembers from '../../console/Members';
 import { Form } from '@base-ui/react/form';
 import { UsersThree } from 'phosphor-react';
 import { useState } from 'react';
@@ -213,6 +215,11 @@ function MemberModal({ id, onClose }: { id: string; onClose: () => void }) {
 }
 
 export default function MembersPage() {
+  const auth = useConsoleAuth();
+  return auth ? <ConnectedMembers key={auth.organizationId} /> : <DemoMembersPage />;
+}
+
+function DemoMembersPage() {
   const [params, setParams] = useSearchParams();
   const selected = params.get('member');
   const { data, isLoading, error, refetch } = useMembers('');

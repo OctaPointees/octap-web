@@ -12,6 +12,7 @@ export default function DeveloperLayout() {
   const nav = useMemo<NavOption[]>(
     () => [
       { label: 'Dashboard', path: '/developer', icon: House, end: true },
+      { label: 'Members', path: '/developer/members', icon: House },
       { label: 'API keys', path: '/developer/api-keys', icon: Key },
       { label: 'Webhooks', path: '/developer/webhooks', icon: ShareNetwork },
       { label: 'MCP tools', path: '/developer/mcp', icon: PlugsConnected },
