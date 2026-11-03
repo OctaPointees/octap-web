@@ -233,9 +233,33 @@ test('an owner reaches settings and team while invitation links contain a one-ti
     expect(route.request().postDataJSON().name).toBe('Renamed business');
     return route.fulfill({ json: { updated: true } });
   });
+  let developerStatus = 'ACTIVE';
   await page.route('**/v1/console/organizations/owner/staff', (route) =>
-    route.fulfill({ json: [] }),
+    route.fulfill({
+      json: [
+        {
+          id: 'owner-user',
+          fullName: 'Owner',
+          email: 'owner@example.com',
+          persona: 'BUSINESS_OWNER',
+          status: 'ACTIVE',
+        },
+        {
+          id: 'developer-user',
+          fullName: 'Developer',
+          email: 'developer@example.com',
+          persona: 'BUSINESS_DEVELOPER',
+          status: developerStatus,
+        },
+      ],
+    }),
   );
+  await page.route('**/v1/console/organizations/owner/staff/developer-user', (route) => {
+    expect(route.request().method()).toBe('PATCH');
+    expect(route.request().headers().authorization).toMatch(/^Bearer header\./);
+    developerStatus = route.request().postDataJSON().status;
+    return route.fulfill({ json: { updated: true } });
+  });
   await page.route('**/v1/console/organizations/owner/invitations', (route) =>
     route.fulfill({
       json: route.request().method() === 'POST' ? { id: 'invite-1', token: 'b'.repeat(64) } : [],
@@ -251,6 +275,15 @@ test('an owner reaches settings and team while invitation links contain a one-ti
   await page.getByRole('button', { name: 'Save profile' }).click();
   await expect(page.getByText('Organization profile saved')).toBeVisible();
   await page.getByRole('link', { name: 'Team and invitations' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Suspend owner@example.com', exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('button', { name: 'Suspend developer@example.com', exact: true }).click();
+  await page.getByRole('button', { name: 'Restore developer@example.com', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Suspend developer@example.com', exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: 'test-results/oct63-team-access.png', fullPage: true });
   await page.getByLabel('Developer email').fill('developer@example.com');
   await page.getByRole('button', { name: 'Invite Developer' }).click();
   await expect(page.getByLabel('Invitation link', { exact: true })).toHaveValue(

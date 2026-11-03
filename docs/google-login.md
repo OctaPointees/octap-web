@@ -29,6 +29,13 @@ Only the public client ID belongs in Vite configuration; never add a Google clie
 
 ## Access and current scope
 
+Owners manage Business Developer access from **Team and invitations** using Suspend
+and Restore. Core persists these changes and rejects changes to Owner memberships
+or attempts to promote a Developer. Suspension blocks protected requests and removes
+the tenant from the Developer's refreshed organization list. First-Owner bootstrap
+for active ownerless organizations is a System Admin API operation in Core; there
+is no bootstrap form in this Web delivery. Ownership transfer remains OCT-208.
+
 - First login creates a `SYSTEM_USER` keyed by Google's stable subject identifier.
 - Platform access requires Core's `SYSTEM_ADMIN` role; email/domain is not authorization.
   System Admins enter a business dashboard only with an explicit active Owner/Developer

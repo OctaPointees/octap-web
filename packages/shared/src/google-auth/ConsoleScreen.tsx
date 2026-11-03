@@ -243,11 +243,34 @@ export function ConsoleScreen() {
               <>
                 <h2 className="font-semibold">Team and invitations</h2>
                 {data.staff?.map((person) => (
-                  <p key={person.id}>
-                    {person.fullName} · {person.email} ·{' '}
-                    {person.persona === 'BUSINESS_OWNER' ? 'Business Owner' : 'Business Developer'}{' '}
-                    · {person.status}
-                  </p>
+                  <div key={person.id} className="flex flex-wrap items-center gap-3">
+                    <p>
+                      {person.fullName} · {person.email} ·{' '}
+                      {person.persona === 'BUSINESS_OWNER'
+                        ? 'Business Owner'
+                        : 'Business Developer'}{' '}
+                      · {person.status}
+                    </p>
+                    {person.persona === 'BUSINESS_DEVELOPER' && (
+                      <button
+                        type="button"
+                        className="btn btn-outline"
+                        disabled={busy}
+                        aria-label={`${person.status === 'ACTIVE' ? 'Suspend' : 'Restore'} ${person.email}`}
+                        onClick={() =>
+                          void perform(async (client) => {
+                            await client.updateConsoleStaffAccess(
+                              organizationId,
+                              person.id,
+                              person.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE',
+                            );
+                          }, 'Developer access updated')
+                        }
+                      >
+                        {person.status === 'ACTIVE' ? 'Suspend access' : 'Restore access'}
+                      </button>
+                    )}
+                  </div>
                 ))}
                 <form
                   className="flex flex-wrap gap-3"
