@@ -134,3 +134,12 @@ Detail includes Core-confirmed balance and pending amounts. Owners may edit
 enrollment status, external ID and tenant metadata. This does not alter global identity,
 staff permissions or points. Tier membership is outside this delivery (OCT-255). Blocked customers cannot start new
 earn/claim/redemption work; already accepted transactions may still settle.
+
+## Organization governance (OCT-208)
+
+Owner Settings supports approval requests for transfer to an active Developer, display-name
+changes, suspension and permanent deactivation. Admin Partners includes a paginated
+governance review section with status filters and required decision reasons. System
+Admins can propose reinstatement for suspended organizations through Core. Archived
+organizations are not reinstated by that workflow. Suspension blocks portal and API-key
+access; reinstatement does not revive revoked keys or inactive staff memberships.

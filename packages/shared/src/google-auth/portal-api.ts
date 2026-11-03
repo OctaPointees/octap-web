@@ -61,6 +61,26 @@ export interface ConsoleMember {
     observedAt: string;
   };
 }
+export interface GovernanceRequest {
+  id: string;
+  organizationId: string;
+  requestType: string;
+  status: string;
+  reason: string | null;
+  requestedById: string;
+  reviewedById: string | null;
+  reviewedAt: string | null;
+  organizationName?: string;
+  requesterEmail?: string;
+  payload: {
+    targetName?: string;
+    targetEmail?: string;
+    name?: string;
+    targetUserId?: string;
+    previousOwnerId?: string;
+    requestedReason?: string;
+  };
+}
 export interface ConsoleCredential {
   id: string;
   name: string;
@@ -166,6 +186,25 @@ export function createConsoleClient({
       request<{ updated: boolean }>(`${organizationPath(id)}/profile`, 'PATCH', input),
     listConsoleStaff: (id: string, signal?: AbortSignal) =>
       request<ConsoleStaff[]>(`${organizationPath(id)}/staff`, 'GET', undefined, signal),
+    proposeChange: (id: string, input: object, platform = false) =>
+      request<{ id: string }>(
+        `${platform ? `/v1/platform/organizations/${encodeURIComponent(id)}` : organizationPath(id)}/change-requests`,
+        'POST',
+        input,
+      ),
+    listChanges: (query: URLSearchParams, signal?: AbortSignal) =>
+      request<{ items: GovernanceRequest[]; nextCursor: string | null }>(
+        `/v1/platform/change-requests?${query}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    decideChange: (id: string, decision: 'approve' | 'reject', reason: string) =>
+      request<{ organizationId: string }>(
+        `/v1/platform/change-requests/${encodeURIComponent(id)}/${decision}`,
+        'POST',
+        { reason },
+      ),
     listMembers: (id: string, query: URLSearchParams, signal?: AbortSignal) =>
       request<{ items: ConsoleMember[]; nextCursor: string | null }>(
         `${organizationPath(id)}/members?${query}`,
