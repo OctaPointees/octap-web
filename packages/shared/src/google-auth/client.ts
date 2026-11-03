@@ -26,15 +26,6 @@ export async function verifyConsoleGoogleCredential(
   return readIdentity(await client.loginConsoleWithGoogle(idToken, { signal }));
 }
 
-export async function refreshConsoleIdentity(
-  base: string,
-  idToken: string,
-  signal?: AbortSignal,
-): Promise<ConsoleIdentity> {
-  const client = createConsoleClient({ apiBaseUrl: base, getAuthToken: () => idToken });
-  return readIdentity(await client.getConsoleIdentity({ signal }));
-}
-
 interface GoogleIdentity {
   initialize(options: {
     client_id: string;

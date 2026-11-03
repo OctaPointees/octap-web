@@ -22,8 +22,7 @@ import TransactionsPage from './merchant/pages/TransactionsPage';
 import NotFoundPage from './NotFoundPage';
 import WalletApp from './wallet';
 
-const demoRoutes: RouteObject[] = [
-  { path: '/wallet', element: <WalletApp /> },
+const portalRoutes: RouteObject[] = [
   {
     element: <RequireRoles merchantRoles={['developer', 'owner']} />,
     children: [
@@ -68,7 +67,7 @@ const demoRoutes: RouteObject[] = [
 ];
 
 const liveRoutes: RouteObject[] = [
-  ...demoRoutes,
+  ...portalRoutes,
   {
     element: <ConsoleSignedIn />,
     children: [
@@ -85,7 +84,7 @@ const liveRoutes: RouteObject[] = [
 ];
 export const router = createBrowserRouter(
   import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'
-    ? demoRoutes
+    ? [{ path: '/wallet', element: <WalletApp /> }, ...portalRoutes]
     : [
         {
           element: (

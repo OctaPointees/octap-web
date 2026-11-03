@@ -88,7 +88,10 @@ export function ConsoleScreen() {
                   <p>Owner / representative: {request.representativeName}</p>
                 )}
                 {request.nationalIdLast4 && (
-                  <p>CCCD: ????????{request.nationalIdLast4} ? not verified</p>
+                  <p>
+                    CCCD: {'\u2022'.repeat(8)}
+                    {request.nationalIdLast4} {'\u2014'} not verified
+                  </p>
                 )}
                 {request.reason && <p>{request.reason}</p>}
                 {request.status === 'PENDING' && (

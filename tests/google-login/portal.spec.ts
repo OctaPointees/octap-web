@@ -313,6 +313,7 @@ test('platform admin approves an organization through Core', async ({ page }) =>
           slug: 'new-business',
           applicantEmail: 'owner@example.com',
           status: approved ? 'APPROVED' : 'PENDING',
+          nationalIdLast4: '1234',
         },
       ],
     }),
@@ -324,6 +325,7 @@ test('platform admin approves an organization through Core', async ({ page }) =>
   });
   await page.goto('http://localhost:5181');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page.getByText(`CCCD: ${'\u2022'.repeat(8)}1234 \u2014 not verified`)).toBeVisible();
   await page.getByRole('button', { name: 'Approve New business' }).click();
   await expect(page.getByText('owner@example.com · APPROVED')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Metrics', exact: true })).toBeVisible();
@@ -522,4 +524,77 @@ test('an Owner updates a saved CCCD without receiving its old plaintext', async 
   await page.getByRole('button', { name: 'Save profile' }).click();
   await expect(page.getByText('Saved CCCD: ••••••••0002 — not verified')).toBeVisible();
   await expect(page.getByLabel('Update CCCD number')).toHaveValue('');
+});
+
+test('real Owner routes keep the shell mounted and report unconnected modules', async ({
+  page,
+}) => {
+  await google(page);
+  const owner = {
+    ...identity,
+    organizations: [
+      { organizationId: 'owner', name: 'Owner business', slug: 'owner', persona: 'BUSINESS_OWNER' },
+    ],
+  };
+  await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: owner }));
+  await page.route('**/v1/console/me', (route) => route.fulfill({ json: owner }));
+  let release: (() => void) | undefined;
+  let hold = false;
+  await page.route('**/v1/console/organizations/owner', async (route) => {
+    if (hold)
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+    await route.fulfill({
+      json: {
+        id: 'owner',
+        name: 'Owner business',
+        slug: 'owner',
+        persona: 'BUSINESS_OWNER',
+        status: 'ACTIVE',
+      },
+    });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page.locator('aside')).toBeVisible();
+  await page
+    .locator('aside')
+    .evaluate((element) => element.setAttribute('data-shell-instance', 'retained'));
+  hold = true;
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
+  await expect.poll(() => Boolean(release)).toBe(true);
+  hold = false;
+  release!();
+  await expect(page.getByRole('button', { name: 'Save profile' })).toBeVisible();
+  await page.getByRole('button', { name: 'Refresh access', exact: true }).click();
+  await expect(page.getByText('Access refreshed')).toBeVisible();
+  await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
+  for (const path of ['/merchant/rewards', '/merchant/members']) {
+    await page
+      .getByRole('link', { name: path.endsWith('rewards') ? 'Rewards' : 'Members', exact: true })
+      .click();
+    await expect(page).toHaveURL(new RegExp(path + '$'));
+    await expect(
+      page.getByText('This dashboard module is not connected to Core yet.'),
+    ).toBeVisible();
+  }
+  await page.goto('/wallet');
+  await expect(page.getByText('404', { exact: true })).toBeVisible();
+});
+
+test('expired Google credentials explain the return to login', async ({ page }) => {
+  await page.clock.install();
+  await google(page);
+  const shortIdentity = { ...identity, expiresAt: new Date(Date.now() + 60_000).toISOString() };
+  await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: shortIdentity }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/onboarding/);
+  await page.clock.fastForward(61_000);
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText(
+    'Your Google sign-in has expired. Sign in again.',
+  );
 });

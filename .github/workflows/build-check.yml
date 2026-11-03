@@ -10,6 +10,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  portal-tests:
+    name: Portal authentication regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test -w @octap/admin
+      - run: npm run test:google-login
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: portal-test-results
+          path: test-results/
   build:
     name: Build (${{ matrix.app }})
     runs-on: ubuntu-latest

@@ -23,7 +23,8 @@ No Cognito, Enoki, wallet, password login, or custom Redis session is involved.
    Both app origins must be authorized in the Google OAuth client.
 
 Production should reverse-proxy `/v1/console` and `/v1/platform` to Core. Alternatively set
-`VITE_CORE_API_URL` to the HTTPS API origin and configure Core's allowed origins.
+`VITE_CORE_API_URL` to the HTTPS API origin. Core currently enables permissive CORS;
+there is no configurable allowed-origins setting.
 Only the public client ID belongs in Vite configuration; never add a Google client secret.
 
 ## Access and current scope

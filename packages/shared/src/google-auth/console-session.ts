@@ -77,6 +77,7 @@ export function useConsoleController({
     (result: ConsoleIdentity, token: string) => {
       credential.current = token;
       setIdentity(result);
+      setError('');
       const only = result.organizations.length === 1 ? result.organizations[0] : undefined;
       setOrganizationId(only?.organizationId ?? '');
       navigate(
@@ -128,9 +129,13 @@ export function useConsoleController({
     const abort = new AbortController();
     const signal = AbortSignal.any([abort.signal, AbortSignal.timeout(30_000)]);
     let active = true;
-    // Clear data while the freshly verified authorization and requested route are loading.
+    // Retain the authorized organization during same-tenant navigation.
     void (async () => {
-      setData({});
+      setData((current) =>
+        current.organization?.id === selected?.organizationId
+          ? { organization: current.organization }
+          : {},
+      );
       setLoading(true);
       setError('');
       try {
@@ -162,7 +167,10 @@ export function useConsoleController({
         }
         if (active) setData(next);
       } catch (cause) {
-        if (active) setError(message(cause));
+        if (active) {
+          setData({});
+          setError(message(cause));
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -245,6 +253,7 @@ export function useConsoleController({
     organizationId,
     setOrganizationId: (id: string) => {
       onReset?.();
+      setData({});
       setOrganizationId(id);
     },
     data,

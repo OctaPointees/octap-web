@@ -38,13 +38,20 @@ export function ConsoleLogin() {
       />
     );
   return (
-    <GooglePortalLogin
-      clientId={auth.clientId}
-      apiBaseUrl={auth.apiBaseUrl}
-      portal={auth.portal}
-      onAuthenticated={auth.signedIn}
-      embedded
-    />
+    <>
+      {auth.error && (
+        <p role="alert" className="alert alert-warning">
+          {auth.error}
+        </p>
+      )}
+      <GooglePortalLogin
+        clientId={auth.clientId}
+        apiBaseUrl={auth.apiBaseUrl}
+        portal={auth.portal}
+        onAuthenticated={auth.signedIn}
+        embedded
+      />
+    </>
   );
 }
 export function ConsoleSignedIn() {
