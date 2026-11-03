@@ -159,3 +159,5 @@ Business entry `/orgs/:slug` is the path fallback for this delivery. Google sign
 the entry path, then Core resolves only active tenants and Web requires an explicit membership.
 An entry URL or slug never grants tenant access. Wildcard DNS/Host routing is not provisioned.
 Organization suspension/reinstatement/name changes still submit OCT-208 governance proposals.
+
+Organization slug entry is implemented but not operational by default. Both Core's ORG_SLUG_ENTRY_ENABLED and Web's VITE_ENABLE_ORG_SLUG_ENTRY must be explicitly true to enable /orgs/:slug. This does not configure DNS or grant membership.

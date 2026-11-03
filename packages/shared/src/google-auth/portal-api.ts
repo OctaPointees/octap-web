@@ -70,6 +70,8 @@ export interface GovernanceRequest {
   requestedById: string;
   reviewedById: string | null;
   reviewerEmail?: string | null;
+  initialOwnerName?: string | null;
+  initialOwnerEmail?: string | null;
   reviewedAt: string | null;
   organizationName?: string;
   requesterEmail?: string;

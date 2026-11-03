@@ -77,7 +77,9 @@ const liveRoutes: RouteObject[] = [
   {
     element: <ConsoleSignedIn />,
     children: [
-      { path: '/orgs/:slug', element: <OrganizationEntry /> },
+      ...(import.meta.env.VITE_ENABLE_ORG_SLUG_ENTRY === 'true'
+        ? [{ path: '/orgs/:slug', element: <OrganizationEntry /> }]
+        : []),
       {
         element: <ConsoleAccessLayout />,
         children: [

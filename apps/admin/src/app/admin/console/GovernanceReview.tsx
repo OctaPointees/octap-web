@@ -65,6 +65,11 @@ export function GovernanceReview() {
           </h3>
           <p>Organization: {request.organizationName || request.organizationId}</p>
           <p>Requested by: {request.requesterEmail}</p>
+          {request.requestType === 'CREATE_ORGANIZATION' && (
+            <p>
+              Initial Business Owner: {request.initialOwnerName} ({request.initialOwnerEmail})
+            </p>
+          )}
           <p>Request reason: {request.payload.requestedReason || request.reason}</p>
           {request.payload.name && <p>Proposed name: {request.payload.name}</p>}
           {request.payload.targetUserId && (

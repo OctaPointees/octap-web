@@ -864,6 +864,8 @@ test('System Admin creates, approves and queues organization provisioning', asyn
             ? [
                 {
                   id: 'request-create',
+                  initialOwnerName: 'Owner',
+                  initialOwnerEmail: 'owner@example.com',
                   organizationId: 'new-org',
                   organizationName: 'New Tenant',
                   requestType: 'CREATE_ORGANIZATION',
@@ -904,10 +906,16 @@ test('System Admin creates, approves and queues organization provisioning', asyn
   await page.getByLabel('Representative name', { exact: true }).fill('Owner Person');
   await page.getByRole('button', { name: 'Create organization application' }).click();
   await page.getByLabel('Review reason request-create').fill('Verified application');
+  await expect(page.getByText('Initial Business Owner: Owner (owner@example.com)')).toBeVisible();
   await page.getByRole('button', { name: 'Approve CREATE_ORGANIZATION' }).click();
   await expect(page.getByText('No organization change requests.')).toBeVisible();
-  await page.getByRole('button', { name: 'Find organizations' }).click();
   await page.getByRole('button', { name: 'Manage New Tenant', exact: true }).click();
+  await expect(
+    page
+      .getByRole('button', { name: 'Manage New Tenant', exact: true })
+      .locator('..')
+      .locator('..'),
+  ).toContainText('ACTIVE');
   await page.getByRole('button', { name: 'Request program provisioning' }).click();
   await expect(page.getByText('Provisioning: PENDING', { exact: true })).toBeVisible();
   complete = true;
@@ -956,3 +964,15 @@ for (const member of [true, false]) {
     }
   });
 }
+
+test('slug entry is unavailable when disabled', async ({ page }) => {
+  let calls = 0;
+  await page.route('**/v1/organizations/resolve/**', (route) => {
+    calls++;
+    return route.abort();
+  });
+  await page.goto('http://localhost:5183/orgs/tenant');
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Open organization' })).toHaveCount(0);
+  expect(calls).toBe(0);
+});

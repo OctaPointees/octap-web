@@ -45,7 +45,11 @@ export function useConsoleController({
   const location = useLocation();
   const navigate = useNavigate();
   const platformView = portal === 'admin' || location.pathname.startsWith('/admin');
-  const [entrySlug] = useState(() => /^\/orgs\/([a-z0-9-]+)$/.exec(location.pathname)?.[1] ?? '');
+  const [entrySlug] = useState(() =>
+    import.meta.env.VITE_ENABLE_ORG_SLUG_ENTRY === 'true'
+      ? (/^\/orgs\/([a-z0-9-]+)$/.exec(location.pathname)?.[1] ?? '')
+      : '',
+  );
   const [identity, setIdentity] = useState<ConsoleIdentity>();
   const credential = useRef('');
   const [organizationId, setOrganizationId] = useState('');
