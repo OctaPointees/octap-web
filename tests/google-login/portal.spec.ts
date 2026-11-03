@@ -652,7 +652,6 @@ for (const persona of ['BUSINESS_OWNER', 'BUSINESS_DEVELOPER']) {
       displayName: 'Alice',
       email: 'alice@example.com',
       phoneNumber: null,
-      tier: 'BRONZE',
       status: 'ACTIVE',
       externalMemberId: 'POS-1',
       metadata: {},
@@ -665,6 +664,7 @@ for (const persona of ['BUSINESS_OWNER', 'BUSINESS_DEVELOPER']) {
     await page.route('**/v1/console/organizations/tenant/members/member-1', (route) => {
       if (route.request().method() === 'PATCH') {
         expect(persona).toBe('BUSINESS_OWNER');
+        expect(route.request().postDataJSON()).not.toHaveProperty('tier');
         Object.assign(member, route.request().postDataJSON());
         return route.fulfill({ json: { updated: true } });
       }
@@ -688,6 +688,8 @@ for (const persona of ['BUSINESS_OWNER', 'BUSINESS_DEVELOPER']) {
     await page.getByRole('button', { name: 'Search', exact: true }).click();
     await page.getByRole('button', { name: 'View Alice' }).click();
     await expect(page.getByText(/Confirmed balance: 123/)).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Tier', exact: true })).toHaveCount(0);
+    await expect(page.getByLabel('Member tier')).toHaveCount(0);
     if (persona === 'BUSINESS_OWNER') {
       await page.getByLabel('Member status', { exact: true }).selectOption('BLOCKED');
       await page.getByRole('button', { name: 'Save member' }).click();

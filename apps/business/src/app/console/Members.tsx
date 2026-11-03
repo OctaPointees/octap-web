@@ -87,7 +87,6 @@ export default function ConnectedMembers() {
           <thead>
             <tr>
               <th>Customer</th>
-              <th>Tier</th>
               <th>Status</th>
               <th>External ID</th>
               <th />
@@ -97,7 +96,6 @@ export default function ConnectedMembers() {
             {list.data?.items.map((member) => (
               <tr key={member.id}>
                 <td>{member.displayName || member.email || member.id}</td>
-                <td>{member.tier}</td>
                 <td>{member.status}</td>
                 <td>{member.externalMemberId || '—'}</td>
                 <td>
@@ -135,7 +133,7 @@ export default function ConnectedMembers() {
       </div>
       {detail.data && (
         <section
-          key={`${orgId}-${detail.data.id}-${detail.data.status}-${detail.data.tier}-${detail.data.externalMemberId}`}
+          key={`${orgId}-${detail.data.id}-${detail.data.status}-${detail.data.externalMemberId}`}
           className="card bg-base-100 border border-base-300 p-5 mt-6"
         >
           <h2 className="text-xl font-semibold">{detail.data.displayName || 'Member detail'}</h2>
@@ -161,7 +159,6 @@ export default function ConnectedMembers() {
                 setFormError('');
                 try {
                   update.mutate({
-                    tier: String(fields.get('tier')),
                     status: String(fields.get('status')),
                     externalMemberId: String(fields.get('externalMemberId')).trim() || null,
                     metadata: JSON.parse(String(fields.get('metadata'))),
@@ -171,16 +168,6 @@ export default function ConnectedMembers() {
                 }
               }}
             >
-              <label>
-                Member tier
-                <input
-                  name="tier"
-                  defaultValue={detail.data.tier}
-                  required
-                  maxLength={48}
-                  className="input input-bordered"
-                />
-              </label>
               <label>
                 Member status
                 <select

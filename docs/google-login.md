@@ -130,7 +130,7 @@ A real Google browser sign-in also requires the configured client's authorized o
 
 Owners use `/merchant/members`; Developers use the read-only `/developer/members`.
 Search supports text, status and exact external-member ID, with cursor pagination.
-Detail includes Core-confirmed balance and pending amounts. Owners may edit tier labels,
+Detail includes Core-confirmed balance and pending amounts. Owners may edit
 enrollment status, external ID and tenant metadata. This does not alter global identity,
-staff permissions, points or tier evaluation rules. Blocked customers cannot start new
+staff permissions or points. Tier membership is outside this delivery (OCT-255). Blocked customers cannot start new
 earn/claim/redemption work; already accepted transactions may still settle.

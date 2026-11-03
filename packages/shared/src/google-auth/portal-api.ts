@@ -50,7 +50,6 @@ export interface ConsoleMember {
   email: string | null;
   phoneNumber: string | null;
   status: string;
-  tier: string;
   externalMemberId: string | null;
   metadata: unknown;
   joinedAt: string;
