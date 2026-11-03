@@ -148,6 +148,12 @@ export function createConsoleClient({
       request<{ updated: boolean }>(`${organizationPath(id)}/profile`, 'PATCH', input),
     listConsoleStaff: (id: string, signal?: AbortSignal) =>
       request<ConsoleStaff[]>(`${organizationPath(id)}/staff`, 'GET', undefined, signal),
+    updateConsoleStaffAccess: (id: string, userId: string, status: 'ACTIVE' | 'SUSPENDED') =>
+      request<{ updated: boolean }>(
+        `${organizationPath(id)}/staff/${encodeURIComponent(userId)}`,
+        'PATCH',
+        { status },
+      ),
     listConsoleCredentials: (id: string, signal?: AbortSignal) =>
       request<ConsoleCredential[]>(
         `${organizationPath(id)}/api-credentials`,
