@@ -11,6 +11,15 @@ interface Identity {
   suiAddress: string;
 }
 
+class IdentityRequestError extends Error {
+  constructor(
+    readonly status: number,
+    message?: string,
+  ) {
+    super(message ?? 'Please try again.');
+  }
+}
+
 async function identityRequest<T>(action: string, body: object): Promise<T> {
   const response = await fetch(`/api/identity/${action}`, {
     method: 'POST',
@@ -19,7 +28,7 @@ async function identityRequest<T>(action: string, body: object): Promise<T> {
     signal: AbortSignal.timeout(35_000),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.message ?? 'Please try again.');
+  if (!response.ok) throw new IdentityRequestError(response.status, data.message);
   return data as T;
 }
 
@@ -32,6 +41,8 @@ export default function CustomerJoin({
 }) {
   const button = useRef<HTMLDivElement>(null);
   const inFlight = useRef(false);
+  // Enrollment has to prove the customer again. Held only in memory, only until they have joined.
+  const idToken = useRef<string | null>(null);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [memberId, setMemberId] = useState('');
   const [busy, setBusy] = useState(false);
@@ -68,6 +79,7 @@ export default function CustomerJoin({
             void identityRequest<Identity>('login', { idToken: credential })
               .then((customer) => {
                 if (active) {
+                  idToken.current = credential;
                   setIdentity(customer);
                   setMemberId('');
                   setCopied(false);
@@ -102,15 +114,23 @@ export default function CustomerJoin({
   }, [clientId]);
 
   async function enroll() {
-    if (!identity || busy) return;
+    if (!identity || !idToken.current || busy) return;
     setBusy(true);
     setError('');
     try {
       const result = await identityRequest<{ organizationEndUserId: string }>('enroll', {
-        endUserId: identity.endUserId,
+        idToken: idToken.current,
       });
+      idToken.current = null;
       setMemberId(result.organizationEndUserId);
     } catch (reason) {
+      if (reason instanceof IdentityRequestError && reason.status === 401) {
+        // Google's token lasts about an hour; the button is still rendered, ready for a fresh one.
+        idToken.current = null;
+        setIdentity(null);
+        setError('Your sign-in has expired. Sign in with Google again to join.');
+        return;
+      }
       setError(
         reason instanceof Error ? reason.message : 'Could not join the store. Please try again.',
       );
@@ -209,6 +229,7 @@ export default function CustomerJoin({
                   }
                 }
                 window.google?.accounts.id.disableAutoSelect();
+                idToken.current = null;
                 setIdentity(null);
                 setMemberId('');
                 setError('');

@@ -82,10 +82,12 @@ wildcard DNS record does not create OAuth allowlists. DNS and certificates are d
 not created by this app. Root and unknown domains return 404 in production.
 
 No Enoki, merchant, or wallet private key belongs in the browser bundle. Only the public Google
-client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted. Core's current
-public enrollment endpoint takes an end-user ID without a customer session: this page preserves
-that contract and does not establish production customer authorization. Balance reads and signed
-POS redemption still require separate customer authorization/signing integration.
+client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted. Core's public
+enrollment endpoint takes the Google ID token, so this page keeps it in memory between sign-in and
+joining and never persists it; an expired token sends the customer back to sign in. Identity
+requests reach Core from this server, so all of a store's customers share one address against
+Core's per-IP limit (`PUBLIC_RATE_LIMIT_MAX_REQUESTS`). Balance reads and signed POS redemption
+still require separate customer authorization/signing integration.
 
 ## Checks
 
