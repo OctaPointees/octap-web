@@ -1,167 +1,84 @@
-# OctaP - Testing Guide
+# OctaP Business / Developer dashboard
 
-This is a **design preview** of OctaP, a loyalty points platform. It runs entirely on your own computer.
+The app reuses the existing Owner/Developer layouts, navigation and page components.
+Google login and supported organization workflows call Core directly by default. The
+original sample dashboards and password login require explicit demo mode.
 
-> **Good to know:** There is no real server or database. All data is **fake demo data**, and nothing you do here can affect real customers, real money or real systems, so feel free to click anything.
+## Run locally
 
----
+From the repository root:
 
-## Part 1 - Running the app on your computer
-
-### Step 1: Install Node.js (one time only)
-
-Node.js is the free program that runs this app.
-
-1. Go to **https://nodejs.org**
-2. Download the version marked **LTS** (the big green button).
-3. Open the downloaded file and click **Next** through the installer, keeping all the default options.
-4. Restart your computer when it finishes.
-
-To check that it worked, open a terminal (see Step 2) and type `node -v`, then press **Enter**. You should see a version number such as `v22.x.x`.
-
-### Step 2: Open a terminal in the project folder
-
-A terminal is a window where you type commands.
-
-- **Windows:** Open the project folder in File Explorer. Click the address bar at the top, type `cmd`, and press **Enter**.
-- **Mac:** Open the **Terminal** app, type `cd ` (with a space after it), drag the project folder into the window, and press **Enter**.
-
-### Step 3: Install the app (one time only)
-
-Type the following and press **Enter**:
-
-```
-npm install
+```sh
+npm ci
+npm run dev:business
 ```
 
-Wait until it finishes. This can take a minute or two. Warnings in yellow text are normal and can be ignored.
+Open http://localhost:5173. Copy this app's `.env.example` to `.env.local`, configure the
+public Google client ID and Core target, authorize the browser origin in Google, and
+start Core with its migrations applied. See
+[the portal guide](../../docs/google-login.md) for full configuration.
 
-### Step 4: Start the app
+## Default Google/Core mode
 
-Type the following and press **Enter**:
+- Google verifies identity/email. Core owns system roles and active memberships. The same
+  account may be an Owner in one organization and a Developer in another. System Admin
+  permissions alone grant no tenant access.
+- No memberships leads to `/onboarding`, a focused setup page without a sidebar. Choose
+  Individual / Household business or Company, complete the form, review and submit for
+  System Admin approval. Google does not verify civil/business documents; CCCD verification
+  remains deferred.
+- Users already in organizations can skip setup. Core permissions are refreshed first:
+  one organization opens directly, multiple organizations lead to `/organizations`, and
+  no active memberships stays in onboarding. Skipping grants no new privileges.
+- Owners enter `/merchant`. `/merchant/settings` updates permitted profile fields and
+  optional CCCD; `/merchant/team` lists staff and creates/revokes Developer invitations.
+  CCCD responses are masked and Core encrypts the stored value.
+- Developers enter `/developer`; `/developer/api-keys` lists safe credential metadata.
+  They cannot manage organization profiles or invitations.
+- Invite links require the addressed Google identity and explicit one-time acceptance.
+- Dashboard modules without live adapters report that they are not connected. They do
+  not run against sample data after real Google login.
+- Provider credentials stay in memory, not localStorage/sessionStorage. Reloading requires
+  sign-in again. Organization switches and sign-out clear query caches. The real portal
+  uses no OctaP SDK or custom Redis session.
 
+Core enforces permissions independently of UI guards. Organization approval creates portal
+access, not an on-chain program. Live analytics, points, campaigns, rewards, customer
+member-directory features and full governance remain separate work.
+
+## Optional browser-local demo
+
+Set `VITE_ENABLE_DEMO_AUTH=true` in this app's `.env.local` and restart Vite. The original
+password login and sample dashboards return. Example accounts use password `octap123`:
+
+| Account   | Email                    | Purpose                                                 |
+| --------- | ------------------------ | ------------------------------------------------------- |
+| Owner     | `owner@lotusmart.vn`     | Sample business operations, settings and Developer mode |
+| Developer | `developer@lotusmart.vn` | Sample API keys, webhooks and MCP tools                 |
+| Cashier   | `cashier@lotusmart.vn`   | Legacy prototype role demonstration                     |
+
+Manager/Cashier/Viewer are legacy demo roles; the real tenant personas are Owner and
+Developer. The Mock API console can simulate latency/failures and reset sample data.
+`octap.mockdb` initializes lazily on first demo use, and `octap.session` stores only demo
+sessions. Real mode never reads, creates, resets or commits that database. Existing demo
+data is retained without being read or rewritten in real mode.
+
+The System Admin app is separate at http://localhost:5000/admin. Configure
+`VITE_ADMIN_PORTAL_URL` for its link. System Admin accounts still need explicit tenant
+membership to open a business dashboard.
+
+## Validation
+
+From the repository root:
+
+```sh
+npm run build
+npm run lint
+npm test -w @octap/admin
+npm run test:google-login
 ```
-npm run dev
-```
 
-After a few seconds you will see a line like this:
-
-```
-➜  Local:   http://localhost:5173/
-```
-
-### Step 5: Open it in your browser
-
-Open Chrome, Edge or Firefox and go to **http://localhost:5173**. You should see the OctaP sign-in page.
-
-> ⚠️ **Keep the terminal window open while you test.** Closing it stops the app.
-> To stop the app when you're done, click the terminal and press **Ctrl + C**.
-
-**Next time**, you only need to repeat **Step 2, Step 4 and Step 5**.
-
----
-
-## Part 2 - Test accounts
-
-The **password for every account is:** `octap123`
-
-> **Tip:** The sign-in page lists these demo accounts. Click one to fill in the email and password automatically, then click **Sign in**.
-
-| Who you are testing as                            | Email                  | What this account can do                                                                                                            |
-| ------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **Business owner** (Lotus Mart)                    | `owner@lotusmart.vn`   | Business operations, team settings, and access to developer mode                                                                   |
-| **Business developer** (Lotus Mart)                | `developer@lotusmart.vn` | API keys, webhook settings, and MCP tools for the same Lotus Mart business                                                       |
-| **Business cashier** (Lotus Mart)                  | `cashier@lotusmart.vn` | **Limited access.** Can give points to customers and view data, but **cannot** edit campaigns, rewards, settings or developer tools |
-| **Business manager** (Phố Cà Phê, a different business) | `manager@phocaphe.vn` | Manages a different business. Use it to check that one business can't see another business's data                                 |
-
-### Customer (shopper) app
-
-This is a simulated phone app that shoppers would use.
-
-- **Web address:** http://localhost:5173/wallet (or click **"Open the end-user wallet"** on the sign-in page)
-- **Phone number:** `0901 234 567` is already filled in and has existing points. You can also type any Vietnamese mobile number, such as `0912 345 678`, to test as a brand-new customer.
-- **Verification code:** always `123456`
-
----
-
-## Part 3 - What to test
-
-Each area below matches a feature in the project scope. Use these as a starting checklist.
-
-### ✅ Signing in (all accounts)
-
-- [ ] Sign in with each account above.
-- [ ] Sign in with a wrong password and check that an error message appears.
-- [ ] Leave the fields empty and click **Sign in**. You should see "required" messages.
-- [ ] Click **Forgot password?** and submit an email address.
-- [ ] Click **Log-out** at the bottom left.
-
-### ✅ Business owner - `owner@lotusmart.vn`
-
-- [ ] **Issue points:** enter a phone number and a bill amount. Check the points preview, then click **Award points** and look at the receipt.
-- [ ] **Campaigns → New campaign:** set an end date _before_ the start date and check for an error. Fix it and save.
-- [ ] **Campaigns:** use the **⋮** menu to pause, resume or end a campaign.
-- [ ] **Rewards → New reward:** submit it. It should show **Pending Review**.
-- [ ] **Members:** click a member, then add or remove points. A reason is required.
-- [ ] **Transactions:** filter by type and by channel.
-- [ ] **Settings:** change the program settings, invite a teammate, and change a teammate's role.
-
-### ✅ Business developer - `developer@lotusmart.vn`
-
-- [ ] The account opens directly in **Developer** mode.
-- [ ] **Dashboard:** review API activity and integration status.
-- [ ] **API keys:** create a key, verify the secret is shown only once, and revoke a key.
-- [ ] **Webhooks:** configure an HTTPS endpoint, select events, and rotate its signing secret.
-- [ ] **MCP tools:** enable the server and change available tools.
-- [ ] Sign in as the owner to switch between **Business mode** and **Developer mode**.
-
-### ✅ Business cashier - `cashier@lotusmart.vn`
-
-- [ ] The **Developers** menu should **not** appear.
-- [ ] **Campaigns** and **Rewards** should be read-only, with no create or edit buttons.
-- [ ] **Issue points** should still work.
-
-### ✅ Customer app - `/wallet`
-
-- [ ] Sign in with a phone number and the code `123456`.
-- [ ] Try a wrong code, such as `111111`, and check that an error appears.
-- [ ] Tap a store card, tap **Pay in store & earn**, enter an amount, and confirm that the points go up.
-- [ ] Tap **Redeem** on a reward and confirm. You should receive a voucher code, and the points should go down.
-- [ ] Check that the voucher appears under the **Vouchers** tab at the bottom.
-- [ ] Under **Discover stores**, tap **Join** on a new store.
-- [ ] **Cross-check:** sign in as `owner@lotusmart.vn` and open **Transactions**. The redemption you just made should appear there.
-
-### ✅ Business rules that must always hold
-
-- [ ] Points from one store **cannot** be used at another store.
-- [ ] Points **cannot** be exchanged for cash. There is no cash-out option anywhere.
-- [ ] A suspended store (**Blue Lagoon Spa**) cannot give out or redeem points.
-
----
-
-## Part 4 - Handy tools for testers
-
-In the store dashboard, click **Mock API** in the top-right corner to open a testing panel. From there you can:
-
-| Tool                         | What it's for                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| **Request list**             | See every action the app "sent to the server". Click a line to see the details. |
-| **Max latency** slider       | Make the app slower, to check loading spinners and slow-network behaviour.      |
-| **Failure injection** slider | Make some actions fail at random, to check that error messages appear properly. |
-| **Reset demo data**          | Put all data back to how it started. Use this between test rounds.              |
-
-> Your test data is saved in the browser, so it's still there after you refresh the page. To start completely fresh, use **Reset demo data**, or open the app in a private/incognito window.
-
----
-
-## Troubleshooting
-
-| Problem                                                 | What to do                                                                                                  |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `'npm' is not recognized` or `command not found`        | Node.js isn't installed, or you haven't restarted yet. Repeat **Step 1**, then restart your computer.       |
-| The browser says **"This site can't be reached"**       | The app isn't running. Go back to the terminal and run `npm run dev` again, and keep that window open.      |
-| The terminal shows a different address, such as `:5174` | Another copy is already running. Use the address shown in the terminal, or close the other terminal window. |
-| Data looks strange or broken                            | Click **Mock API → Reset demo data**.                                                                       |
-| You're stuck on a page                                  | Click **Log-out**, or go to http://localhost:5173 and sign in again.                                        |
-
-When you report a bug, please include: **which account you used**, **the page**, **what you clicked**, **what you expected**, and **what happened**. A screenshot helps too.
+The shared Node regression suite checks real-mode mock isolation in this app as well as
+admin. Browser tests check real-mode routing and the original opt-in demo with controlled
+Google/Core responses. Actual OAuth configuration still requires real Google sign-in;
+Core's integration suite covers API/database behavior.

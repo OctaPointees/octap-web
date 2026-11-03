@@ -1,3 +1,4 @@
+import { ConsoleAccountControls, useConsoleAuth } from '@octap/shared/google-auth';
 import type { ReactNode } from 'react';
 import { Outlet, useNavigate } from 'react-router';
 import { authService } from '../../services';
@@ -22,6 +23,7 @@ export default function PortalLayout({
   searchPlaceholder,
   sideFooter,
 }: Props) {
+  const auth = useConsoleAuth();
   const navigate = useNavigate();
   return (
     <div className="app-wrapper flex gap-2 p-4">
@@ -33,16 +35,18 @@ export default function PortalLayout({
           placeholder={searchPlaceholder}
           actions={
             <>
-              <MockApiConsole />
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm lg:hidden"
-                onClick={() =>
-                  authService.logout().then(() => navigate('/login', { replace: true }))
-                }
-              >
-                Log out
-              </button>
+              {auth ? <ConsoleAccountControls /> : <MockApiConsole />}
+              {!auth && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm lg:hidden"
+                  onClick={() =>
+                    authService.logout().then(() => navigate('/login', { replace: true }))
+                  }
+                >
+                  Log out
+                </button>
+              )}
             </>
           }
         />

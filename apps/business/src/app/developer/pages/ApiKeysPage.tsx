@@ -1,3 +1,4 @@
+import { ConsoleScreen } from '@octap/shared/google-auth';
 import { useState } from 'react';
 import { Key, Plus, Warning } from 'phosphor-react';
 import { Button } from '@/components/shared/Button';
@@ -25,7 +26,7 @@ const SCOPES: { value: ApiScope; description: string }[] = [
   { value: 'campaigns:write', description: 'Create and update campaigns' },
 ];
 
-export default function DeveloperApiKeysPage() {
+function DemoDeveloperApiKeysPage() {
   const keys = useApiKeys();
   const create = useCreateApiKey();
   const revoke = useRevokeApiKey();
@@ -263,6 +264,20 @@ export default function DeveloperApiKeysPage() {
           loading={revoke.isPending}
         />
       )}
+    </>
+  );
+}
+
+export default function DeveloperApiKeysPage() {
+  return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
+    <DemoDeveloperApiKeysPage />
+  ) : (
+    <>
+      <PageHeader
+        title="API keys"
+        description="Credential metadata from Core. Secret keys are never returned."
+      />
+      <ConsoleScreen />
     </>
   );
 }

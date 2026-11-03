@@ -1,7 +1,9 @@
-import { createBrowserRouter, Navigate } from 'react-router';
+import { ConsoleRoot } from '@octap/shared/google-auth';
+import { queryClient } from '../queries/client';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireAdmin } from './guards';
 
-export const router = createBrowserRouter([
+const demoRoutes: RouteObject[] = [
   { path: '/', element: <Navigate to="/admin" replace /> },
   { path: '/login', lazy: async () => ({ Component: (await import('./auth')).default }) },
   {
@@ -44,4 +46,22 @@ export const router = createBrowserRouter([
     ],
   },
   { path: '*', lazy: async () => ({ Component: (await import('./NotFoundPage')).default }) },
-]);
+];
+
+export const router = createBrowserRouter(
+  import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'
+    ? demoRoutes
+    : [
+        {
+          element: (
+            <ConsoleRoot
+              portal="admin"
+              clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}
+              apiBaseUrl={import.meta.env.VITE_CORE_API_URL ?? ''}
+              onReset={() => queryClient.clear()}
+            />
+          ),
+          children: demoRoutes,
+        },
+      ],
+);

@@ -1,3 +1,4 @@
+import CoreDashboard from './CoreDashboard';
 import {
   ArrowRight,
   Coins,
@@ -26,7 +27,7 @@ import type { Range } from '../../../types/domain';
 import { RANGE_OPTIONS } from '../../../utils/constants';
 import { fmtCompact, fmtCompactVnd, fmtNumber, fmtRelative, fmtSui } from '../../../utils/format';
 
-export default function AdminDashboardPage() {
+function DemoAdminDashboardPage() {
   const [range, setRange] = useState<Range>('30d');
   const { data, isLoading, error, refetch } = useAdminOverview(range);
   const user = useSession()?.user;
@@ -204,5 +205,13 @@ export default function AdminDashboardPage() {
         </>
       )}
     </>
+  );
+}
+
+export default function AdminDashboardPage() {
+  return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
+    <DemoAdminDashboardPage />
+  ) : (
+    <CoreDashboard />
   );
 }

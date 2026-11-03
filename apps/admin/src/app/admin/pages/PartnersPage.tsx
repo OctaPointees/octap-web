@@ -1,3 +1,4 @@
+import { ConsoleScreen } from '@octap/shared/google-auth';
 import { Form } from '@base-ui/react/form';
 import { columnHelper } from '../../../components/shared/table';
 import { Plus, Storefront } from 'phosphor-react';
@@ -242,7 +243,7 @@ function OnboardPartnerModal({
   );
 }
 
-export default function PartnersPage() {
+function DemoPartnersPage() {
   const { data, isLoading, error, refetch } = useTenants();
   const [status, setStatus] = useState<'all' | 'active' | 'provisioning' | 'suspended'>('all');
   const [open, setOpen] = useState(false);
@@ -294,5 +295,13 @@ export default function PartnersPage() {
       />
       <OnboardPartnerModal open={open} onOpenChange={setOpen} />
     </>
+  );
+}
+
+export default function PartnersPage() {
+  return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
+    <DemoPartnersPage />
+  ) : (
+    <ConsoleScreen />
   );
 }

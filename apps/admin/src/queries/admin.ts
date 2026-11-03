@@ -38,8 +38,9 @@ export const useTenants = () =>
 export const useTenant = (id: string) =>
   useQuery({ queryKey: adminKeys.tenant(id), queryFn: () => adminService.getTenant(id) });
 
-export const useAdminRewards = (status: RewardStatus | 'all') =>
+export const useAdminRewards = (status: RewardStatus | 'all', enabled = true) =>
   useQuery({
+    enabled,
     queryKey: adminKeys.rewards(status),
     queryFn: () => adminService.listRewards(status),
     placeholderData: keepPreviousData,

@@ -1,63 +1,70 @@
-# OctaP Admin Dashboard
+# OctaP System Admin dashboard
 
-Standalone admin portal migrated from `octap-demo/main`, using the shared
-`@octap/shared` OctaP theme and the workspace's Vite/React setup.
+The existing admin layout, navigation, account card and routes support direct Google/Core
+authentication by default and an explicitly enabled browser-local demo.
 
 ## Run locally
 
-From the `octap-web` root:
+From the repository root:
 
 ```sh
 npm ci
 npm run dev:admin
 ```
 
-Open http://localhost:5000. Sign in with `admin@octap.io` / `octap123`.
-Only administrator accounts can sign in to this app.
+Open http://localhost:5000/admin. Copy this app's `.env.example` to `.env.local`, set its
+public Google client ID and Core target, and authorize `http://localhost:5000` in Google.
+Core must be running with its migrations applied. See
+[the portal guide](../../docs/google-login.md).
 
-## Routes and features
+## Default Google/Core mode
 
-- `/admin`: overview, date ranges, issuance/redemption chart, network and alerts.
-- `/admin/metrics`: platform analytics.
-- `/admin/partners`: partners, provisioning and partner details.
-- `/admin/vouchers`: reward review and moderation.
-- `/admin/audit`: system audit events.
+- Google verifies the account; Core checks its persisted `SYSTEM_ADMIN` role.
+- `/admin` uses existing dashboard components for request summaries and approval/rejection.
+  `/admin/partners` shows the same persisted organization review data.
+- Review shows organization type and business details. CCCD is masked and remains unverified.
+  Approval grants portal membership, not document verification or a provisioned Sui program.
+- The toolbar searches loaded requests and pages. Mobile navigation and sign-out remain
+  available in the existing layout.
+- Business dashboard appears only with an explicit active Owner/Developer membership.
+  Configure `VITE_BUSINESS_PORTAL_URL` for the business deployment.
+- Metrics, voucher moderation, audit and other mocked adapters report that they are not
+  connected in real mode. They do not silently return sample data.
+- Provider credentials stay in memory; reloading requires Google sign-in again. The real
+  portal uses no OctaP SDK, password authentication or custom Redis session.
 
-The toolbar searches demo records and pages. Mobile navigation is available
-from the menu button; logout is available on both desktop and mobile.
+## Optional demo mode
 
-## Demo data
+Set `VITE_ENABLE_DEMO_AUTH=true` in this app's `.env.local` and restart Vite. Sign in with
+`admin@octap.io` / `octap123`. The original overview, metrics, partner management, voucher
+moderation, audit, sample search and Mock API console use simulated services.
 
-All operations use browser-local simulated services, not the production API.
-The Mock API console supports latency/error simulation and resetting seed data.
-Data and sessions use `octap.admin.mockdb` and `octap.admin.session` localStorage
-keys, isolated from the original demo. Demo login is not production authentication.
-The mock transport, query hooks and domain types remain local to this app until
-a real backend integration is implemented.
+Demo data and sessions use `octap.admin.mockdb` and `octap.admin.session`, isolated from
+business data. The mock database is loaded/created lazily when first used in demo mode,
+not on module import. Real mode rejects mock reads/resets and never commits mock storage.
+Existing demo data is retained without being read or rewritten in real mode. Demo login
+is not production authentication.
 
 ## Validate
+
+From the repository root:
 
 ```sh
 npm run build
 npm run lint
 npm test -w @octap/admin
+npm run test:google-login
 ```
 
-Smoke check: sign in, change overview ranges, visit each route, search for a
-partner, open partner details, review a voucher, reload to check persistence,
-and log out. Repeat navigation at a narrow viewport.
+The Node regression test explicitly enables demo mode for login/session/overview checks
+and separately verifies real-mode mock isolation in both apps. Browser tests cover Google
+flow binding, roles, onboarding and invitations with controlled provider/API responses.
+They do not replace real Google sign-in or Core's database integration tests.
 
 ## Organization
 
-`App.tsx` composes providers and the router. `app/router.tsx` loads pages on
-demand; `app/guards.tsx` protects admin routes, and `app/providers.tsx` owns
-query and toast providers. Queries access the demo adapters through
-`services/index.ts`, the replacement boundary for a future API integration.
-
-Reusable code should move to `packages/shared` when it is independent of the
-admin domain. The class-name utility is exported as `@octap/shared/utils`;
-admin-specific layout, queries and demo data stay in this app.
-
-The regression test checks access without a session, merchant and invalid
-login rejection, administrator login, overview ranges, expired sessions and
-logout. Browser smoke checks remain necessary for layout and interactive flows.
+`App.tsx` composes providers and the router. `app/router.tsx` retains the existing lazy
+routes and wraps real mode with shared authentication state. `app/guards.tsx` checks the
+platform role in Web; Core independently authorizes protected requests. Admin layout,
+demo adapters, queries and domain models stay in this app. Shared theme, utilities and
+reusable portal flows live in `packages/shared`.
