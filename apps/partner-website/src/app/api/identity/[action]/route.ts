@@ -61,7 +61,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
           message:
             response.status >= 500
               ? 'Sign-in service is unavailable. Check Core and Enoki configuration.'
-              : 'Identity request rejected. Sign in again or contact the store.',
+              : response.status === 429
+                ? 'Too many sign-in attempts. Please wait a minute and try again.'
+                : 'Identity request rejected. Sign in again or contact the store.',
         },
         { status: response.status },
       );

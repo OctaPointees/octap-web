@@ -145,3 +145,13 @@ test('an expired token from Core stays a 401 for the page to send the customer b
 
   assert.equal(response.status, 401);
 });
+
+test('a rate limit from Core tells the customer to wait, not to sign in again', async () => {
+  configure({ demo: false });
+  stubCore(() => Response.json({ message: 'Too many requests' }, { status: 429 }));
+
+  const response = await post('nonce', { ephemeralPublicKey: 'epk' });
+
+  assert.equal(response.status, 429);
+  assert.match((await response.json()).message, /wait a minute/);
+});

@@ -85,8 +85,9 @@ No Enoki, merchant, or wallet private key belongs in the browser bundle. Only th
 client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted. Core's public
 enrollment endpoint takes the Google ID token, so this page keeps it in memory between sign-in and
 joining and never persists it; an expired token sends the customer back to sign in. Identity
-requests reach Core from this server, so all of a store's customers share one address against
-Core's per-IP limit (`PUBLIC_RATE_LIMIT_MAX_REQUESTS`). Balance reads and signed POS redemption
+requests reach Core from this server, so every store on this host shares one address against
+Core's per-IP limit (`PUBLIC_RATE_LIMIT_MAX_REQUESTS`). This route has no limit of its own, so this
+reference app can be locked out by traffic to any of its stores. Balance reads and signed POS redemption
 still require separate customer authorization/signing integration.
 
 ## Checks
