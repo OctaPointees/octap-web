@@ -81,7 +81,7 @@ export default function ConnectedMembers() {
         </p>
       )}
       {list.isPending && <p role="status">Loading members…</p>}
-      {!list.isPending && !list.data?.items.length && <p>No enrolled members found.</p>}
+      {list.isSuccess && !list.data.items.length && <p>No enrolled members found.</p>}
       <div className="overflow-x-auto">
         <table className="table">
           <thead>
