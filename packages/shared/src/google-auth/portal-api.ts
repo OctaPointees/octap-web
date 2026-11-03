@@ -89,6 +89,19 @@ export interface ConsoleCredential {
   scopes: unknown;
   status: string;
 }
+export interface PlatformOrganization {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  organizationType: string | null;
+  legalName: string | null;
+  taxId: string | null;
+  representativeName: string | null;
+  programStatus: string | null;
+  programControlId: string | null;
+  provisioning: { operationId: string; status: string; errorMessage: string | null } | null;
+}
 export interface OrganizationApplication {
   organizationType: OrganizationType | null;
   representativeName: string | null;
@@ -187,6 +200,42 @@ export function createConsoleClient({
       request<{ updated: boolean }>(`${organizationPath(id)}/profile`, 'PATCH', input),
     listConsoleStaff: (id: string, signal?: AbortSignal) =>
       request<ConsoleStaff[]>(`${organizationPath(id)}/staff`, 'GET', undefined, signal),
+    listPlatformOrganizations: (query: URLSearchParams, signal?: AbortSignal) =>
+      request<{ items: PlatformOrganization[]; nextCursor: string | null }>(
+        `/v1/platform/organizations?${query}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    getPlatformOrganization: (id: string, signal?: AbortSignal) =>
+      request<PlatformOrganization>(
+        `/v1/platform/organizations/${encodeURIComponent(id)}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    createPlatformOrganization: (input: object) =>
+      request<{ id: string }>('/v1/platform/organizations', 'POST', input),
+    ownerCandidates: (q: string, signal?: AbortSignal) =>
+      request<Array<{ id: string; email: string; fullName: string }>>(
+        `/v1/platform/owner-candidates?q=${encodeURIComponent(q)}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    provisionOrganization: (id: string, input: object) =>
+      request<{ operationId: string; status: string }>(
+        `/v1/platform/organizations/${encodeURIComponent(id)}/provision`,
+        'POST',
+        input,
+      ),
+    resolveOrganization: (slug: string, signal?: AbortSignal) =>
+      request<{ organizationId: string; name: string; slug: string }>(
+        `/v1/organizations/resolve/${encodeURIComponent(slug)}`,
+        'GET',
+        undefined,
+        signal,
+      ),
     proposeChange: (id: string, input: object, platform = false) =>
       request<{ id: string }>(
         `${platform ? `/v1/platform/organizations/${encodeURIComponent(id)}` : organizationPath(id)}/change-requests`,

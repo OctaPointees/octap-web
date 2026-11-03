@@ -68,3 +68,7 @@ routes and wraps real mode with shared authentication state. `app/guards.tsx` ch
 platform role in Web; Core independently authorizes protected requests. Admin layout,
 demo adapters, queries and domain models stay in this app. Shared theme, utilities and
 reusable portal flows live in `packages/shared`.
+
+OCT-36/OCT-208: Partners includes organization search/detail, admin-attributed creation,
+worker-backed program provisioning status, and reasoned lifecycle request review.
+See `../../docs/google-login.md` for Core dependencies and worker configuration.

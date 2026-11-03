@@ -1,5 +1,10 @@
 import ConsoleAccessLayout from './console/AccessLayout';
-import { ConsoleRoot, ConsoleSignedIn, ConsoleScreen } from '@octap/shared/google-auth';
+import {
+  ConsoleRoot,
+  ConsoleSignedIn,
+  ConsoleScreen,
+  OrganizationEntry,
+} from '@octap/shared/google-auth';
 import { queryClient } from '../queries/client';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireRoles } from './guards';
@@ -72,6 +77,7 @@ const liveRoutes: RouteObject[] = [
   {
     element: <ConsoleSignedIn />,
     children: [
+      { path: '/orgs/:slug', element: <OrganizationEntry /> },
       {
         element: <ConsoleAccessLayout />,
         children: [

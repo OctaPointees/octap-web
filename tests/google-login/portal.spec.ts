@@ -18,6 +18,10 @@ const identity = {
 };
 
 async function google(page: Page, wrongNonce = false) {
+  await page.route('**/v1/console/organizations/*/staff', (route) => route.fulfill({ json: [] }));
+  await page.route('**/v1/platform/organizations?*', (route) =>
+    route.fulfill({ json: { items: [], nextCursor: null } }),
+  );
   await page.route('**/v1/platform/change-requests?*', (route) =>
     route.fulfill({ json: { items: [], nextCursor: null } }),
   );
@@ -809,3 +813,146 @@ test('Owner submits a transfer and System Admin reviews organization governance'
   await expect(page.getByText(/SUSPEND.*APPROVED/)).toBeVisible();
   await page.screenshot({ path: 'test-results/oct208-admin-review.png', fullPage: true });
 });
+
+test('System Admin creates, approves and queues organization provisioning', async ({ page }) => {
+  await google(page);
+  const admin = { ...identity, user: { ...identity.user, systemRole: 'SYSTEM_ADMIN' } };
+  await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: admin }));
+  await page.route('**/v1/console/me', (route) => route.fulfill({ json: admin }));
+  await page.route('**/v1/platform/organization-requests', (route) => route.fulfill({ json: [] }));
+  let created = false,
+    approved = false,
+    queued = false,
+    complete = false;
+  const org = () => ({
+    id: 'new-org',
+    name: 'New Tenant',
+    slug: 'new-tenant',
+    status: approved ? 'ACTIVE' : 'PENDING_APPROVAL',
+    organizationType: 'INDIVIDUAL_HOUSEHOLD',
+    programStatus: complete ? 'ACTIVE' : null,
+    programControlId: complete ? '0xprogram' : null,
+    provisioning: queued
+      ? { operationId: 'job', status: complete ? 'SUBMITTED' : 'PENDING', errorMessage: null }
+      : null,
+  });
+  await page.route('**/v1/platform/organizations?*', (route) =>
+    route.fulfill({ json: { items: created ? [org()] : [], nextCursor: null } }),
+  );
+  await page.route('**/v1/platform/organizations/new-org', (route) =>
+    route.fulfill({ json: org() }),
+  );
+  await page.route('**/v1/platform/owner-candidates?*', (route) =>
+    route.fulfill({ json: [{ id: 'owner-user', email: 'owner@example.com', fullName: 'Owner' }] }),
+  );
+  await page.route('**/v1/platform/organizations', (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      ownerUserId: 'owner-user',
+      name: 'New Tenant',
+      slug: 'new-tenant',
+      organizationType: 'INDIVIDUAL_HOUSEHOLD',
+      representativeName: 'Owner Person',
+    });
+    created = true;
+    return route.fulfill({ json: { id: 'request-create' } });
+  });
+  await page.route('**/v1/platform/change-requests?*', (route) =>
+    route.fulfill({
+      json: {
+        items:
+          created && !approved
+            ? [
+                {
+                  id: 'request-create',
+                  organizationId: 'new-org',
+                  organizationName: 'New Tenant',
+                  requestType: 'CREATE_ORGANIZATION',
+                  status: 'PENDING',
+                  payload: {},
+                  reason: null,
+                },
+              ]
+            : [],
+        nextCursor: null,
+      },
+    }),
+  );
+  await page.route('**/v1/platform/change-requests/request-create/approve', (route) => {
+    approved = true;
+    return route.fulfill({ json: { organizationId: 'new-org' } });
+  });
+  await page.route('**/v1/platform/organizations/new-org/provision', (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      earnBps: 100,
+      expiryDays: 365,
+      totalBudget: 100000,
+      shardCount: 1,
+    });
+    expect(route.request().postDataJSON().idempotencyKey).toMatch(/^[a-f0-9-]{36}$/);
+    queued = true;
+    return route.fulfill({ json: { operationId: 'job', status: 'PENDING' } });
+  });
+  await page.goto('http://localhost:5181');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await page.getByRole('link', { name: 'Partners', exact: true }).click();
+  await page.getByRole('button', { name: 'New organization', exact: true }).click();
+  await page.getByLabel('Find initial Owner').fill('owner');
+  await page.getByRole('button', { name: 'Find Google user' }).click();
+  await page.getByLabel('Initial Business Owner', { exact: true }).selectOption('owner-user');
+  await page.getByLabel('New organization name').fill('New Tenant');
+  await page.getByLabel('Organization slug', { exact: true }).fill('new-tenant');
+  await page.getByLabel('Representative name', { exact: true }).fill('Owner Person');
+  await page.getByRole('button', { name: 'Create organization application' }).click();
+  await page.getByLabel('Review reason request-create').fill('Verified application');
+  await page.getByRole('button', { name: 'Approve CREATE_ORGANIZATION' }).click();
+  await expect(page.getByText('No organization change requests.')).toBeVisible();
+  await page.getByRole('button', { name: 'Find organizations' }).click();
+  await page.getByRole('button', { name: 'Manage New Tenant', exact: true }).click();
+  await page.getByRole('button', { name: 'Request program provisioning' }).click();
+  await expect(page.getByText('Provisioning: PENDING', { exact: true })).toBeVisible();
+  complete = true;
+  await page.getByRole('button', { name: 'Refresh organization status' }).click();
+  await expect(page.getByText('Provisioning: SUBMITTED', { exact: true })).toBeVisible();
+  await page
+    .getByRole('heading', { name: 'Manage New Tenant', exact: true })
+    .scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'test-results/oct36-organizations.png', fullPage: true });
+});
+
+for (const member of [true, false]) {
+  test(`slug entry ${member ? 'requires explicit selection' : 'does not grant membership'}`, async ({
+    page,
+  }) => {
+    await google(page);
+    const user = {
+      ...identity,
+      organizations: member
+        ? [{ organizationId: 'tenant', name: 'Tenant', slug: 'tenant', persona: 'BUSINESS_OWNER' }]
+        : [],
+    };
+    await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: user }));
+    await page.route('**/v1/console/organizations/tenant', (route) =>
+      route.fulfill({
+        json: {
+          id: 'tenant',
+          name: 'Tenant',
+          slug: 'tenant',
+          status: 'ACTIVE',
+          persona: 'BUSINESS_OWNER',
+        },
+      }),
+    );
+    await page.route('**/v1/organizations/resolve/tenant', (route) =>
+      route.fulfill({ json: { organizationId: 'tenant', name: 'Tenant', slug: 'tenant' } }),
+    );
+    await page.goto('/orgs/tenant');
+    await page.getByRole('button', { name: 'Continue with Google' }).click();
+    if (member) {
+      await page.getByRole('button', { name: 'Enter Tenant' }).click();
+      await expect(page).toHaveURL(/merchant$/);
+    } else {
+      await expect(page.getByRole('alert')).toContainText('does not have access');
+      await expect(page.getByRole('button', { name: 'Enter Tenant' })).toHaveCount(0);
+    }
+  });
+}

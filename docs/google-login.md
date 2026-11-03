@@ -143,3 +143,19 @@ governance review section with status filters and required decision reasons. Sys
 Admins can propose reinstatement for suspended organizations through Core. Archived
 organizations are not reinstated by that workflow. Suspension blocks portal and API-key
 access; reinstatement does not revive revoked keys or inactive staff memberships.
+
+## Managed organizations and provisioning (OCT-36)
+
+Admin Partners has paginated organization search, safe detail, and creation for an existing
+Google-bound initial Owner. Creation opens an approval request; the selected person receives
+Owner membership on approval, not the admin automatically. Active organizations can request
+program provisioning with an issuance policy/budget. Detail shows queued/processing/completed
+or reconciliation-required state and refreshes in-flight status. Enable Core's dedicated
+program-admin provisioning worker using ORG_PROVISION_WORKER_ENABLED=true; signing is never
+performed in Web or the HTTP process. UNKNOWN outcomes require operator reconciliation and
+cannot be retried through this UI. A configured funded Testnet worker is needed for live runs.
+
+Business entry `/orgs/:slug` is the path fallback for this delivery. Google sign-in preserves
+the entry path, then Core resolves only active tenants and Web requires an explicit membership.
+An entry URL or slug never grants tenant access. Wildcard DNS/Host routing is not provisioned.
+Organization suspension/reinstatement/name changes still submit OCT-208 governance proposals.

@@ -24,15 +24,17 @@ export function ConsoleLogin() {
         to={
           auth.portal === 'admin'
             ? '/admin'
-            : auth.invitation
-              ? '/onboarding'
-              : auth.selected
-                ? auth.owner
-                  ? '/merchant'
-                  : '/developer'
-                : auth.identity.organizations.length
-                  ? '/organizations'
-                  : '/onboarding'
+            : auth.entrySlug
+              ? `/orgs/${auth.entrySlug}`
+              : auth.invitation
+                ? '/onboarding'
+                : auth.selected
+                  ? auth.owner
+                    ? '/merchant'
+                    : '/developer'
+                  : auth.identity.organizations.length
+                    ? '/organizations'
+                    : '/onboarding'
         }
         replace
       />
