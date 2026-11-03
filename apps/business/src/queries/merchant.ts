@@ -7,6 +7,7 @@ import {
   type TxFilters,
 } from "../services/merchant.service";
 import type { ApiKey, ApiScope, McpTool, MerchantRole, Range } from "../types/domain";
+import { billingService, type BillingPlanId } from "../services/billing.service";
 
 export const merchantKeys = {
   tenant: ["merchant", "tenant"] as const,
@@ -62,6 +63,15 @@ export const useCreateApiKey = () =>
 export const useRevokeApiKey = () => useMutation({ mutationFn: (id: string) => merchantService.revokeApiKey(id) });
 export const useUpdateMcp = () =>
   useMutation({ mutationFn: (patch: { enabled?: boolean; tool?: McpTool; toolEnabled?: boolean }) => merchantService.updateMcp(patch) });
+
+export const billingKeys = { state: (tenantId?: string) => tenantId ? ["developer", "billing", tenantId] as const : ["developer", "billing"] as const };
+export const useBillingState = () => {
+  const tenant = useMerchantTenant();
+  return useQuery({ queryKey: billingKeys.state(tenant.data?.id), queryFn: billingService.getState, enabled: !!tenant.data?.id });
+};
+export const useSubscribeBillingPlan = () => useMutation({ mutationFn: (plan: Exclude<BillingPlanId, "sandbox">) => billingService.subscribe(plan) });
+export const useCancelBilling = () => useMutation({ mutationFn: billingService.cancel });
+export const useUpdateBillingPaymentMethod = () => useMutation({ mutationFn: billingService.updatePaymentMethod });
 
 export const useInviteTeammate = () => useMutation({ mutationFn: (input: { email: string; role: MerchantRole }) => merchantService.inviteTeammate(input) });
 export const useUpdateTeammate = () =>

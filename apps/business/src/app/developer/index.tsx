@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { House, Key, PlugsConnected, ShareNetwork } from 'phosphor-react';
+import { CreditCard, House, Key, PlugsConnected, ShareNetwork } from 'phosphor-react';
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
 import { useMerchantTenant } from '@/queries/merchant';
@@ -11,6 +11,7 @@ export default function DeveloperLayout() {
     () => [
       { label: 'Dashboard', path: '/developer', icon: House, end: true },
       { label: 'API keys', path: '/developer/api-keys', icon: Key },
+      { label: 'Billing & plan', path: '/developer/billing', icon: CreditCard },
       { label: 'Webhooks', path: '/developer/webhooks', icon: ShareNetwork },
       { label: 'MCP tools', path: '/developer/mcp', icon: PlugsConnected },
     ],

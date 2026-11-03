@@ -1,5 +1,5 @@
 import { ArrowDownRight, ArrowUpRight, Warning, type Icon } from 'phosphor-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { cn } from '../../utils/cn';
 import type { MemberTier } from '../../types/domain';
 import { fmtPercent, toTitle } from '../../utils/format';
@@ -36,15 +36,20 @@ export function Card({
   children,
   className,
   bodyClassName,
+  style,
 }: {
   title?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
+  style?: CSSProperties;
 }) {
   return (
-    <section className={cn('rounded-box border border-base-300 bg-base-100', className)}>
+    <section
+      className={cn('rounded-box border border-base-300 bg-base-100', className)}
+      style={style}
+    >
       {(title || actions) && (
         <header className="flex items-center justify-between gap-2 px-5 pt-4">
           <h2 className="font-semibold">{title}</h2>

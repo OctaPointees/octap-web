@@ -8,6 +8,7 @@ import DeveloperDashboardPage from './developer/pages/DashboardPage';
 import DeveloperApiKeysPage from './developer/pages/ApiKeysPage';
 import DeveloperWebhooksPage from './developer/pages/WebhooksPage';
 import DeveloperMcpPage from './developer/pages/McpPage';
+import DeveloperBillingPage from './developer/pages/BillingPage';
 import CampaignsPage from './merchant/pages/CampaignsPage';
 import MerchantDashboardPage from './merchant/pages/DashboardPage';
 import MembersPage from './merchant/pages/MembersPage';
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <DeveloperDashboardPage /> },
           { path: 'api-keys', element: <DeveloperApiKeysPage /> },
+          { path: 'billing', element: <DeveloperBillingPage /> },
           { path: 'webhooks', element: <DeveloperWebhooksPage /> },
           { path: 'mcp', element: <DeveloperMcpPage /> },
         ],

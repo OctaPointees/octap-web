@@ -31,6 +31,7 @@ import { getDb } from "./mock/db";
 import { badRequest, conflict, forbidden, notFound, simulate } from "./mock/http";
 import { hex, live, uid } from "./mock/random";
 import { requireIntegrationRole, requireMerchant, sessionStore } from "./session";
+import { hasProductionAccess } from "./billing.service";
 
 export type CampaignInput = {
   name: string;
@@ -465,6 +466,9 @@ export const merchantService = {
       "POST /v1/merchant/api-keys",
       () => {
         const tenantId = requireIntegrationRole();
+        if (input.env === "live" && !hasProductionAccess(tenantId)) {
+          throw forbidden("Production keys require an active subscription. Choose a plan in Billing & plan to unlock Production.");
+        }
         const errors: Record<string, string> = {};
         if (input.name.trim().length < 3) errors.name = "At least 3 characters";
         if (!input.scopes.length) errors.scopes = "Select at least one scope";

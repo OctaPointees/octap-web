@@ -12,9 +12,11 @@ import {
 } from '@/components/shared/Display';
 import { ConfirmDialog, Modal } from '@/components/shared/Modal';
 import { useApiKeys, useCreateApiKey, useRevokeApiKey } from '@/queries/merchant';
+import { useBillingState } from '@/queries/merchant';
 import type { ApiKey, ApiScope } from '@/types/domain';
 import { fmtCompact, fmtDate, fmtRelative } from '@/utils/format';
 import { notify } from '@/utils/toast';
+import { Link } from 'react-router';
 
 const SCOPES: { value: ApiScope; description: string }[] = [
   { value: 'points:earn', description: 'Issue points at checkout' },
@@ -27,6 +29,7 @@ const SCOPES: { value: ApiScope; description: string }[] = [
 
 export default function DeveloperApiKeysPage() {
   const keys = useApiKeys();
+  const billing = useBillingState();
   const create = useCreateApiKey();
   const revoke = useRevokeApiKey();
   const [creating, setCreating] = useState(false);
@@ -36,6 +39,7 @@ export default function DeveloperApiKeysPage() {
   const [secret, setSecret] = useState<string | null>(null);
   const [revoking, setRevoking] = useState<ApiKey | null>(null);
   const [nameError, setNameError] = useState('');
+  const productionUnlocked = billing.data?.status === 'active' && billing.data.plan !== 'sandbox';
 
   const submit = () => {
     setNameError('');
@@ -174,14 +178,7 @@ export default function DeveloperApiKeysPage() {
             {nameError && <p className="text-xs text-error">{nameError}</p>}
             <div>
               <p className="mb-2 text-sm font-medium">Environment</p>
-              <Segmented
-                value={env}
-                onValueChange={setEnv}
-                options={[
-                  { label: 'Test (testnet)', value: 'test' },
-                  { label: 'Live (mainnet)', value: 'live' },
-                ]}
-              />
+              {productionUnlocked ? <Segmented value={env} onValueChange={setEnv} options={[{ label: 'Test (testnet)', value: 'test' }, { label: 'Production (mainnet)', value: 'live' }]} /> : <><Segmented value="test" onValueChange={() => setEnv('test')} options={[{ label: 'Sandbox test key', value: 'test' }]} /><p className="mt-2 text-xs opacity-65">Production keys require an active subscription. <Link className="link link-primary" to="/developer/billing">View plans and upgrade</Link>.</p></>}
             </div>
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-1 text-sm font-medium">Scopes</legend>

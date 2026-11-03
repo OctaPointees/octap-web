@@ -22,7 +22,7 @@ export default function DeveloperMcpPage() {
   const business = tenant.data;
   if (!business) return null;
   const unavailable = business.plan === 'starter';
-  const set = (patch: Parameters<typeof update.mutate>[0]) => update.mutate(patch, { onError: notify.error, onSuccess: () => notify.success('MCP settings updated') });
+  const set = (patch: Parameters<typeof update.mutate>[0]) => update.mutate(patch, { onError: (error) => notify.error(error), onSuccess: () => notify.success('MCP settings updated') });
 
   return <>
     <PageHeader title="MCP tools" description="Control which tools AI agents can call for this business." />

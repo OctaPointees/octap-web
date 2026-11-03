@@ -52,6 +52,10 @@ export function commit() {
 
 export function resetDb() {
   db = createSeed();
+  for (let index = localStorage.length - 1; index >= 0; index--) {
+    const key = localStorage.key(index);
+    if (key?.startsWith("octap.billing:")) localStorage.removeItem(key);
+  }
   commit();
 }
 

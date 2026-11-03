@@ -1,6 +1,5 @@
-import { Activity, Key, PlugsConnected, ShareNetwork } from 'phosphor-react';
-import { useEffect, useState } from 'react';
-import { useMerchantOverview, useApiKeys, useMerchantTenant } from '@/queries/merchant';
+import { Activity, CreditCard, Key, PlugsConnected, ShareNetwork } from 'phosphor-react';
+import { useMerchantOverview, useApiKeys, useMerchantTenant, useBillingState } from '@/queries/merchant';
 import { Card, ErrorState, LoadingBlock, PageHeader, StatCard } from '@/components/shared/Display';
 import { Link } from 'react-router';
 
@@ -8,17 +7,17 @@ export default function DeveloperDashboardPage() {
   const tenant = useMerchantTenant();
   const overview = useMerchantOverview('30d');
   const keys = useApiKeys();
+  const billing = useBillingState();
   const tenantId = tenant.data?.id;
-  const [webhookConfigured, setWebhookConfigured] = useState(false);
-  useEffect(() => {
-    if (!tenantId) return;
+  let webhookConfigured = false;
+  if (tenantId) {
     try {
       const config = JSON.parse(localStorage.getItem(`octap.webhooks:${tenantId}`) ?? '{}') as { url?: string };
-      setWebhookConfigured(!!config.url);
+      webhookConfigured = !!config.url;
     } catch {
-      setWebhookConfigured(false);
+      webhookConfigured = false;
     }
-  }, [tenantId]);
+  }
   if (overview.isLoading || tenant.isLoading || keys.isLoading) return <LoadingBlock rows={3} />;
   if (overview.error) return <ErrorState error={overview.error} onRetry={overview.refetch} />;
   if (tenant.error) return <ErrorState error={tenant.error} onRetry={tenant.refetch} />;
@@ -31,11 +30,12 @@ export default function DeveloperDashboardPage() {
   return (
     <>
       <PageHeader title="Developer dashboard" description={`Integration status and API activity for ${tenant.data.name}.`} />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="API calls (30 days)" value={calls.toLocaleString()} icon={Activity} hint={`${todayCalls.toLocaleString()} today`} />
         <StatCard label="Active API keys" value={activeKeys} icon={Key} hint={`${keys.data?.length ?? 0} total keys`} />
         <StatCard label="Webhook endpoint" value={webhookConfigured ? 'Configured' : 'Not configured'} icon={ShareNetwork} hint={webhookConfigured ? 'Ready to receive events' : 'Set an endpoint to receive events'} />
         <StatCard label="MCP server" value={tenant.data.mcp.enabled ? 'Enabled' : 'Disabled'} icon={PlugsConnected} hint={`${Object.values(tenant.data.mcp.tools).filter(Boolean).length} tools enabled`} />
+        <Link to="/developer/billing"><StatCard label="Production access" value={billing.data?.status === 'active' && billing.data.plan !== 'sandbox' ? 'Unlocked' : 'Locked'} icon={CreditCard} hint={billing.data?.status === 'active' ? `${billing.data.plan} plan` : 'Upgrade to unlock'} /></Link>
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         <Card title="Recent API activity">
@@ -51,6 +51,7 @@ export default function DeveloperDashboardPage() {
             <Link className="flex items-center justify-between py-3 text-sm hover:text-primary" to="/developer/api-keys">Manage API keys <span aria-hidden>→</span></Link>
             <Link className="flex items-center justify-between py-3 text-sm hover:text-primary" to="/developer/webhooks">Configure webhooks <span aria-hidden>→</span></Link>
             <Link className="flex items-center justify-between py-3 text-sm hover:text-primary" to="/developer/mcp">Manage MCP tools <span aria-hidden>→</span></Link>
+            <Link className="flex items-center justify-between py-3 text-sm hover:text-primary" to="/developer/billing">Billing & plan <span aria-hidden>→</span></Link>
           </div>
         </Card>
       </div>

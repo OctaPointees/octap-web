@@ -110,10 +110,14 @@ Each area below matches a feature in the project scope. Use these as a starting 
 
 - [ ] The account opens directly in **Developer** mode.
 - [ ] **Dashboard:** review API activity and integration status.
-- [ ] **API keys:** create a key, verify the secret is shown only once, and revoke a key.
+- [ ] **API keys:** create a Sandbox test key, verify the secret is shown only once, and revoke a key. Production keys stay locked until a demo subscription is active.
+- [ ] **Billing & plan:** compare the Growth and Scale demo plans, review the monthly price and next charge, and confirm a mock upgrade. Production access should unlock and show the mock `ocp_live_` key state.
+- [ ] On **Billing & plan**, inspect the demo invoice and payment method. Change the mock payment method or cancel the subscription; no real card details or payment are used.
 - [ ] **Webhooks:** configure an HTTPS endpoint, select events, and rotate its signing secret.
 - [ ] **MCP tools:** enable the server and change available tools.
 - [ ] Sign in as the owner to switch between **Business mode** and **Developer mode**.
+
+The billing page is a local demo. **Sandbox** is free and uses test keys and test data. **Production** is represented as subscription-gated; confirming a mock plan unlocks production key creation in this browser. Plan prices, invoices, subscription status, and payment methods are illustrative browser data only. No hosted checkout or payment provider is connected. This client-side demo gate is not production security; a real deployment must enforce subscription access on the server and isolate Sandbox credentials from live services.
 
 ### ✅ Business cashier - `cashier@lotusmart.vn`
 
