@@ -370,6 +370,7 @@ test('platform admin approves an organization through Core', async ({ page }) =>
   await page.getByRole('link', { name: 'Partners', exact: true }).click();
   await page.getByLabel('Review reason request-1').fill('Verified owner');
   await page.getByRole('button', { name: 'Approve CREATE_ORGANIZATION' }).click();
+  await expect(page.getByText(/CREATE ORGANIZATION.*APPROVED/)).toBeVisible();
   await page.getByLabel('Request status', { exact: true }).selectOption('APPROVED');
   await expect(page.getByText(/CREATE ORGANIZATION.*APPROVED/)).toBeVisible();
   await expect(page.getByRole('link', { name: 'Metrics', exact: true })).toBeVisible();
