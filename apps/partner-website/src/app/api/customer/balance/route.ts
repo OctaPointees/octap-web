@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
           (tx: {
             id: string;
             transactionType: string;
-            pointsAmount: number;
+            pointsAmount: number | null;
+            estimatedPoints?: number | null;
             status: string;
             createdAt: string;
             blockchainDigest?: string;
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
             id: tx.id,
             type: tx.transactionType,
             points: tx.pointsAmount,
+            estimatedPoints: tx.estimatedPoints ?? null,
             status: tx.status,
             createdAt: tx.createdAt,
             digest: tx.blockchainDigest,

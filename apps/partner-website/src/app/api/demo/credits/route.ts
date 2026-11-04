@@ -74,9 +74,9 @@ export async function POST(request: NextRequest) {
     }
     if (body.action === 'earn') {
       if (
-        !Number.isSafeInteger(body.pointsAmount) ||
-        body.pointsAmount <= 0 ||
-        body.pointsAmount > 1_000_000 ||
+        !Number.isSafeInteger(body.purchaseAmount) ||
+        body.purchaseAmount <= 0 ||
+        body.purchaseAmount > 1_000_000 ||
         typeof body.idempotencyKey !== 'string' ||
         !/^[a-zA-Z0-9-]{1,100}$/.test(body.idempotencyKey) ||
         (body.receiptReference !== undefined &&
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       }
       const result = await core('/v1/credits/earn', {
         organizationEndUserId: memberId,
-        pointsAmount: body.pointsAmount,
+        purchaseAmount: body.purchaseAmount,
         idempotencyKey: body.idempotencyKey,
         receiptReference: body.receiptReference,
       });

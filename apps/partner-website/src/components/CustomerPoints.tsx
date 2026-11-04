@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { transactionPointsLabel } from '../lib/transaction-points';
 
 interface Points {
   confirmedBalance: number;
@@ -11,7 +12,8 @@ interface Points {
   transactions: {
     id: string;
     type: string;
-    points: number;
+    points: number | null;
+    estimatedPoints?: number | null;
     status: string;
     createdAt: string;
     digest?: string;
@@ -106,7 +108,7 @@ export default function CustomerPoints() {
               <li key={tx.id} className="border-t border-line pt-3 text-sm">
                 <div className="flex justify-between gap-2">
                   <span>
-                    {tx.type} · {tx.points}
+                    {tx.type} · {transactionPointsLabel(tx)}
                   </span>
                   <span className="text-muted">{tx.status}</span>
                 </div>

@@ -64,7 +64,7 @@ test('untrusted origins and malformed commands are rejected', async () => {
         request({
           action: 'earn',
           organizationEndUserId: member,
-          pointsAmount: -1,
+          purchaseAmount: -1,
           idempotencyKey: 'test',
         }),
       )
@@ -78,7 +78,7 @@ test('earn preserves the retry key and forwards the credential only to Core', as
   const command = {
     action: 'earn',
     organizationEndUserId: member,
-    pointsAmount: 100,
+    purchaseAmount: 100,
     idempotencyKey: 'same-retry-key',
   };
   let calls = 0;
@@ -86,6 +86,8 @@ test('earn preserves the retry key and forwards the credential only to Core', as
     assert.ok(url.endsWith('/v1/credits/earn'));
     assert.equal(options.headers.Authorization, 'Bearer server-only-test-key');
     assert.equal(JSON.parse(options.body).idempotencyKey, command.idempotencyKey);
+    assert.equal(JSON.parse(options.body).purchaseAmount, 100);
+    assert.equal(JSON.parse(options.body).pointsAmount, undefined);
     calls++;
     return Response.json({ transactionId: 'tx', status: 'PENDING' }, { status: 201 });
   };
