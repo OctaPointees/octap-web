@@ -604,7 +604,7 @@ test('real Owner routes keep the shell mounted and report unconnected modules', 
   await page.getByRole('button', { name: 'Refresh access', exact: true }).click();
   await expect(page.getByText('Access refreshed')).toBeVisible();
   await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
-  for (const path of ['/merchant/rewards', '/merchant/members']) {
+  for (const path of ['/merchant/rewards']) {
     await page
       .getByRole('link', { name: path.endsWith('rewards') ? 'Rewards' : 'Members', exact: true })
       .click();
@@ -631,3 +631,70 @@ test('expired Google credentials explain the return to login', async ({ page }) 
     'Your Google sign-in has expired. Sign in again.',
   );
 });
+
+for (const persona of ['BUSINESS_OWNER', 'BUSINESS_DEVELOPER']) {
+  test(`member directory ${persona} permissions and current balance`, async ({ page }) => {
+    await google(page);
+    const account = {
+      ...identity,
+      organizations: [{ organizationId: 'tenant', name: 'Tenant', slug: 'tenant', persona }],
+    };
+    await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: account }));
+    await page.route('**/v1/console/me', (route) => route.fulfill({ json: account }));
+    await page.route('**/v1/console/organizations/tenant', (route) =>
+      route.fulfill({
+        json: { id: 'tenant', name: 'Tenant', slug: 'tenant', status: 'ACTIVE', persona },
+      }),
+    );
+    const member = {
+      id: 'member-1',
+      endUserId: 'customer-1',
+      displayName: 'Alice',
+      email: 'alice@example.com',
+      phoneNumber: null,
+      status: 'ACTIVE',
+      externalMemberId: 'POS-1',
+      metadata: {},
+      joinedAt: new Date().toISOString(),
+    };
+    await page.route('**/v1/console/organizations/tenant/members?*', (route) => {
+      expect(route.request().headers().authorization).toMatch(/^Bearer header\./);
+      return route.fulfill({ json: { items: [member], nextCursor: null } });
+    });
+    await page.route('**/v1/console/organizations/tenant/members/member-1', (route) => {
+      if (route.request().method() === 'PATCH') {
+        expect(persona).toBe('BUSINESS_OWNER');
+        expect(route.request().postDataJSON()).not.toHaveProperty('tier');
+        Object.assign(member, route.request().postDataJSON());
+        return route.fulfill({ json: { updated: true } });
+      }
+      return route.fulfill({
+        json: {
+          ...member,
+          balance: {
+            confirmedBalance: 123,
+            pendingEarn: 5,
+            pendingRedemption: 0,
+            stale: true,
+            observedAt: new Date().toISOString(),
+          },
+        },
+      });
+    });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Continue with Google' }).click();
+    await page.getByRole('link', { name: 'Members', exact: true }).click();
+    await page.getByLabel('Search members').fill('Alice');
+    await page.getByRole('button', { name: 'Search', exact: true }).click();
+    await page.getByRole('button', { name: 'View Alice' }).click();
+    await expect(page.getByText(/Confirmed balance: 123/)).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Tier', exact: true })).toHaveCount(0);
+    await expect(page.getByLabel('Member tier')).toHaveCount(0);
+    if (persona === 'BUSINESS_OWNER') {
+      await page.getByLabel('Member status', { exact: true }).selectOption('BLOCKED');
+      await page.getByRole('button', { name: 'Save member' }).click();
+      await expect(page.getByRole('cell', { name: 'BLOCKED', exact: true })).toBeVisible();
+      await page.screenshot({ path: 'test-results/oct71-members.png', fullPage: true });
+    } else await expect(page.getByRole('button', { name: 'Save member' })).toHaveCount(0);
+  });
+}

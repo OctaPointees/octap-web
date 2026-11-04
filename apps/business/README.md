@@ -35,6 +35,7 @@ start Core with its migrations applied. See
   CCCD responses are masked and Core encrypts the stored value.
 - Developers enter `/developer`; `/developer/api-keys` lists safe credential metadata.
   They cannot manage organization profiles or invitations.
+- Owners use `/merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `/developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
 - Invite links require the addressed Google identity and explicit one-time acceptance.
 - Dashboard modules without live adapters report that they are not connected. They do
   not run against sample data after real Google login.
@@ -43,8 +44,8 @@ start Core with its migrations applied. See
   uses no OctaP SDK or custom Redis session.
 
 Core enforces permissions independently of UI guards. Organization approval creates portal
-access, not an on-chain program. Live analytics, points, campaigns, rewards, customer
-member-directory features and full governance remain separate work.
+access, not an on-chain program. The member directory is connected to Core. Live analytics,
+points, campaigns, rewards and full governance remain separate work.
 
 ## Optional browser-local demo
 

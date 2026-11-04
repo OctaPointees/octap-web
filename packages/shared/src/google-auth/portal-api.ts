@@ -43,6 +43,24 @@ export interface ConsoleStaff {
   persona: OrganizationPersona;
   status: string;
 }
+export interface ConsoleMember {
+  id: string;
+  endUserId: string;
+  displayName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  status: string;
+  externalMemberId: string | null;
+  metadata: unknown;
+  joinedAt: string;
+  balance?: {
+    confirmedBalance: number;
+    pendingEarn: number;
+    pendingRedemption: number;
+    stale: boolean;
+    observedAt: string;
+  };
+}
 export interface ConsoleCredential {
   id: string;
   name: string;
@@ -148,6 +166,26 @@ export function createConsoleClient({
       request<{ updated: boolean }>(`${organizationPath(id)}/profile`, 'PATCH', input),
     listConsoleStaff: (id: string, signal?: AbortSignal) =>
       request<ConsoleStaff[]>(`${organizationPath(id)}/staff`, 'GET', undefined, signal),
+    listMembers: (id: string, query: URLSearchParams, signal?: AbortSignal) =>
+      request<{ items: ConsoleMember[]; nextCursor: string | null }>(
+        `${organizationPath(id)}/members?${query}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    getMember: (id: string, memberId: string, signal?: AbortSignal) =>
+      request<ConsoleMember>(
+        `${organizationPath(id)}/members/${encodeURIComponent(memberId)}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    updateMember: (id: string, memberId: string, input: object) =>
+      request<{ updated: boolean }>(
+        `${organizationPath(id)}/members/${encodeURIComponent(memberId)}`,
+        'PATCH',
+        input,
+      ),
     updateConsoleStaffAccess: (id: string, userId: string, status: 'ACTIVE' | 'SUSPENDED') =>
       request<{ updated: boolean }>(
         `${organizationPath(id)}/staff/${encodeURIComponent(userId)}`,

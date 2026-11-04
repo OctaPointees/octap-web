@@ -125,3 +125,12 @@ Run `npm run build`, `npm run lint`, and `npx playwright test` from the reposito
 The browser tests replace GIS and Core responses to check UI and flow binding; Core's
 tests separately exercise RSA signature verification and real PostgreSQL/RLS behavior.
 A real Google browser sign-in also requires the configured client's authorized origins.
+
+## Customer directory (OCT-71)
+
+Owners use `/merchant/members`; Developers use the read-only `/developer/members`.
+Search supports text, status and exact external-member ID, with cursor pagination.
+Detail includes Core-confirmed balance and pending amounts. Owners may edit
+enrollment status, external ID and tenant metadata. This does not alter global identity,
+staff permissions or points. Tier membership is outside this delivery (OCT-255). Blocked customers cannot start new
+earn/claim/redemption work; already accepted transactions may still settle.
