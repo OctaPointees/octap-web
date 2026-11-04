@@ -18,6 +18,9 @@ const identity = {
 };
 
 async function google(page: Page, wrongNonce = false) {
+  await page.route('**/v1/platform/change-requests?*', (route) =>
+    route.fulfill({ json: { items: [], nextCursor: null } }),
+  );
   await page.route('**/v1/console/organization-requests', (route) => route.fulfill({ json: [] }));
   await page.route('**/v1/console/organizations/*', (route) =>
     route.fulfill({
@@ -333,34 +336,43 @@ test('invited Google user accepts and enters the Developer portal', async ({ pag
 
 test('platform admin approves an organization through Core', async ({ page }) => {
   await google(page);
+  await page.route('**/v1/platform/organization-requests', (route) => route.fulfill({ json: [] }));
   const admin = { ...identity, user: { ...identity.user, systemRole: 'SYSTEM_ADMIN' } };
   let approved = false;
   await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: admin }));
   await page.route('**/v1/console/me', (route) => route.fulfill({ json: admin }));
-  await page.route('**/v1/platform/organization-requests', (route) =>
+  await page.route('**/v1/platform/change-requests?*', (route) =>
     route.fulfill({
-      json: [
-        {
-          id: 'request-1',
-          name: 'New business',
-          slug: 'new-business',
-          applicantEmail: 'owner@example.com',
-          status: approved ? 'APPROVED' : 'PENDING',
-          nationalIdLast4: '1234',
-        },
-      ],
+      json: {
+        items: [
+          {
+            id: 'request-1',
+            name: 'New business',
+            slug: 'new-business',
+            applicantEmail: 'owner@example.com',
+            status: approved ? 'APPROVED' : 'PENDING',
+            requestType: 'CREATE_ORGANIZATION',
+            payload: {},
+            requesterEmail: 'owner@example.com',
+          },
+        ],
+        nextCursor: null,
+      },
     }),
   );
-  await page.route('**/v1/platform/organization-requests/request-1/approve', (route) => {
+  await page.route('**/v1/platform/change-requests/request-1/approve', (route) => {
     expect(route.request().headers().authorization).toMatch(/^Bearer header\./);
     approved = true;
     return route.fulfill({ json: { organizationId: 'new-org' } });
   });
   await page.goto('http://localhost:5181');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
-  await expect(page.getByText(`CCCD: ${'\u2022'.repeat(8)}1234 \u2014 not verified`)).toBeVisible();
-  await page.getByRole('button', { name: 'Approve New business' }).click();
-  await expect(page.getByText('owner@example.com · APPROVED')).toBeVisible();
+  await page.getByRole('link', { name: 'Partners', exact: true }).click();
+  await page.getByLabel('Review reason request-1').fill('Verified owner');
+  await page.getByRole('button', { name: 'Approve CREATE_ORGANIZATION' }).click();
+  await expect(page.getByText(/CREATE ORGANIZATION.*APPROVED/)).toBeVisible();
+  await page.getByLabel('Request status', { exact: true }).selectOption('APPROVED');
+  await expect(page.getByText(/CREATE ORGANIZATION.*APPROVED/)).toBeVisible();
   await expect(page.getByRole('link', { name: 'Metrics', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Partners', exact: true })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('octap.admin.mockdb'))).toBeNull();
@@ -698,3 +710,102 @@ for (const persona of ['BUSINESS_OWNER', 'BUSINESS_DEVELOPER']) {
     } else await expect(page.getByRole('button', { name: 'Save member' })).toHaveCount(0);
   });
 }
+
+test('Owner submits a transfer and System Admin reviews organization governance', async ({
+  page,
+}) => {
+  await google(page);
+  const owner = {
+    ...identity,
+    organizations: [
+      { organizationId: 'tenant', name: 'Tenant', slug: 'tenant', persona: 'BUSINESS_OWNER' },
+    ],
+  };
+  await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: owner }));
+  await page.route('**/v1/console/me', (route) => route.fulfill({ json: owner }));
+  await page.route('**/v1/console/organizations/tenant', (route) =>
+    route.fulfill({
+      json: {
+        id: 'tenant',
+        name: 'Tenant',
+        slug: 'tenant',
+        status: 'ACTIVE',
+        persona: 'BUSINESS_OWNER',
+      },
+    }),
+  );
+  await page.route('**/v1/console/organizations/tenant/staff', (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: 'developer',
+          email: 'developer@example.com',
+          fullName: 'Developer',
+          persona: 'BUSINESS_DEVELOPER',
+          status: 'ACTIVE',
+        },
+      ],
+    }),
+  );
+  await page.route('**/v1/console/organizations/tenant/change-requests', (route) => {
+    expect(route.request().postDataJSON()).toEqual({
+      requestType: 'TRANSFER_OWNERSHIP',
+      reason: 'New business representative',
+      payload: { targetUserId: 'developer' },
+    });
+    return route.fulfill({ json: { id: 'transfer' } });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  await page.getByLabel('New Business Owner', { exact: true }).selectOption('developer');
+  await page.getByLabel('Request reason', { exact: true }).fill('New business representative');
+  await page.getByRole('button', { name: 'Submit change request' }).click();
+  await expect(page.getByText('Change request submitted for review.')).toBeVisible();
+  await page.screenshot({ path: 'test-results/oct208-owner-request.png', fullPage: true });
+
+  const admin = { ...identity, user: { ...identity.user, systemRole: 'SYSTEM_ADMIN' } };
+  await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: admin }));
+  await page.route('**/v1/console/me', (route) => route.fulfill({ json: admin }));
+  await page.route('**/v1/platform/organization-requests', (route) => route.fulfill({ json: [] }));
+  let approved = false;
+  await page.route('**/v1/platform/change-requests?*', (route) => {
+    const filter = new URL(route.request().url()).searchParams.get('status');
+    return route.fulfill({
+      json: {
+        items:
+          approved && filter === 'PENDING'
+            ? []
+            : [
+                {
+                  id: 'suspend',
+                  organizationId: 'tenant',
+                  organizationName: 'Tenant',
+                  requestType: 'SUSPEND',
+                  status: approved ? 'APPROVED' : 'PENDING',
+                  payload: { requestedReason: 'Paused operations' },
+                  reason: approved ? 'Verified with Owner' : 'Paused operations',
+                },
+              ],
+        nextCursor: null,
+      },
+    });
+  });
+  await page.route('**/v1/platform/change-requests/suspend/approve', (route) => {
+    expect(route.request().postDataJSON()).toEqual({ reason: 'Verified with Owner' });
+    approved = true;
+    return route.fulfill({ json: { organizationId: 'tenant' } });
+  });
+  await page.goto('http://localhost:5181');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await page.getByRole('link', { name: 'Partners', exact: true }).click();
+  await page.getByLabel('Review reason suspend').fill('Verified with Owner');
+  await page.getByLabel('Review reason suspend').press('Enter');
+  await expect(page.getByRole('button', { name: 'Approve SUSPEND' })).toBeVisible();
+  expect(approved).toBe(false);
+  await page.getByRole('button', { name: 'Approve SUSPEND' }).click();
+  await expect(page.getByText('No organization change requests.')).toBeVisible();
+  await page.getByLabel('Request status', { exact: true }).selectOption('APPROVED');
+  await expect(page.getByText(/SUSPEND.*APPROVED/)).toBeVisible();
+  await page.screenshot({ path: 'test-results/oct208-admin-review.png', fullPage: true });
+});

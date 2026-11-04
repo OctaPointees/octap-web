@@ -1,3 +1,4 @@
+import { OrganizationChangeForm } from './Governance';
 import { OrganizationSetup } from './OrganizationSetup';
 import { OrganizationProfileForm } from './OrganizationProfileForm';
 import { organizationTypeLabel } from './organization-types';
@@ -235,10 +236,13 @@ export function ConsoleScreen() {
               · {data.organization.status} · {data.organization.slug}
             </p>
             {location.pathname === '/merchant/settings' && owner ? (
-              <OrganizationProfileForm
-                key={`${data.organization.id}-${revision}`}
-                organization={data.organization}
-              />
+              <>
+                <OrganizationProfileForm
+                  key={`${data.organization.id}-${revision}`}
+                  organization={data.organization}
+                />
+                <OrganizationChangeForm />
+              </>
             ) : location.pathname === '/merchant/team' && owner ? (
               <>
                 <h2 className="font-semibold">Team and invitations</h2>

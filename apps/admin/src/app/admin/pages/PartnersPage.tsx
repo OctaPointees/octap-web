@@ -1,4 +1,4 @@
-import { ConsoleScreen } from '@octap/shared/google-auth';
+import { GovernanceReview } from '../console/GovernanceReview';
 import { Form } from '@base-ui/react/form';
 import { columnHelper } from '../../../components/shared/table';
 import { Plus, Storefront } from 'phosphor-react';
@@ -302,6 +302,8 @@ export default function PartnersPage() {
   return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
     <DemoPartnersPage />
   ) : (
-    <ConsoleScreen />
+    <>
+      <GovernanceReview />
+    </>
   );
 }

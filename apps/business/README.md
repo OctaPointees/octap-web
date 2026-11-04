@@ -45,7 +45,7 @@ start Core with its migrations applied. See
 
 Core enforces permissions independently of UI guards. Organization approval creates portal
 access, not an on-chain program. The member directory is connected to Core. Live analytics,
-points, campaigns, rewards and full governance remain separate work.
+points, campaigns and rewards remain separate work. Organization governance requests are connected to Core.
 
 ## Optional browser-local demo
 
