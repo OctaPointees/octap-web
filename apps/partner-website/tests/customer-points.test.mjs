@@ -131,6 +131,17 @@ test('balance and history use only the authenticated member and redact the Core 
   assert.equal(data.transactions[0].metadata, undefined);
 });
 
+test('pending earn history never presents a purchase as confirmed points', async () => {
+  configure();
+  globalThis.fetch = async (url) => Response.json(url.endsWith('/balance')
+    ? { confirmedBalance: 0, pendingEarn: 1000 }
+    : [{ id: 'pending', transactionType: 'EARN', pointsAmount: null, purchaseAmount: 100000, estimatedPoints: 1000, status: 'PENDING' }]);
+  const data = await (await POST(request(encodeCustomerSession(session())))).json();
+  assert.equal(data.transactions[0].points, null);
+  assert.equal(data.transactions[0].estimatedPoints, 1000);
+  assert.equal(data.transactions[0].purchaseAmount, 100000);
+});
+
 test('logout expires the host-only cookie and production disables the demo', async () => {
   configure();
   const response = await DELETE(request(encodeCustomerSession(session())));

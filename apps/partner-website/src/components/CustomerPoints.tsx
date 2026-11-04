@@ -11,7 +11,8 @@ interface Points {
   transactions: {
     id: string;
     type: string;
-    points: number;
+    points: number | null;
+    estimatedPoints?: number | null;
     status: string;
     createdAt: string;
     digest?: string;

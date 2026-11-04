@@ -58,14 +58,18 @@ export async function POST(request: NextRequest) {
           (tx: {
             id: string;
             transactionType: string;
-            pointsAmount: number;
+            pointsAmount: number | null;
+            estimatedPoints?: number | null;
+            purchaseAmount?: number | null;
             status: string;
             createdAt: string;
             blockchainDigest?: string;
           }) => ({
             id: tx.id,
             type: tx.transactionType,
-            points: tx.pointsAmount,
+            points: tx.status === 'PENDING' || tx.status === 'FAILED' ? null : tx.pointsAmount,
+            estimatedPoints: tx.estimatedPoints ?? null,
+            purchaseAmount: tx.purchaseAmount ?? null,
             status: tx.status,
             createdAt: tx.createdAt,
             digest: tx.blockchainDigest,
