@@ -9,6 +9,7 @@ import {
   encodeCustomerSession,
   decodeCustomerSession,
 } from '../src/lib/customer-demo-session.ts';
+import { transactionPointsLabel } from '../src/lib/transaction-points.ts';
 
 const require = createRequire(import.meta.url);
 const nextUrl = pathToFileURL(require.resolve('next/server.js')).href;
@@ -135,11 +136,20 @@ test('pending earn history never presents a purchase as confirmed points', async
   configure();
   globalThis.fetch = async (url) => Response.json(url.endsWith('/balance')
     ? { confirmedBalance: 0, pendingEarn: 1000 }
-    : [{ id: 'pending', transactionType: 'EARN', pointsAmount: null, purchaseAmount: 100000, estimatedPoints: 1000, status: 'PENDING' }]);
+    : [
+        { id: 'pending', transactionType: 'EARN', pointsAmount: null, purchaseAmount: 100000, estimatedPoints: 1000, status: 'PENDING' },
+        { id: 'redeem', transactionType: 'REDEEM', pointsAmount: 40, status: 'PENDING' },
+      ]);
   const data = await (await POST(request(encodeCustomerSession(session())))).json();
   assert.equal(data.transactions[0].points, null);
   assert.equal(data.transactions[0].estimatedPoints, 1000);
-  assert.equal(data.transactions[0].purchaseAmount, 100000);
+  assert.equal(data.transactions[1].points, 40, 'a pending redemption keeps its real points');
+});
+
+test('history labels actual points, a pending estimate and a failed earn', () => {
+  assert.equal(transactionPointsLabel({ points: 40, estimatedPoints: null }), '40');
+  assert.equal(transactionPointsLabel({ points: null, estimatedPoints: 1000 }), 'about 1000 (estimate)');
+  assert.equal(transactionPointsLabel({ points: null, estimatedPoints: null }), '—');
 });
 
 test('logout expires the host-only cookie and production disables the demo', async () => {
