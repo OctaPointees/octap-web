@@ -45,6 +45,11 @@ export function useConsoleController({
   const location = useLocation();
   const navigate = useNavigate();
   const platformView = portal === 'admin' || location.pathname.startsWith('/admin');
+  const [entrySlug] = useState(() =>
+    import.meta.env.VITE_ENABLE_ORG_SLUG_ENTRY === 'true'
+      ? (/^\/orgs\/([a-z0-9-]+)$/.exec(location.pathname)?.[1] ?? '')
+      : '',
+  );
   const [identity, setIdentity] = useState<ConsoleIdentity>();
   const credential = useRef('');
   const [organizationId, setOrganizationId] = useState('');
@@ -83,17 +88,19 @@ export function useConsoleController({
       navigate(
         portal === 'admin'
           ? '/admin'
-          : invitation
-            ? '/onboarding'
-            : only
-              ? destination(only)
-              : result.organizations.length
-                ? '/organizations'
-                : '/onboarding',
+          : entrySlug
+            ? `/orgs/${entrySlug}`
+            : invitation
+              ? '/onboarding'
+              : only
+                ? destination(only)
+                : result.organizations.length
+                  ? '/organizations'
+                  : '/onboarding',
         { replace: true },
       );
     },
-    [invitation, navigate, portal],
+    [invitation, entrySlug, navigate, portal],
   );
 
   function signOut() {
@@ -245,6 +252,7 @@ export function useConsoleController({
 
   return {
     client: api,
+    entrySlug,
     identity,
     portal,
     clientId,

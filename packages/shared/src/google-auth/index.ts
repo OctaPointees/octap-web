@@ -6,3 +6,6 @@ export type { GovernanceRequest } from './portal-api';
 export { useConsoleAuth } from './console-session';
 export { verifyConsoleGoogleCredential } from './client';
 export type { ConsoleIdentity } from './client';
+
+export { OrganizationEntry } from './Organizations';
+export type { PlatformOrganization } from './portal-api';

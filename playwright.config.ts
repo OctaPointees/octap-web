@@ -11,6 +11,7 @@ export default defineConfig({
         VITE_GOOGLE_CLIENT_ID: 'fixture.apps.googleusercontent.com',
         VITE_CORE_API_URL: '',
         VITE_ENABLE_DEMO_AUTH: 'false',
+        VITE_ENABLE_ORG_SLUG_ENTRY: 'true',
       },
     },
     {
@@ -20,7 +21,13 @@ export default defineConfig({
         VITE_GOOGLE_CLIENT_ID: 'fixture.apps.googleusercontent.com',
         VITE_CORE_API_URL: '',
         VITE_ENABLE_DEMO_AUTH: 'false',
+        VITE_ENABLE_ORG_SLUG_ENTRY: 'true',
       },
+    },
+    {
+      command: 'npm run dev -w @octap/business -- --host localhost --port 5183 --strictPort',
+      url: 'http://localhost:5183',
+      env: { VITE_ENABLE_DEMO_AUTH: 'false', VITE_ENABLE_ORG_SLUG_ENTRY: 'false' },
     },
     {
       command: 'npm run dev -w @octap/business -- --host localhost --port 5182 --strictPort',

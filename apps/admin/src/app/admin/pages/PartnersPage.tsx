@@ -1,4 +1,5 @@
 import { GovernanceReview } from '../console/GovernanceReview';
+import { PlatformOrganizations } from '../console/PlatformOrganizations';
 import { Form } from '@base-ui/react/form';
 import { columnHelper } from '../../../components/shared/table';
 import { Plus, Storefront } from 'phosphor-react';
@@ -303,6 +304,7 @@ export default function PartnersPage() {
     <DemoPartnersPage />
   ) : (
     <>
+      <PlatformOrganizations />
       <GovernanceReview />
     </>
   );
