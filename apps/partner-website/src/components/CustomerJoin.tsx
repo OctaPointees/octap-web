@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { loadGoogleIdentity } from '../services/google-identity';
-import { prepareZkLogin, assertLoginNonce } from '../services/zklogin';
+import {
+  prepareZkLogin,
+  assertLoginNonce,
+  completeZkLogin,
+  signCustomerClaim,
+  type CustomerSigningSession,
+} from '../services/zklogin';
 import CustomerPoints from './CustomerPoints';
 import CustomerRewards from './CustomerRewards';
 
@@ -32,6 +38,10 @@ export default function CustomerJoin({
 }) {
   const button = useRef<HTMLDivElement>(null);
   const inFlight = useRef(false);
+  const signingSession = useRef<CustomerSigningSession | null>(null);
+  // Kept in memory only, so enrolling can prove the same Google sign-in to Core.
+  const idToken = useRef<string | null>(null);
+  const [loginAttempt, setLoginAttempt] = useState(0);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [memberId, setMemberId] = useState('');
   const [busy, setBusy] = useState(false);
@@ -66,14 +76,20 @@ export default function CustomerJoin({
             setBusy(true);
             setError('');
             void identityRequest<Identity>('login', { idToken: credential })
-              .then((customer) => {
+              .then(async (customer) => {
+                const signer = showPoints
+                  ? await completeZkLogin(session, credential, customer.suiAddress)
+                  : null;
                 if (active) {
+                  idToken.current = credential;
+                  signingSession.current = signer;
                   setIdentity(customer);
                   setMemberId('');
                   setCopied(false);
                 }
               })
               .catch((reason: unknown) => {
+                signingSession.current = null;
                 if (active)
                   setError(
                     reason instanceof Error ? reason.message : 'Sign-in failed. Please try again.',
@@ -98,16 +114,22 @@ export default function CustomerJoin({
       });
     return () => {
       active = false;
+      signingSession.current = null;
+      idToken.current = null;
     };
-  }, [clientId]);
+  }, [clientId, showPoints, loginAttempt]);
 
   async function enroll() {
     if (!identity || busy) return;
+    if (!idToken.current) {
+      setError('Sign in with Google again before joining the store.');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
       const result = await identityRequest<{ organizationEndUserId: string }>('enroll', {
-        endUserId: identity.endUserId,
+        idToken: idToken.current,
       });
       setMemberId(result.organizationEndUserId);
     } catch (reason) {
@@ -186,7 +208,18 @@ export default function CustomerJoin({
             {memberId && showPoints && (
               <>
                 <CustomerPoints key={pointsVersion} />
-                <CustomerRewards onClaim={() => setPointsVersion((value) => value + 1)} />
+                <CustomerRewards
+                  memberId={memberId}
+                  signClaim={async (bytes, digest) => {
+                    const session = signingSession.current;
+                    if (!session) throw new Error('Sign in again to authorize this claim.');
+                    const signature = await signCustomerClaim(session, bytes, digest);
+                    if (session !== signingSession.current)
+                      throw new Error('Account changed. Sign in again before continuing.');
+                    return signature;
+                  }}
+                  onClaim={() => setPointsVersion((value) => value + 1)}
+                />
               </>
             )}
             <details className="text-sm">
@@ -208,7 +241,10 @@ export default function CustomerJoin({
                     return;
                   }
                 }
+                signingSession.current = null;
+                idToken.current = null;
                 window.google?.accounts.id.disableAutoSelect();
+                setLoginAttempt((value) => value + 1);
                 setIdentity(null);
                 setMemberId('');
                 setError('');
