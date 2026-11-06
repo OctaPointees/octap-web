@@ -23,11 +23,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
   const demoSession = customerDemoEnabled()
     ? decodeCustomerSession(request.cookies.get(CUSTOMER_COOKIE)?.value, tenant.organizationId)
     : null;
-  if (
-    action === 'enroll' &&
-    customerDemoEnabled() &&
-    (!demoSession || demoSession.endUserId !== body?.endUserId)
-  ) {
+  // Core derives the customer from the ID token; the cookie only says who signed in here.
+  if (action === 'enroll' && customerDemoEnabled() && !demoSession) {
     return NextResponse.json(
       { message: 'Sign in with Google again before joining the store.' },
       { status: 401 },
@@ -100,21 +97,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
       );
     }
   }
-  const value =
-    action === 'login'
-      ? body?.idToken
-      : action === 'nonce'
-        ? body?.ephemeralPublicKey
-        : body?.endUserId;
+  const value = action === 'nonce' ? body?.ephemeralPublicKey : body?.idToken;
   if (typeof value !== 'string' || !value.trim() || value.length > 16_384) {
     return NextResponse.json(
       {
         message:
-          action === 'login'
-            ? 'Google ID token is required'
-            : action === 'nonce'
-              ? 'Ephemeral public key is required'
-              : 'Customer ID is required',
+          action === 'nonce' ? 'Ephemeral public key is required' : 'Google ID token is required',
       },
       { status: 400 },
     );
@@ -130,13 +118,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
     const response = await fetch(`${base}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(
-        action === 'login'
-          ? { idToken: value }
-          : action === 'nonce'
-            ? { ephemeralPublicKey: value }
-            : { endUserId: value },
-      ),
+      body: JSON.stringify(action === 'nonce' ? { ephemeralPublicKey: value } : { idToken: value }),
       cache: 'no-store',
       signal: AbortSignal.timeout(30_000),
     });
@@ -150,6 +132,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
               : 'Identity request rejected. Sign in again or contact the store.',
         },
         { status: response.status },
+      );
+    // The token must belong to the customer this browser signed in as.
+    if (action === 'enroll' && demoSession && data?.endUserId !== demoSession.endUserId)
+      return NextResponse.json(
+        { message: 'Sign in again with the connected Google account.' },
+        { status: 401 },
       );
     const outgoing = NextResponse.json(data, { headers: { 'Cache-Control': 'no-store' } });
     if (customerDemoEnabled() && (action === 'login' || action === 'enroll')) {

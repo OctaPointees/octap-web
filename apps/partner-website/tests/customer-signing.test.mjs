@@ -95,3 +95,12 @@ test('a price change requires fresh confirmation before signing', async () => {
     /cost changed/,
   );
 });
+
+test('a free claim waits for the chain and is never signed', async () => {
+  globalThis.fetch = async () =>
+    Response.json({ ...claim, pointsCost: 0, digest: null, transactionBytes: null });
+  const result = await claimCustomerReward('voucher', 'member', 0, () =>
+    assert.fail('must not sign'),
+  );
+  assert.equal(result.status, 'RESERVED');
+});

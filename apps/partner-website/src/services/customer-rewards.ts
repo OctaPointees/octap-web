@@ -33,6 +33,8 @@ export async function claimCustomerReward(
   if (claim.voucherId !== voucherId || claim.organizationEndUserId !== memberId)
     throw new Error('This claim belongs to a different membership or reward. Nothing was signed.');
   if (claim.status !== 'RESERVED') return claim;
+  // A free voucher has nothing to sign: OctaP records it on-chain, then it becomes AVAILABLE.
+  if (claim.pointsCost === 0 && !claim.transactionBytes) return claim;
   if (claim.pointsCost !== expectedPointsCost)
     throw new Error(
       'The reward cost changed. Refresh and confirm the updated cost before signing.',

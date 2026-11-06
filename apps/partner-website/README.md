@@ -50,8 +50,8 @@ A paid claim begins RESERVED: stock and points are held, but the confirmed balan
 Only successful chain confirmation makes the voucher AVAILABLE and debits the balance projection.
 The page hides its serial until AVAILABLE. Unknown outcomes stay pending; Refresh reads state,
 and Continue claim resumes the existing idempotent attempt. There are no automatic mutation
-retries. Only a definitive cancellation permits a new server-generated retry key. Free rewards
-need no chain debit. Merchant serial redemption consumes the coupon without another point debit.
+retries. Each definitive cancellation permits a new server-generated retry key. A free reward has
+nothing to sign: it stays RESERVED until OctaP records it on-chain, then becomes AVAILABLE.
 
 Refreshing or using another account clears the in-memory signer. Sign in again with the same
 Google account and join the store to resume an outstanding claim with a fresh signing session.
@@ -92,12 +92,12 @@ npm run dev:partner-website
 1. Open http://localhost:4001, sign in with Google, wait for the proof and join the store.
 2. Use the member ID for a real merchant earn request. Wait for the worker to confirm enough
    points on Sui. A synthetic PostgreSQL balance cannot fund a real chain redemption.
-3. Create an ACTIVE paid reward through Core, for example a 25-point FREE_ITEM voucher.
+3. Create an ACTIVE paid reward through Core, for example a 25-point FREE_ITEM voucher, and wait
+   until its `publishStatus` is PUBLISHED. The Core worker must be running.
 4. Claim it and confirm spending. The browser signs locally and Core executes through Enoki.
    Wait for AVAILABLE, then show the serial to the merchant. Refresh or Continue claim handles
    pending results; do not create another claim after an uncertain response.
-5. Verify the balance/history and Core's transaction digest on a Testnet explorer, then redeem
-   the AVAILABLE serial exactly once from the merchant dashboard.
+5. Verify the balance/history and Core's transaction digest on a Testnet explorer.
 
 This remains a development-only bridge, disabled in production. Automated tests use synthetic
 proofs and mocked external APIs, but check real ephemeral signatures and zkLogin serialization.
@@ -128,10 +128,9 @@ wildcard DNS record does not create OAuth allowlists. DNS and certificates are d
 not created by this app. Root and unknown domains return 404 in production.
 
 No Enoki, merchant, or wallet private key belongs in the browser bundle. Only the public Google
-client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted. Core's current
-public enrollment endpoint takes an end-user ID without a customer session: this page preserves
-that contract and does not establish production customer authorization. Balance reads and signed
-POS redemption still require separate customer authorization/signing integration.
+client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted: the Google ID
+token stays in browser memory only so that joining the store can prove the same sign-in to Core,
+which derives the customer from it. This does not establish production customer authorization.
 
 ## Checks
 

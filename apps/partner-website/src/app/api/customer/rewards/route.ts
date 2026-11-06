@@ -54,15 +54,13 @@ export async function POST(request: NextRequest) {
     const respond = (data: unknown, status = 200) =>
       NextResponse.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
     async function reserve(voucherId: string) {
-      // Continue the same attempt until Core definitively cancels it. Only then allocate a new key.
-      const cancelled = ownershipsForMember.find(
+      // Continue the same attempt until Core definitively cancels it. Each cancellation gets a new key.
+      const cancelled = ownershipsForMember.filter(
         (item) => item.voucherId === voucherId && item.status === 'CANCELLED',
-      );
+      ).length;
       return core(`/v1/rewards/vouchers/${voucherId}/claim`, {
         organizationEndUserId: session!.memberId,
-        idempotencyKey: cancelled
-          ? `web-retry-${cancelled.id}`
-          : `web-demo-claim-${voucherId}-${session!.memberId}`,
+        idempotencyKey: `web-demo-claim-${voucherId}-${session!.memberId}${cancelled ? `-${cancelled}` : ''}`,
       });
     }
     if (body?.action === 'status' || body?.action === 'finalize') {

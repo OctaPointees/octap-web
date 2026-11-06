@@ -109,7 +109,12 @@ export default function CustomerRewards({
                     {owned.status === 'AVAILABLE' && (
                       <p className="font-mono break-all text-sm select-all">{owned.serialCode}</p>
                     )}
-                    {owned.status === 'RESERVED' && (
+                    {owned.status === 'RESERVED' && voucher.pointsCost === 0 && (
+                      <p className="text-muted text-xs">
+                        Your free voucher is being recorded. Refresh in a moment.
+                      </p>
+                    )}
+                    {owned.status === 'RESERVED' && voucher.pointsCost > 0 && (
                       <>
                         <p className="text-muted text-xs">
                           These points are reserved. Refresh to check confirmation, or continue to
@@ -139,13 +144,17 @@ export default function CustomerRewards({
                     onClick={() => {
                       if (
                         window.confirm(
-                          `Spend ${voucher.pointsCost} points to claim ${voucher.title}?`,
+                          voucher.pointsCost > 0
+                            ? `Spend ${voucher.pointsCost} points to claim ${voucher.title}?`
+                            : `Claim ${voucher.title} for free?`,
                         )
                       )
                         void run(voucher.id, voucher.pointsCost);
                     }}
                   >
-                    Claim for {voucher.pointsCost} points
+                    {voucher.pointsCost > 0
+                      ? `Claim for ${voucher.pointsCost} points`
+                      : 'Claim for free'}
                   </button>
                 )}
               </div>
