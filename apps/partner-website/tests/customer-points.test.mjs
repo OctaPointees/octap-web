@@ -483,3 +483,88 @@ test('enroll proves the customer with the ID token, and refuses a token for some
     401,
   );
 });
+
+function rewardsRequestOf(body, cookie = encodeCustomerSession(session())) {
+  return new NextRequest('http://localhost:4001/api/customer/rewards', {
+    method: 'POST',
+    headers: {
+      Host: 'localhost:4001',
+      Origin: 'http://localhost:4001',
+      Cookie: `${CUSTOMER_COOKIE}=${cookie}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+const ownedVoucher = '22222222-2222-4222-8222-222222222222';
+
+test('using a voucher asks Core with a fresh key, then sends only the customer signature to finalize', async () => {
+  configure();
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({
+      url,
+      body: options.body ? JSON.parse(options.body) : null,
+      auth: options.headers.Authorization,
+    });
+    if (url.endsWith('/members/verified-member/vouchers'))
+      return Response.json([
+        { id: ownedVoucher, voucherId: 'v', serialCode: 'COFFEE-1', status: 'AVAILABLE' },
+      ]);
+    if (url.endsWith('/vouchers/use'))
+      return Response.json({
+        voucherOwnershipId: ownedVoucher,
+        status: 'AVAILABLE',
+        digest: 'D',
+        transactionBytes: 'B',
+      });
+    assert.ok(url.endsWith('/vouchers/use/finalize'));
+    return Response.json({ voucherOwnershipId: ownedVoucher, status: 'REDEEMED' }, { status: 201 });
+  };
+  const prepared = await rewardsPost(
+    rewardsRequestOf({ action: 'use', ownershipId: ownedVoucher }),
+  );
+  assert.deepEqual(await prepared.json(), {
+    voucherOwnershipId: ownedVoucher,
+    status: 'AVAILABLE',
+    digest: 'D',
+    transactionBytes: 'B',
+  });
+  const use = calls.find((call) => call.url.endsWith('/vouchers/use'));
+  assert.equal(use.body.serialCode, 'COFFEE-1');
+  assert.match(use.body.idempotencyKey, new RegExp(`^web-demo-use-${ownedVoucher}-`));
+  assert.equal(use.auth, 'Bearer server-only');
+
+  const finalized = await rewardsPost(
+    rewardsRequestOf({
+      action: 'finalizeUse',
+      ownershipId: ownedVoucher,
+      digest: 'D',
+      signature: 'S',
+    }),
+  );
+  assert.equal((await finalized.json()).status, 'REDEEMED');
+  const finalize = calls.find((call) => call.url.endsWith('/use/finalize'));
+  assert.deepEqual(finalize.body, { digest: 'D', signature: 'S' });
+  assert.equal(finalize.auth, undefined);
+});
+
+test('a voucher of another member, or a use still being confirmed, is refused', async () => {
+  configure();
+  globalThis.fetch = async (url) => {
+    if (url.endsWith('/members/verified-member/vouchers')) return Response.json([]);
+    assert.fail("must not use another member's voucher");
+  };
+  assert.equal(
+    (await rewardsPost(rewardsRequestOf({ action: 'use', ownershipId: ownedVoucher }))).status,
+    404,
+  );
+  globalThis.fetch = async (url) =>
+    url.endsWith('/vouchers')
+      ? Response.json([
+          { id: ownedVoucher, voucherId: 'v', serialCode: 'COFFEE-1', status: 'AVAILABLE' },
+        ])
+      : Response.json({ message: 'in progress' }, { status: 409 });
+  const busy = await rewardsPost(rewardsRequestOf({ action: 'use', ownershipId: ownedVoucher }));
+  assert.equal(busy.status, 409);
+  assert.match((await busy.json()).message, /still being confirmed/);
+});

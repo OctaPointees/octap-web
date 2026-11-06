@@ -22,6 +22,24 @@ export async function rewardsRequest<T>(body: object): Promise<T> {
   return data as T;
 }
 
+/** Uses an AVAILABLE voucher: the store asks, the customer signs, and the chain marks it used. */
+export async function redeemCustomerVoucher(
+  ownershipId: string,
+  sign: (bytes: string, digest: string) => Promise<string>,
+): Promise<{ voucherOwnershipId: string; status: string }> {
+  const use = await rewardsRequest<{
+    voucherOwnershipId: string;
+    status: string;
+    digest: string | null;
+    transactionBytes: string | null;
+  }>({ action: 'use', ownershipId });
+  if (use.voucherOwnershipId !== ownershipId)
+    throw new Error('This request is for a different voucher. Nothing was signed.');
+  if (!use.digest || !use.transactionBytes) return use;
+  const signature = await sign(use.transactionBytes, use.digest);
+  return rewardsRequest({ action: 'finalizeUse', ownershipId, digest: use.digest, signature });
+}
+
 /** Never use a serial until Core confirms the customer-signed chain debit. */
 export async function claimCustomerReward(
   voucherId: string,

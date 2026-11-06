@@ -1,7 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { claimCustomerReward, rewardsRequest } from '../services/customer-rewards';
+import {
+  claimCustomerReward,
+  rewardsRequest,
+  redeemCustomerVoucher,
+} from '../services/customer-rewards';
 
 interface Rewards {
   vouchers: { id: string; title: string; pointsCost: number; status: string }[];
@@ -35,13 +39,15 @@ export default function CustomerRewards({
     };
   }, []);
 
-  async function run(voucherId?: string, pointsCost?: number) {
+  async function run(voucherId?: string, pointsCost?: number, useOwnershipId?: string) {
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
     setError('');
     try {
-      if (voucherId) {
+      if (useOwnershipId) {
+        await redeemCustomerVoucher(useOwnershipId, signClaim);
+      } else if (voucherId) {
         await claimCustomerReward(voucherId, memberId, pointsCost ?? 0, signClaim);
       }
       onClaim();
@@ -107,7 +113,23 @@ export default function CustomerRewards({
                       {owned.status === 'RESERVED' ? 'Awaiting confirmation' : owned.status}
                     </p>
                     {owned.status === 'AVAILABLE' && (
-                      <p className="font-mono break-all text-sm select-all">{owned.serialCode}</p>
+                      <>
+                        <p className="font-mono break-all text-sm select-all">{owned.serialCode}</p>
+                        <button
+                          disabled={busy}
+                          className="rounded-full bg-partner text-white px-4 py-2 text-sm font-semibold"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Use ${voucher.title} on this order? It can't be used again.`,
+                              )
+                            )
+                              void run(undefined, undefined, owned.id);
+                          }}
+                        >
+                          Use at checkout
+                        </button>
+                      </>
                     )}
                     {owned.status === 'RESERVED' && voucher.pointsCost === 0 && (
                       <p className="text-muted text-xs">
