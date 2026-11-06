@@ -63,6 +63,70 @@ export async function POST(request: NextRequest) {
         idempotencyKey: `web-demo-claim-${voucherId}-${session!.memberId}${cancelled ? `-${cancelled}` : ''}`,
       });
     }
+    if (body?.action === 'use' || body?.action === 'finalizeUse') {
+      if (!uuid(body.ownershipId)) return respond({ message: 'Select a valid voucher.' }, 400);
+      const voucher = ownershipsForMember.find((item) => item.id === body.ownershipId);
+      if (!voucher) return respond({ message: 'Voucher not found.' }, 404);
+      if (body.action === 'use') {
+        // The merchant's checkout asks; only the customer's signature can mark the voucher used.
+        // A new key replaces a use the customer never signed.
+        const result = await core('/v1/rewards/vouchers/use', {
+          serialCode: voucher.serialCode,
+          idempotencyKey: `web-demo-use-${voucher.id}-${crypto.randomUUID()}`,
+        });
+        const data = await result.json();
+        if (!result.ok)
+          return respond(
+            {
+              message:
+                result.status === 409
+                  ? 'A use of this voucher is still being confirmed. Refresh in a moment.'
+                  : typeof data.message === 'string' && result.status < 500
+                    ? data.message
+                    : 'Could not prepare the voucher. Refresh before trying again.',
+            },
+            result.status,
+          );
+        if (data.voucherOwnershipId !== voucher.id)
+          return respond({ message: 'Core returned a different voucher.' }, 502);
+        return respond({
+          voucherOwnershipId: data.voucherOwnershipId,
+          status: data.status,
+          digest: data.digest,
+          transactionBytes: data.transactionBytes,
+        });
+      }
+      if (
+        typeof body.digest !== 'string' ||
+        !body.digest ||
+        body.digest.length > 128 ||
+        typeof body.signature !== 'string' ||
+        !body.signature ||
+        body.signature.length > 32_768
+      )
+        return respond(
+          { message: 'A transaction digest and customer signature are required.' },
+          400,
+        );
+      // Public Core finalize verifies the customer's signature. Never pass a merchant key here.
+      const finalized = await fetch(`${base}/v1/rewards/vouchers/use/finalize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ digest: body.digest, signature: body.signature }),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(45_000),
+      });
+      const used = await finalized.json().catch(() => null);
+      if (!finalized.ok || used?.voucherOwnershipId !== voucher.id)
+        return respond(
+          {
+            message:
+              'The voucher use was not confirmed. Refresh to check its status before trying again.',
+          },
+          finalized.ok ? 502 : finalized.status,
+        );
+      return respond({ voucherOwnershipId: voucher.id, status: used.status });
+    }
     if (body?.action === 'status' || body?.action === 'finalize') {
       if (!uuid(body.ownershipId))
         return respond({ message: 'Select a valid voucher claim.' }, 400);
