@@ -90,14 +90,18 @@ npm run dev:partner-website
 ```
 
 1. Open http://localhost:4001, sign in with Google, wait for the proof and join the store.
-2. Use the member ID for a real merchant earn request. Wait for the worker to confirm enough
-   points on Sui. A synthetic PostgreSQL balance cannot fund a real chain redemption.
+2. Open http://localhost:4001/merchant, paste the member ID and issue points. The page keeps the
+   same key across retries and waits for the worker to confirm them on Sui. A synthetic PostgreSQL
+   balance cannot fund a real chain redemption.
 3. Create an ACTIVE paid reward through Core, for example a 25-point FREE_ITEM voucher, and wait
    until its `publishStatus` is PUBLISHED. The Core worker must be running.
 4. Claim it and confirm spending. The browser signs locally and Core executes through Enoki.
    Wait for AVAILABLE, then show the serial to the merchant. Refresh or Continue claim handles
    pending results; do not create another claim after an uncertain response.
 5. Verify the balance/history and Core's transaction digest on a Testnet explorer.
+6. Press **Use at checkout** on the AVAILABLE voucher. The store asks Core and the customer signs;
+   only that signature can mark it used. The merchant page then shows it REDEEMED. A second use
+   is refused. If the customer doesn't sign, pressing it again replaces the unsigned request.
 
 This remains a development-only bridge, disabled in production. Automated tests use synthetic
 proofs and mocked external APIs, but check real ephemeral signatures and zkLogin serialization.

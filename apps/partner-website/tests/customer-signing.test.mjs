@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test, afterEach } from 'node:test';
-import { claimCustomerReward } from '../src/services/customer-rewards.ts';
+import { claimCustomerReward, redeemCustomerVoucher } from '../src/services/customer-rewards.ts';
 const originalFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = originalFetch;
@@ -103,4 +103,50 @@ test('a free claim waits for the chain and is never signed', async () => {
     assert.fail('must not sign'),
   );
   assert.equal(result.status, 'RESERVED');
+});
+
+test('a voucher use signs the store request, then finalizes; nothing to sign means nothing is signed', async () => {
+  const sequence = [];
+  globalThis.fetch = async (_url, options) => {
+    const body = JSON.parse(options.body);
+    sequence.push(body.action);
+    if (body.action === 'use')
+      return Response.json({
+        voucherOwnershipId: 'own',
+        status: 'AVAILABLE',
+        digest: 'd',
+        transactionBytes: 'b',
+      });
+    assert.deepEqual(body, {
+      action: 'finalizeUse',
+      ownershipId: 'own',
+      digest: 'd',
+      signature: 'sig',
+    });
+    return Response.json({ voucherOwnershipId: 'own', status: 'REDEEMED' });
+  };
+  const used = await redeemCustomerVoucher('own', async (bytes, digest) => {
+    assert.deepEqual([bytes, digest], ['b', 'd']);
+    return 'sig';
+  });
+  assert.equal(used.status, 'REDEEMED');
+  assert.deepEqual(sequence, ['use', 'finalizeUse']);
+
+  globalThis.fetch = async () =>
+    Response.json({
+      voucherOwnershipId: 'own',
+      status: 'REDEEMED',
+      digest: null,
+      transactionBytes: null,
+    });
+  assert.equal(
+    (await redeemCustomerVoucher('own', () => assert.fail('must not sign'))).status,
+    'REDEEMED',
+  );
+  globalThis.fetch = async () =>
+    Response.json({ voucherOwnershipId: 'other', digest: 'd', transactionBytes: 'b' });
+  await assert.rejects(
+    redeemCustomerVoucher('own', () => assert.fail('must not sign')),
+    /different voucher/,
+  );
 });
