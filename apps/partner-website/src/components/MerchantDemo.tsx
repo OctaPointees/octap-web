@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { earnMessage, earnProgress } from '../lib/earn-progress';
 import { transactionPointsLabel } from '../lib/transaction-points';
 
 interface Balance {
@@ -43,7 +44,7 @@ export default function MerchantDemo() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
-  // Kept until Core accepts the purchase, so a retry after an unknown outcome never earns twice.
+  // Kept until this earn is CONFIRMED, FAILED or REVERSED, so a retry never earns twice.
   const pendingKey = useRef<{ key: string; memberId: string; amount: number } | null>(null);
 
   async function refresh(member = memberId) {
@@ -57,7 +58,7 @@ export default function MerchantDemo() {
     setBalance(read.balance);
     setHistory(read.transactions);
     setVouchers(owned);
-    return read.balance;
+    return read.transactions;
   }
 
   async function run(work: () => Promise<void>) {
@@ -81,23 +82,21 @@ export default function MerchantDemo() {
         ? current.key
         : `merchant-demo-${crypto.randomUUID()}`;
     pendingKey.current = { key, memberId, amount: purchaseAmount };
-    await demo({
+    const { transactionId } = await demo<{ transactionId: string }>({
       action: 'earn',
       organizationEndUserId: memberId,
       purchaseAmount,
       idempotencyKey: key,
     });
-    pendingKey.current = null;
     setMessage('Purchase accepted. Waiting for the chain to confirm the points…');
-    for (let attempt = 0; attempt < 20; attempt++) {
-      const latest = await refresh();
-      if (latest.pendingEarn === 0) {
-        setMessage('Points confirmed on-chain.');
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+    let progress = earnProgress(transactionId, []);
+    for (let attempt = 0; attempt < 20 && progress.state === 'pending'; attempt++) {
+      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 3000));
+      progress = earnProgress(transactionId, await refresh());
     }
-    setMessage('Still waiting for the chain. Refresh later; do not issue the purchase again.');
+    // Only a definitive outcome ends this purchase. Issuing again after it uses a new key.
+    if (progress.state !== 'pending') pendingKey.current = null;
+    setMessage(earnMessage(progress));
   }
 
   const validMember = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(memberId);
