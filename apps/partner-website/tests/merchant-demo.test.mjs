@@ -114,32 +114,27 @@ test('read returns real balance and history and masks upstream server failures',
   assert.doesNotMatch(await failure.text(), /sensitive internal/);
 });
 
-test('voucher redemption cannot use a serial belonging to another member', async () => {
-  configure();
-  globalThis.fetch = async (url) => {
-    assert.ok(url.endsWith(`/members/${member}/vouchers`));
-    return Response.json([{ serialCode: 'OWN-SERIAL' }]);
-  };
-  const response = await POST(
-    request({ action: 'redeemVoucher', organizationEndUserId: member, serialCode: 'OTHER-SERIAL' }),
-  );
-  assert.equal(response.status, 404);
-});
-
-test('voucher redemption forwards the verified serial and preserves the actual Core status', async () => {
+test('the merchant reads member vouchers, and an API key can no longer mark one used', async () => {
   configure();
   globalThis.fetch = async (url, options) => {
-    if (url.endsWith('/vouchers')) return Response.json([{ serialCode: 'OWN-SERIAL' }]);
-    assert.ok(url.endsWith('/vouchers/redeem'));
-    assert.deepEqual(JSON.parse(options.body), { serialCode: 'OWN-SERIAL' });
-    return Response.json(
-      { status: 'REDEEMED', voucherTitle: 'Demo coffee reward' },
-      { status: 201 },
-    );
+    assert.ok(url.endsWith(`/members/${member}/vouchers`));
+    assert.equal(options.method, 'GET');
+    return Response.json([{ serialCode: 'OWN-SERIAL', status: 'AVAILABLE' }]);
   };
-  const response = await POST(
+  const response = await POST(request({ action: 'vouchers', organizationEndUserId: member }));
+  assert.deepEqual(await response.json(), [{ serialCode: 'OWN-SERIAL', status: 'AVAILABLE' }]);
+  globalThis.fetch = () => assert.fail('must not call Core');
+  const redeem = await POST(
     request({ action: 'redeemVoucher', organizationEndUserId: member, serialCode: 'OWN-SERIAL' }),
   );
-  assert.equal(response.status, 201);
-  assert.equal((await response.json()).status, 'REDEEMED');
+  assert.equal(redeem.status, 400);
+});
+
+test('the merchant page on this app is a trusted origin', async () => {
+  configure();
+  globalThis.fetch = async () => Response.json([]);
+  const response = await POST(
+    request({ action: 'vouchers', organizationEndUserId: member }, 'http://localhost:4001'),
+  );
+  assert.equal(response.status, 200);
 });

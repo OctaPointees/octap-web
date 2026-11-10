@@ -6,10 +6,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Not found' }, { status: 404 });
   }
   const host = request.headers.get('host') ?? '';
-  if (
-    !/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host) ||
-    request.headers.get('origin') !== (process.env.MERCHANT_DEMO_ORIGIN ?? 'http://localhost:4000')
-  ) {
+  const origin = request.headers.get('origin');
+  // The merchant page on this app, or the configured local dashboard.
+  const trusted = [`http://${host}`, process.env.MERCHANT_DEMO_ORIGIN ?? 'http://localhost:4000'];
+  if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host) || !origin || !trusted.includes(origin)) {
     return NextResponse.json({ message: 'Local merchant demo origin required' }, { status: 403 });
   }
   const key = process.env.MERCHANT_DEMO_API_KEY;
@@ -53,22 +53,11 @@ export async function POST(request: NextRequest) {
     return { error: false, status: result.status, data };
   }
   try {
-    if (body.action === 'redeemVoucher') {
-      if (typeof body.serialCode !== 'string' || !/^[A-Za-z0-9-]{1,100}$/.test(body.serialCode))
-        return NextResponse.json(
-          { message: 'A valid voucher serial code is required.' },
-          { status: 400 },
-        );
+    if (body.action === 'vouchers') {
+      // A voucher is used only with the customer's signature, on their device. The merchant reads its state.
       const owned = await core(`/v1/rewards/members/${memberId}/vouchers`);
-      if (owned.error) return NextResponse.json(owned.data, { status: owned.status });
-      if (!owned.data.some((item: { serialCode: string }) => item.serialCode === body.serialCode))
-        return NextResponse.json(
-          { message: 'Voucher not found for this member.' },
-          { status: 404 },
-        );
-      const result = await core('/v1/rewards/vouchers/redeem', { serialCode: body.serialCode });
-      return NextResponse.json(result.data, {
-        status: result.status,
+      return NextResponse.json(owned.data, {
+        status: owned.status,
         headers: { 'Cache-Control': 'no-store' },
       });
     }
