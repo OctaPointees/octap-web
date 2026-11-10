@@ -134,12 +134,22 @@ test('balance and history use only the authenticated member and redact the Core 
 
 test('pending earn history never presents a purchase as confirmed points', async () => {
   configure();
-  globalThis.fetch = async (url) => Response.json(url.endsWith('/balance')
-    ? { confirmedBalance: 0, pendingEarn: 1000 }
-    : [
-        { id: 'pending', transactionType: 'EARN', pointsAmount: null, purchaseAmount: 100000, estimatedPoints: 1000, status: 'PENDING' },
-        { id: 'redeem', transactionType: 'REDEEM', pointsAmount: 40, status: 'PENDING' },
-      ]);
+  globalThis.fetch = async (url) =>
+    Response.json(
+      url.endsWith('/balance')
+        ? { confirmedBalance: 0, pendingEarn: 1000 }
+        : [
+            {
+              id: 'pending',
+              transactionType: 'EARN',
+              pointsAmount: null,
+              purchaseAmount: 100000,
+              estimatedPoints: 1000,
+              status: 'PENDING',
+            },
+            { id: 'redeem', transactionType: 'REDEEM', pointsAmount: 40, status: 'PENDING' },
+          ],
+    );
   const data = await (await POST(request(encodeCustomerSession(session())))).json();
   assert.equal(data.transactions[0].points, null);
   assert.equal(data.transactions[0].estimatedPoints, 1000);
@@ -148,7 +158,10 @@ test('pending earn history never presents a purchase as confirmed points', async
 
 test('history labels actual points, a pending estimate and a failed earn', () => {
   assert.equal(transactionPointsLabel({ points: 40, estimatedPoints: null }), '40');
-  assert.equal(transactionPointsLabel({ points: null, estimatedPoints: 1000 }), 'about 1000 (estimate)');
+  assert.equal(
+    transactionPointsLabel({ points: null, estimatedPoints: 1000 }),
+    'about 1000 (estimate)',
+  );
   assert.equal(transactionPointsLabel({ points: null, estimatedPoints: null }), '—');
 });
 
@@ -213,7 +226,260 @@ test('new claims use the authenticated member and a stable member/voucher key', 
     const payload = JSON.parse(options.body);
     assert.equal(payload.organizationEndUserId, 'verified-member');
     assert.equal(payload.idempotencyKey, `web-demo-claim-${voucherId}-verified-member`);
-    return Response.json({ serialCode: 'NEW', status: 'AVAILABLE' }, { status: 201 });
+    return Response.json(
+      {
+        voucherId,
+        organizationEndUserId: 'verified-member',
+        serialCode: 'NEW',
+        status: 'AVAILABLE',
+      },
+      { status: 201 },
+    );
   };
   assert.equal((await rewardsPost(req)).status, 200);
+});
+
+const voucher = '22222222-2222-4222-8222-222222222222';
+const owner = '33333333-3333-4333-8333-333333333333';
+function rewardRequest(body) {
+  return new NextRequest('http://localhost:4001/api/customer/rewards', {
+    method: 'POST',
+    headers: {
+      Host: 'localhost:4001',
+      Origin: 'http://localhost:4001',
+      Cookie: `${CUSTOMER_COOKIE}=${encodeCustomerSession(session())}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+const reserved = {
+  voucherOwnershipId: owner,
+  voucherId: voucher,
+  organizationEndUserId: 'verified-member',
+  status: 'RESERVED',
+  pointsDeducted: 0,
+  pointsCost: 25,
+  digest: 'digest',
+  transactionBytes: 'bytes',
+  serialCode: 'SERIAL',
+};
+
+test('an existing RESERVED claim resumes the stable Core operation and returns bytes rather than issuing a coupon', async () => {
+  configure();
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/members/verified-member/vouchers'))
+      return Response.json([{ id: owner, voucherId: voucher, status: 'RESERVED' }]);
+    assert.ok(url.endsWith(`/vouchers/${voucher}/claim`));
+    assert.equal(
+      JSON.parse(options.body).idempotencyKey,
+      `web-demo-claim-${voucher}-verified-member`,
+    );
+    return Response.json(reserved);
+  };
+  const result = await rewardsPost(rewardRequest({ action: 'claim', voucherId: voucher }));
+  assert.equal(result.status, 200);
+  assert.deepEqual(await result.json(), reserved);
+});
+
+test('finalize verifies member ownership and the cached digest, and sends no merchant key with the customer signature', async () => {
+  configure();
+  let executed = 0;
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/members/verified-member/vouchers'))
+      return Response.json([{ id: owner, voucherId: voucher, status: 'RESERVED' }]);
+    if (url.endsWith('/claim')) return Response.json(reserved);
+    if (url.endsWith('/finalize')) {
+      executed++;
+      assert.equal(options.headers.Authorization, undefined);
+      assert.deepEqual(JSON.parse(options.body), {
+        digest: 'digest',
+        signature: 'customer-zklogin-signature',
+      });
+      return Response.json({ status: 'CONFIRMED' });
+    }
+    assert.ok(url.endsWith(`/claims/${owner}`));
+    return Response.json({ ...reserved, status: 'AVAILABLE', pointsDeducted: 25 });
+  };
+  assert.equal(
+    (
+      await rewardsPost(
+        rewardRequest({
+          action: 'finalize',
+          ownershipId: owner,
+          digest: 'wrong',
+          signature: 'sig',
+        }),
+      )
+    ).status,
+    409,
+  );
+  assert.equal(executed, 0);
+  assert.equal(
+    (
+      await rewardsPost(
+        rewardRequest({
+          action: 'finalize',
+          ownershipId: '44444444-4444-4444-8444-444444444444',
+          digest: 'digest',
+          signature: 'sig',
+        }),
+      )
+    ).status,
+    404,
+  );
+  const response = await rewardsPost(
+    rewardRequest({
+      action: 'finalize',
+      ownershipId: owner,
+      digest: 'digest',
+      signature: 'customer-zklogin-signature',
+    }),
+  );
+  assert.equal((await response.json()).status, 'AVAILABLE');
+  assert.equal(executed, 1);
+});
+
+test('only definitively cancelled claims receive a new server-generated retry key', async () => {
+  configure();
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/vouchers'))
+      return Response.json([{ id: owner, voucherId: voucher, status: 'CANCELLED' }]);
+    assert.equal(
+      JSON.parse(options.body).idempotencyKey,
+      `web-demo-claim-${voucher}-verified-member-1`,
+    );
+    return Response.json(reserved);
+  };
+  assert.equal(
+    (await rewardsPost(rewardRequest({ action: 'claim', voucherId: voucher }))).status,
+    200,
+  );
+});
+
+let identitySource = await readFile(
+  new URL('../src/app/api/identity/[action]/route.ts', import.meta.url),
+  'utf8',
+);
+identitySource = identitySource.replace("'next/server'", JSON.stringify(nextUrl));
+for (const name of ['tenant', 'customer-demo-session']) {
+  identitySource = identitySource.replace(
+    `'../../../../lib/${name}'`,
+    JSON.stringify(new URL(`../src/lib/${name}.ts`, import.meta.url).href),
+  );
+}
+const identityOutput = ts.transpileModule(identitySource, {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const { POST: identityPost } = await import(
+  `data:text/javascript;base64,${Buffer.from(identityOutput).toString('base64')}`
+);
+function proofRequest(
+  body,
+  cookie = encodeCustomerSession(session()),
+  origin = 'http://localhost:4001',
+) {
+  return new NextRequest('http://localhost:4001/api/identity/proof', {
+    method: 'POST',
+    headers: {
+      Host: 'localhost:4001',
+      Origin: origin,
+      Cookie: `${CUSTOMER_COOKIE}=${cookie}`,
+    },
+    body: JSON.stringify(body),
+  });
+}
+const proofBody = {
+  idToken: 'google-jwt',
+  ephemeralPublicKey: 'public-only',
+  randomness: 'randomness',
+  maxEpoch: 10,
+};
+const proofContext = { params: Promise.resolve({ action: 'proof' }) };
+
+test('proof proxy requires the same signed customer identity and never forwards a merchant key', async () => {
+  configure();
+  const paths = [];
+  globalThis.fetch = async (url, options) => {
+    paths.push(url);
+    assert.equal(options.headers.Authorization, undefined);
+    if (url.endsWith('/google-login')) {
+      assert.deepEqual(JSON.parse(options.body), { idToken: 'google-jwt' });
+      return Response.json({ endUserId: 'customer', suiAddress: '0x123' });
+    }
+    assert.ok(url.endsWith('/zklogin/proof'));
+    assert.deepEqual(JSON.parse(options.body), proofBody);
+    return Response.json({ addressSeed: '123', proofPoints: {} });
+  };
+  const response = await identityPost(proofRequest(proofBody), proofContext);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal((await response.json()).addressSeed, '123');
+  assert.equal(paths.length, 2);
+});
+
+test('missing login, cross-origin, malformed session, and a different Google identity cannot obtain a proof', async () => {
+  configure();
+  globalThis.fetch = () => assert.fail('must not call Core');
+  assert.equal((await identityPost(proofRequest(proofBody, ''), proofContext)).status, 401);
+  assert.equal(
+    (
+      await identityPost(
+        proofRequest(proofBody, encodeCustomerSession(session()), 'https://evil.test'),
+        proofContext,
+      )
+    ).status,
+    403,
+  );
+  assert.equal(
+    (await identityPost(proofRequest({ ...proofBody, maxEpoch: -1 }), proofContext)).status,
+    400,
+  );
+  globalThis.fetch = async (url) => {
+    assert.ok(url.endsWith('/google-login'));
+    return Response.json({ endUserId: 'someone-else', suiAddress: '0xother' });
+  };
+  assert.equal((await identityPost(proofRequest(proofBody), proofContext)).status, 401);
+});
+
+const enrollContext = { params: Promise.resolve({ action: 'enroll' }) };
+
+test('enroll proves the customer with the ID token, and refuses a token for someone else', async () => {
+  configure();
+  const sent = [];
+  globalThis.fetch = async (url, options) => {
+    sent.push(JSON.parse(options.body));
+    assert.ok(url.endsWith(`/v1/identity/organizations/${org}/enroll`));
+    return Response.json({
+      organizationEndUserId: 'member-1',
+      endUserId: 'customer',
+      isNewEnrollment: true,
+    });
+  };
+  const joined = await identityPost(proofRequest({ idToken: 'google-jwt' }), enrollContext);
+  assert.equal(joined.status, 200);
+  assert.deepEqual(sent, [{ idToken: 'google-jwt' }]);
+  const cookie = joined.headers
+    .get('set-cookie')
+    ?.match(new RegExp(`${CUSTOMER_COOKIE}=([^;]+)`))?.[1];
+  assert.equal(decodeCustomerSession(cookie, org)?.memberId, 'member-1');
+
+  globalThis.fetch = async () =>
+    Response.json({
+      organizationEndUserId: 'member-2',
+      endUserId: 'someone-else',
+      isNewEnrollment: true,
+    });
+  const other = await identityPost(proofRequest({ idToken: 'other-jwt' }), enrollContext);
+  assert.equal(other.status, 401);
+  assert.equal(other.headers.get('set-cookie'), null);
+
+  globalThis.fetch = () => assert.fail('must not call Core');
+  assert.equal(
+    (await identityPost(proofRequest({ endUserId: 'customer' }), enrollContext)).status,
+    400,
+  );
+  assert.equal(
+    (await identityPost(proofRequest({ idToken: 'google-jwt' }, ''), enrollContext)).status,
+    401,
+  );
 });

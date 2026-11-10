@@ -1,32 +1,29 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { claimCustomerReward, rewardsRequest } from '../services/customer-rewards';
 
 interface Rewards {
   vouchers: { id: string; title: string; pointsCost: number; status: string }[];
   owned: { id: string; voucherId: string; serialCode: string; status: string }[];
 }
 
-async function rewardsRequest(body: object) {
-  const response = await fetch('/api/customer/rewards', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(35_000),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.message ?? 'Could not load rewards.');
-  return data;
-}
-
-export default function CustomerRewards({ onClaim }: { onClaim: () => void }) {
+export default function CustomerRewards({
+  onClaim,
+  memberId,
+  signClaim,
+}: {
+  onClaim: () => void;
+  memberId: string;
+  signClaim: (bytes: string, digest: string) => Promise<string>;
+}) {
   const [data, setData] = useState<Rewards | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const inFlight = useRef(false);
   useEffect(() => {
     let active = true;
-    void rewardsRequest({ action: 'read' })
+    void rewardsRequest<Rewards>({ action: 'read' })
       .then((result) => {
         if (active) setData(result);
       })
@@ -38,19 +35,26 @@ export default function CustomerRewards({ onClaim }: { onClaim: () => void }) {
     };
   }, []);
 
-  async function run(voucherId?: string) {
+  async function run(voucherId?: string, pointsCost?: number) {
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
     setError('');
     try {
       if (voucherId) {
-        await rewardsRequest({ action: 'claim', voucherId });
-        onClaim();
+        await claimCustomerReward(voucherId, memberId, pointsCost ?? 0, signClaim);
       }
-      setData(await rewardsRequest({ action: 'read' }));
+      onClaim();
+      setData(await rewardsRequest<Rewards>({ action: 'read' }));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not complete the request.');
+      // A network error can follow a committed reserve or chain submission. Read; never re-claim automatically.
+      try {
+        setData(await rewardsRequest<Rewards>({ action: 'read' }));
+      } catch {
+        /* Keep the last known state. */
+      }
+      onClaim();
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -70,7 +74,8 @@ export default function CustomerRewards({ onClaim }: { onClaim: () => void }) {
         </button>
       </div>
       <p className="text-muted text-xs">
-        Claiming spends your store points. Show the voucher serial at checkout to use your reward.
+        Confirming a claim authorizes spending your store points. Your voucher is ready to use after
+        confirmation.
       </p>
       <div aria-live="polite">
         {error && (
@@ -89,15 +94,48 @@ export default function CustomerRewards({ onClaim }: { onClaim: () => void }) {
               data.owned.some((item) => item.voucherId === voucher.id),
           )
           .map((voucher) => {
-            const owned = data.owned.find((item) => item.voucherId === voucher.id);
+            const owned = data.owned.find(
+              (item) => item.voucherId === voucher.id && item.status !== 'CANCELLED',
+            );
             return (
               <div key={voucher.id} className="border-t border-line pt-4 space-y-2">
                 <p className="font-semibold text-sm">{voucher.title}</p>
                 <p className="text-muted text-xs">{voucher.pointsCost} points</p>
                 {owned ? (
                   <>
-                    <p className="text-sm">{owned.status}</p>
-                    <p className="font-mono break-all text-sm select-all">{owned.serialCode}</p>
+                    <p className="text-sm">
+                      {owned.status === 'RESERVED' ? 'Awaiting confirmation' : owned.status}
+                    </p>
+                    {owned.status === 'AVAILABLE' && (
+                      <p className="font-mono break-all text-sm select-all">{owned.serialCode}</p>
+                    )}
+                    {owned.status === 'RESERVED' && voucher.pointsCost === 0 && (
+                      <p className="text-muted text-xs">
+                        Your free voucher is being recorded. Refresh in a moment.
+                      </p>
+                    )}
+                    {owned.status === 'RESERVED' && voucher.pointsCost > 0 && (
+                      <>
+                        <p className="text-muted text-xs">
+                          These points are reserved. Refresh to check confirmation, or continue to
+                          authorize this same claim.
+                        </p>
+                        <button
+                          disabled={busy}
+                          className="text-partner text-sm font-semibold"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Authorize the pending ${voucher.pointsCost}-point claim for ${voucher.title}?`,
+                              )
+                            )
+                              void run(voucher.id, voucher.pointsCost);
+                          }}
+                        >
+                          Continue claim
+                        </button>
+                      </>
+                    )}
                   </>
                 ) : (
                   <button
@@ -106,13 +144,17 @@ export default function CustomerRewards({ onClaim }: { onClaim: () => void }) {
                     onClick={() => {
                       if (
                         window.confirm(
-                          `Spend ${voucher.pointsCost} points to claim ${voucher.title}?`,
+                          voucher.pointsCost > 0
+                            ? `Spend ${voucher.pointsCost} points to claim ${voucher.title}?`
+                            : `Claim ${voucher.title} for free?`,
                         )
                       )
-                        void run(voucher.id);
+                        void run(voucher.id, voucher.pointsCost);
                     }}
                   >
-                    Claim for {voucher.pointsCost} points
+                    {voucher.pointsCost > 0
+                      ? `Claim for ${voucher.pointsCost} points`
+                      : 'Claim for free'}
                   </button>
                 )}
               </div>

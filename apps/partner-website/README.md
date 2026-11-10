@@ -34,28 +34,74 @@ The page shows actual confirmed/pending points, recent activity, and Refresh. Br
 member IDs are ignored by these reads. Use another account clears the cookie. These endpoints
 are disabled in production; this is not the proposed Core customer-session architecture.
 
-The customer can claim an active voucher, spending points in Core's PostgreSQL ledger, and
-show its serial to the merchant. The business dashboard's **Redeem voucher** action marks it
-used; it does not deduct the points a second time. Voucher claims do not create an on-chain
-POS redemption. For a local 25-point voucher fixture, run from octap-core in Git Bash:
+Paid voucher claims use the Core OCT-231 customer-signed redemption flow. Google sign-in creates
+an ephemeral Ed25519 key in browser memory and requests its nonce through Core/Enoki. After
+Google returns that nonce-bound ID token, the page obtains the proof for the same public key,
+randomness and maxEpoch, and checks that the proof resolves to the connected Sui address.
+The account is ready only after proof generation succeeds.
 
-```bash
-docker compose exec -T postgres psql -U postgres -d octap_dev < scripts/seed-demo-voucher.sql
+Claim confirmation checks the quoted cost, transaction sender and digest, signs the exact
+sponsored bytes locally, combines the ephemeral signature with the proof, and sends the full
+zkLogin signature through the same-origin proxy to Core's public finalize endpoint. The
+server alone holds the merchant credential. Private keys and ID tokens are never persisted in
+cookies or browser storage. The signed customer cookie identifies the member; it cannot sign.
+
+A paid claim begins RESERVED: stock and points are held, but the confirmed balance is unchanged.
+Only successful chain confirmation makes the voucher AVAILABLE and debits the balance projection.
+The page hides its serial until AVAILABLE. Unknown outcomes stay pending; Refresh reads state,
+and Continue claim resumes the existing idempotent attempt. There are no automatic mutation
+retries. Each definitive cancellation permits a new server-generated retry key. A free reward has
+nothing to sign: it stays RESERVED until OctaP records it on-chain, then becomes AVAILABLE.
+
+Refreshing or using another account clears the in-memory signer. Sign in again with the same
+Google account and join the store to resume an outstanding claim with a fresh signing session.
+An expired signing session requires the same reauthentication.
+
+## Run the real Testnet demo
+
+Use the Core OCT-231 implementation and its voucher-reservation migration. The older Core claim
+API is incompatible with paid signing. Configure Core's database, Redis, Testnet network, Enoki
+app and funded program-admin/issuer signers. Configure Google OAuth and Testnet sponsorship in
+Enoki. Keep credentials in local environment files, never source code.
+
+From octap-core, start the API:
+
+```powershell
+docker compose up -d
+npm run build
+npm run db:migrate
+node --env-file=.env api/dist/main.js
 ```
 
-The fixture is needed because Core currently creates DRAFT vouchers without an activation API.
-Refresh customer points after a claim to see the lower balance, and refresh rewards after the
-merchant redeems the serial. Do not claim an additional reward merely to retry an uncertain
-response. The demo bridge reuses the member/voucher claim key and checks existing ownerships,
-but Core's debit and voucher allocation remain separate transactions; production needs an
-atomic claim/retry design.
+In another terminal, start the worker/indexer:
 
-Google sign-in first creates an ephemeral Ed25519 key in browser memory and requests a zkLogin
-nonce through Core/Enoki. The Google button includes that nonce, and the returned credential is
-checked against it before forwarding to Core. This aligns the token with Enoki's zkLogin flow;
-ordinary Google sign-in without the nonce can fail at the salt service. Tokens and ephemeral
-private keys are not persisted. A fresh page load starts a new attempt. Transaction signing is
-still outside this page's scope.
+```powershell
+node --env-file=.env api/dist/worker.js
+```
+
+In octap-web, configure apps/partner-website/.env.local using its example. Set
+ENABLE_MERCHANT_DEMO=true, MERCHANT_DEMO_API_KEY, CUSTOMER_DEMO_SESSION_SECRET,
+NEXT_PUBLIC_GOOGLE_CLIENT_ID and PARTNER_TENANTS_JSON with your actual Core organization UUID.
+That organization must already be ACTIVE and provisioned on Testnet. Register
+http://localhost:4001 as a Google JavaScript origin with the same OAuth client configured in Enoki.
+
+```powershell
+npm run dev:partner-website
+```
+
+1. Open http://localhost:4001, sign in with Google, wait for the proof and join the store.
+2. Use the member ID for a real merchant earn request. Wait for the worker to confirm enough
+   points on Sui. A synthetic PostgreSQL balance cannot fund a real chain redemption.
+3. Create an ACTIVE paid reward through Core, for example a 25-point FREE_ITEM voucher, and wait
+   until its `publishStatus` is PUBLISHED. The Core worker must be running.
+4. Claim it and confirm spending. The browser signs locally and Core executes through Enoki.
+   Wait for AVAILABLE, then show the serial to the merchant. Refresh or Continue claim handles
+   pending results; do not create another claim after an uncertain response.
+5. Verify the balance/history and Core's transaction digest on a Testnet explorer.
+
+This remains a development-only bridge, disabled in production. Automated tests use synthetic
+proofs and mocked external APIs, but check real ephemeral signatures and zkLogin serialization.
+Real Google/Enoki proof generation and Testnet execution require the configured external services.
 
 ## Tenant configuration
 
@@ -82,10 +128,9 @@ wildcard DNS record does not create OAuth allowlists. DNS and certificates are d
 not created by this app. Root and unknown domains return 404 in production.
 
 No Enoki, merchant, or wallet private key belongs in the browser bundle. Only the public Google
-client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted. Core's current
-public enrollment endpoint takes an end-user ID without a customer session: this page preserves
-that contract and does not establish production customer authorization. Balance reads and signed
-POS redemption still require separate customer authorization/signing integration.
+client ID uses `NEXT_PUBLIC_`. Identity tokens are neither displayed nor persisted: the Google ID
+token stays in browser memory only so that joining the store can prove the same sign-in to Core,
+which derives the customer from it. This does not establish production customer authorization.
 
 ## Checks
 
