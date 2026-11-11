@@ -1,9 +1,9 @@
-import { useTable, type RowData, type SortingState } from "@tanstack/react-table";
-import { CaretDown, CaretLeft, CaretRight, CaretUp, MagnifyingGlass } from "phosphor-react";
-import { type ReactNode } from "react";
-import { cn } from "../../utils/cn";
-import { Skeleton } from "./Display";
-import { tableFeatureSet, type AppColumnDef } from "./table";
+import { useTable, type RowData, type SortingState } from '@tanstack/react-table';
+import { CaretDown, CaretLeft, CaretRight, CaretUp, MagnifyingGlass } from 'phosphor-react';
+import { type ReactNode } from 'react';
+import { cn } from '../../utils/cn';
+import { Skeleton } from './Display';
+import { tableFeatureSet, type AppColumnDef } from './table';
 
 type Props<T extends RowData> = {
   data: T[] | undefined;
@@ -26,7 +26,7 @@ export function DataTable<T extends RowData>({
   columns,
   loading,
   searchable,
-  searchPlaceholder = "Filter rows…",
+  searchPlaceholder = 'Filter rows…',
   toolbar,
   pageSize = 10,
   onRowClick,
@@ -38,7 +38,7 @@ export function DataTable<T extends RowData>({
     features: tableFeatureSet,
     data: data ?? (EMPTY as T[]),
     columns,
-    globalFilterFn: "includesString",
+    globalFilterFn: 'includesString',
     initialState: { sorting: initialSort, pagination: { pageIndex: 0, pageSize } },
   });
 
@@ -53,7 +53,11 @@ export function DataTable<T extends RowData>({
           {searchable && (
             <label className="input input-sm w-full sm:w-72">
               <MagnifyingGlass className="opacity-50" />
-              <input value={(table.state.globalFilter as string) ?? ""} onChange={(e) => table.setGlobalFilter(e.target.value)} placeholder={searchPlaceholder} />
+              <input
+                value={(table.state.globalFilter as string) ?? ''}
+                onChange={(e) => table.setGlobalFilter(e.target.value)}
+                placeholder={searchPlaceholder}
+              />
             </label>
           )}
           {toolbar}
@@ -61,7 +65,7 @@ export function DataTable<T extends RowData>({
       )}
 
       <div className="overflow-x-auto rounded-box border border-base-300 bg-base-100">
-        <table className={cn("table", dense && "table-sm")}>
+        <table className={cn('table', dense && 'table-sm')}>
           <thead>
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} className="bg-base-200/60">
@@ -70,13 +74,18 @@ export function DataTable<T extends RowData>({
                   return (
                     <th
                       key={h.id}
-                      className={cn("whitespace-nowrap", h.column.getCanSort() && "cursor-pointer select-none")}
-                      onClick={h.column.getCanSort() ? h.column.getToggleSortingHandler() : undefined}
+                      className={cn(
+                        'whitespace-nowrap',
+                        h.column.getCanSort() && 'cursor-pointer select-none',
+                      )}
+                      onClick={
+                        h.column.getCanSort() ? h.column.getToggleSortingHandler() : undefined
+                      }
                     >
                       <span className="inline-flex items-center gap-1">
                         {h.isPlaceholder ? null : <table.FlexRender header={h} />}
-                        {sort === "asc" && <CaretUp weight="bold" />}
-                        {sort === "desc" && <CaretDown weight="bold" />}
+                        {sort === 'asc' && <CaretUp weight="bold" />}
+                        {sort === 'desc' && <CaretDown weight="bold" />}
                       </span>
                     </th>
                   );
@@ -99,7 +108,7 @@ export function DataTable<T extends RowData>({
               rows.map((row) => (
                 <tr
                   key={row.id}
-                  className={cn(onRowClick && "cursor-pointer hover:bg-base-200/60")}
+                  className={cn(onRowClick && 'cursor-pointer hover:bg-base-200/60')}
                   onClick={onRowClick ? () => onRowClick(row.original as T) : undefined}
                 >
                   {row.getAllCells().map((cell) => (
@@ -111,7 +120,9 @@ export function DataTable<T extends RowData>({
               ))}
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={columns.length}>{empty ?? <div className="py-10 text-center text-sm opacity-60">No results.</div>}</td>
+                <td colSpan={columns.length}>
+                  {empty ?? <div className="py-10 text-center text-sm opacity-60">No results.</div>}
+                </td>
               </tr>
             )}
           </tbody>
@@ -124,13 +135,23 @@ export function DataTable<T extends RowData>({
             {pageIndex * pageSize + 1}–{Math.min((pageIndex + 1) * pageSize, total)} of {total}
           </span>
           <div className="join">
-            <button className="btn join-item btn-sm" disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()} aria-label="Previous page">
+            <button
+              className="btn join-item btn-sm"
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+              aria-label="Previous page"
+            >
               <CaretLeft />
             </button>
             <span className="btn join-item btn-sm pointer-events-none">
               {pageIndex + 1} / {table.getPageCount()}
             </span>
-            <button className="btn join-item btn-sm" disabled={!table.getCanNextPage()} onClick={() => table.nextPage()} aria-label="Next page">
+            <button
+              className="btn join-item btn-sm"
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
+              aria-label="Next page"
+            >
               <CaretRight />
             </button>
           </div>

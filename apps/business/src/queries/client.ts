@@ -1,6 +1,6 @@
-import { MutationCache, QueryClient } from "@tanstack/react-query";
-import { ApiError } from "../services/mock/http";
-import { sessionStore } from "../services/session";
+import { MutationCache, QueryClient } from '@tanstack/react-query';
+import { ApiError } from '../services/mock/http';
+import { sessionStore } from '../services/session';
 
 export const queryClient: QueryClient = new QueryClient({
   defaultOptions: {

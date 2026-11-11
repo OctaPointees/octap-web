@@ -26,11 +26,11 @@ export type Rng = ReturnType<typeof createRng>;
 /** Non-deterministic rng for runtime mutations. */
 export const live = createRng(Date.now());
 
-const HEX = "0123456789abcdef";
-const BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const HEX = '0123456789abcdef';
+const BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
 export function hex(rng: Rng, length: number) {
-  let s = "";
+  let s = '';
   for (let i = 0; i < length; i++) s += HEX[rng.int(0, 15)];
   return s;
 }
@@ -40,7 +40,7 @@ export const suiObjectId = (rng: Rng = live) => `0x${hex(rng, 64)}`;
 
 /** Sui transaction digest: base58, ~44 chars. */
 export function txDigest(rng: Rng = live) {
-  let s = "";
+  let s = '';
   for (let i = 0; i < 44; i++) s += BASE58[rng.int(0, BASE58.length - 1)];
   return s;
 }
@@ -50,10 +50,10 @@ export function uid(prefix: string, rng: Rng = live) {
 }
 
 export function voucherCode(rng: Rng = live) {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let s = "";
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
   for (let i = 0; i < 12; i++) {
-    if (i && i % 4 === 0) s += "-";
+    if (i && i % 4 === 0) s += '-';
     s += chars[rng.int(0, chars.length - 1)];
   }
   return s;

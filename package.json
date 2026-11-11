@@ -12,7 +12,10 @@
     "dev:partner-website": "npm run dev -w @octap/partner-website",
     "dev": "concurrently -k -n landing,business -c magenta,cyan \"npm:dev:landing\" \"npm:dev:business\"",
     "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present && eslint --config apps/business/eslint.config.js packages/shared/src/google-auth playwright.config.ts tests/google-login",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:google-login": "playwright test"
   },
   "dependencies": {
@@ -22,6 +25,7 @@
     "@playwright/test": "^1.64.1",
     "concurrently": "^10.0.6",
     "eslint": "^10.10.0",
+    "prettier": "^3.10.0",
     "typescript": "~6.0.2"
   }
 }
