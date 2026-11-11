@@ -1,6 +1,6 @@
-import type { StaffAccount } from "../../types/domain";
+import type { StaffAccount } from '../../types/domain';
 
-export type PublicStaff = Omit<StaffAccount, "password">;
+export type PublicStaff = Omit<StaffAccount, 'password'>;
 
 /** Never let the (mock) password leave the "server". */
 export function toPublicStaff(account: StaffAccount): PublicStaff {

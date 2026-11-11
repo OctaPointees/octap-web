@@ -1,13 +1,21 @@
-import type { DailyStat, Range } from "../../types/domain";
-import { getDb } from "../mock/db";
+import type { DailyStat, Range } from '../../types/domain';
+import { getDb } from '../mock/db';
 
-export const RANGE_DAYS: Record<Range, number> = { "7d": 7, "30d": 30, "90d": 90 };
+export const RANGE_DAYS: Record<Range, number> = { '7d': 7, '30d': 30, '90d': 90 };
 
-export type SeriesPoint = Omit<DailyStat, "tenantId">;
+export type SeriesPoint = Omit<DailyStat, 'tenantId'>;
 
 export type Kpi = { value: number; previous: number; delta: number };
 
-const METRICS = ["earned", "redeemed", "txCount", "revenueVnd", "newMembers", "gasMist", "apiCalls"] as const;
+const METRICS = [
+  'earned',
+  'redeemed',
+  'txCount',
+  'revenueVnd',
+  'newMembers',
+  'gasMist',
+  'apiCalls',
+] as const;
 type Metric = (typeof METRICS)[number];
 
 function dayKeys(days: number, offset = 0) {
@@ -20,7 +28,16 @@ function dayKeys(days: number, offset = 0) {
 }
 
 function emptyPoint(date: string): SeriesPoint {
-  return { date, earned: 0, redeemed: 0, txCount: 0, revenueVnd: 0, newMembers: 0, gasMist: 0, apiCalls: 0 };
+  return {
+    date,
+    earned: 0,
+    redeemed: 0,
+    txCount: 0,
+    revenueVnd: 0,
+    newMembers: 0,
+    gasMist: 0,
+    apiCalls: 0,
+  };
 }
 
 export function series(range: Range, tenantId?: string, offset = 0): SeriesPoint[] {
@@ -56,7 +73,7 @@ export function totalsByTenant(range: Range) {
   const map = new Map<string, SeriesPoint>();
   for (const s of getDb().stats) {
     if (!keys.has(s.date)) continue;
-    const p = map.get(s.tenantId) ?? emptyPoint("");
+    const p = map.get(s.tenantId) ?? emptyPoint('');
     for (const m of METRICS) p[m] += s[m];
     map.set(s.tenantId, p);
   }

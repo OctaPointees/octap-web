@@ -1,6 +1,6 @@
-import { Select as Base } from "@base-ui/react/select";
-import { CaretDown, Check } from "phosphor-react";
-import { cn } from "../../utils/cn";
+import { Select as Base } from '@base-ui/react/select';
+import { CaretDown, Check } from 'phosphor-react';
+import { cn } from '../../utils/cn';
 
 export type SelectOption<T extends string> = { label: string; value: T };
 
@@ -11,10 +11,18 @@ type Props<T extends string> = {
   className?: string;
   placeholder?: string;
   disabled?: boolean;
-  size?: "sm" | "md";
+  size?: 'sm' | 'md';
 };
 
-export function Select<T extends string>({ value, onValueChange, options, className, placeholder, disabled, size = "md" }: Props<T>) {
+export function Select<T extends string>({
+  value,
+  onValueChange,
+  options,
+  className,
+  placeholder,
+  disabled,
+  size = 'md',
+}: Props<T>) {
   return (
     <Base.Root
       items={options}
@@ -24,18 +32,25 @@ export function Select<T extends string>({ value, onValueChange, options, classN
     >
       <Base.Trigger
         className={cn(
-          "select w-full min-w-36 cursor-pointer bg-none pr-3 outline-offset-0 focus-visible:outline-2 focus-visible:outline-primary",
-          size === "sm" && "select-sm",
+          'select w-full min-w-36 cursor-pointer bg-none pr-3 outline-offset-0 focus-visible:outline-2 focus-visible:outline-primary',
+          size === 'sm' && 'select-sm',
           className,
         )}
       >
-        <Base.Value className="flex-1 truncate text-left data-placeholder:opacity-50" placeholder={placeholder} />
+        <Base.Value
+          className="flex-1 truncate text-left data-placeholder:opacity-50"
+          placeholder={placeholder}
+        />
         <Base.Icon className="opacity-50">
           <CaretDown />
         </Base.Icon>
       </Base.Trigger>
       <Base.Portal>
-        <Base.Positioner className="z-[60] outline-none" sideOffset={4} alignItemWithTrigger={false}>
+        <Base.Positioner
+          className="z-[60] outline-none"
+          sideOffset={4}
+          alignItemWithTrigger={false}
+        >
           <Base.Popup className="max-h-(--available-height) min-w-(--anchor-width) origin-(--transform-origin) overflow-y-auto rounded-box border border-base-300 bg-base-100 p-1 shadow-lg transition-[scale,opacity] duration-100 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:opacity-0">
             <Base.List>
               {options.map((opt) => (

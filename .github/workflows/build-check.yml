@@ -3,13 +3,26 @@ name: Build Check
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
 
 concurrency:
   group: build-check-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  format:
+    name: Code formatting (Prettier)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+
   portal-tests:
     name: Portal authentication regressions
     runs-on: ubuntu-latest
@@ -29,6 +42,7 @@ jobs:
         with:
           name: portal-test-results
           path: test-results/
+
   build:
     name: Build (${{ matrix.app }})
     runs-on: ubuntu-latest
@@ -37,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [admin, business]
+        app: [admin, business, landing]
 
     steps:
       - name: Checkout
@@ -46,14 +60,17 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Type check
+      - name: Lint
         run: npm run lint -w @octap/${{ matrix.app }} --if-present
+
+      - name: Type check
+        run: npm run typecheck -w @octap/${{ matrix.app }} --if-present
 
       # Confirms the app can actually be bundled
       - name: Build

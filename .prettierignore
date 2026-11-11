@@ -1,0 +1,16 @@
+node_modules/
+dist/
+dist-ssr/
+.next/
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+*.local
+sources/
+
+# Prose
+*.md
+
+# Exclude partner-website
+apps/partner-website/

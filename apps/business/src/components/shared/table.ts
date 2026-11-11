@@ -15,13 +15,18 @@ import {
   tableFeatures,
   type ColumnDef,
   type RowData,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
 /** TanStack Table v9 feature set shared by every DataTable in the app. */
 export const tableFeatureSet = tableFeatures({
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
-  sortFns: { alphanumeric: sortFn_alphanumeric, basic: sortFn_basic, text: sortFn_text, datetime: sortFn_datetime },
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    basic: sortFn_basic,
+    text: sortFn_text,
+    datetime: sortFn_datetime,
+  },
   columnFilteringFeature,
   globalFilteringFeature,
   filteredRowModel: createFilteredRowModel(),

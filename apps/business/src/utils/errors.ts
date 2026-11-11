@@ -1,4 +1,4 @@
-import { ApiError } from "../services/mock/http";
+import { ApiError } from '../services/mock/http';
 
 /** Field-level validation errors returned by the (mock) API, if any. */
 export function fieldErrorsOf(error: unknown): Record<string, string> {
@@ -9,5 +9,5 @@ export function fieldErrorsOf(error: unknown): Record<string, string> {
 export function formErrorOf(error: unknown): string | null {
   if (!error) return null;
   if (error instanceof ApiError && error.fieldErrors) return null;
-  return error instanceof Error ? error.message : "Something went wrong";
+  return error instanceof Error ? error.message : 'Something went wrong';
 }

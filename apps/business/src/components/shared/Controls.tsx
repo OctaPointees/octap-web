@@ -1,10 +1,10 @@
-import { Field } from "@base-ui/react/field";
-import { Switch as BaseSwitch } from "@base-ui/react/switch";
-import { Tabs } from "@base-ui/react/tabs";
-import { Check, Copy, ArrowSquareOut } from "phosphor-react";
-import { useState, type ReactNode } from "react";
-import { cn } from "../../utils/cn";
-import { shortHash } from "../../utils/format";
+import { Field } from '@base-ui/react/field';
+import { Switch as BaseSwitch } from '@base-ui/react/switch';
+import { Tabs } from '@base-ui/react/tabs';
+import { Check, Copy, ArrowSquareOut } from 'phosphor-react';
+import { useState, type ReactNode } from 'react';
+import { cn } from '../../utils/cn';
+import { shortHash } from '../../utils/format';
 
 /* ---------------------------------------------------------------- Segmented */
 
@@ -12,12 +12,18 @@ type SegmentedProps<T extends string> = {
   value: T;
   onValueChange: (v: T) => void;
   options: { label: ReactNode; value: T }[];
-  size?: "sm" | "md";
+  size?: 'sm' | 'md';
   className?: string;
 };
 
 /** Pill-style tab bar (Base UI Tabs), used for ranges and view switches. */
-export function Segmented<T extends string>({ value, onValueChange, options, size = "sm", className }: SegmentedProps<T>) {
+export function Segmented<T extends string>({
+  value,
+  onValueChange,
+  options,
+  size = 'sm',
+  className,
+}: SegmentedProps<T>) {
   return (
     <Tabs.Root value={value} onValueChange={(v) => onValueChange(v as T)} className={className}>
       <Tabs.List className="relative z-0 inline-flex gap-1 rounded-field bg-base-200 p-1">
@@ -26,8 +32,8 @@ export function Segmented<T extends string>({ value, onValueChange, options, siz
             key={o.value}
             value={o.value}
             className={cn(
-              "cursor-pointer rounded-field px-3 font-medium whitespace-nowrap opacity-60 outline-none transition-opacity select-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary data-active:opacity-100",
-              size === "sm" ? "h-7 text-xs" : "h-9 text-sm",
+              'cursor-pointer rounded-field px-3 font-medium whitespace-nowrap opacity-60 outline-none transition-opacity select-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary data-active:opacity-100',
+              size === 'sm' ? 'h-7 text-xs' : 'h-9 text-sm',
             )}
           >
             {o.label}
@@ -51,7 +57,12 @@ type SwitchProps = {
 
 export function Switch({ checked, onCheckedChange, disabled, label, description }: SwitchProps) {
   return (
-    <label className={cn("flex items-center justify-between gap-4", disabled ? "opacity-50" : "cursor-pointer")}>
+    <label
+      className={cn(
+        'flex items-center justify-between gap-4',
+        disabled ? 'opacity-50' : 'cursor-pointer',
+      )}
+    >
       {(label || description) && (
         <span>
           {label && <span className="block text-sm font-medium">{label}</span>}
@@ -89,7 +100,7 @@ type FieldProps = {
  */
 export function FormField({ label, error, hint, children, className, name }: FieldProps) {
   return (
-    <Field.Root name={name} className={cn("flex flex-col gap-1", className)}>
+    <Field.Root name={name} className={cn('flex flex-col gap-1', className)}>
       <Field.Label className="text-sm font-medium">{label}</Field.Label>
       {children}
       {error ? (
@@ -104,8 +115,18 @@ export function FormField({ label, error, hint, children, className, name }: Fie
 }
 
 /** Input that participates in the surrounding Base UI Field (label/aria wiring). */
-export function TextInput({ className, invalid, ...props }: React.ComponentProps<typeof Field.Control> & { invalid?: boolean }) {
-  return <Field.Control {...props} aria-invalid={invalid || undefined} className={cn("input w-full", invalid && "input-error", className as string)} />;
+export function TextInput({
+  className,
+  invalid,
+  ...props
+}: React.ComponentProps<typeof Field.Control> & { invalid?: boolean }) {
+  return (
+    <Field.Control
+      {...props}
+      aria-invalid={invalid || undefined}
+      className={cn('input w-full', invalid && 'input-error', className as string)}
+    />
+  );
 }
 
 /* ------------------------------------------------------------------ Copying */
@@ -122,7 +143,7 @@ export function CopyButton({ value, label }: { value: string; label?: string }) 
         setCopied(true);
         setTimeout(() => setCopied(false), 1200);
       }}
-      aria-label={`Copy ${label ?? "value"}`}
+      aria-label={`Copy ${label ?? 'value'}`}
     >
       {copied ? <Check className="text-success" /> : <Copy />}
       {label}
@@ -131,13 +152,26 @@ export function CopyButton({ value, label }: { value: string; label?: string }) 
 }
 
 /** Sui transaction digest / object id with copy + explorer link. */
-export function ChainRef({ value, kind = "tx" }: { value: string; kind?: "tx" | "object" | "account" }) {
+export function ChainRef({
+  value,
+  kind = 'tx',
+}: {
+  value: string;
+  kind?: 'tx' | 'object' | 'account';
+}) {
   const href = `https://suiscan.xyz/mainnet/${kind}/${value}`;
   return (
     <span className="inline-flex items-center gap-0.5 font-mono text-xs">
-      <span title={value}>{shortHash(value, kind === "tx" ? 8 : 6, 4)}</span>
+      <span title={value}>{shortHash(value, kind === 'tx' ? 8 : 6, 4)}</span>
       <CopyButton value={value} />
-      <a href={href} target="_blank" rel="noreferrer" className="btn btn-ghost btn-xs" aria-label="Open in explorer" onClick={(e) => e.stopPropagation()}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="btn btn-ghost btn-xs"
+        aria-label="Open in explorer"
+        onClick={(e) => e.stopPropagation()}
+      >
         <ArrowSquareOut />
       </a>
     </span>
