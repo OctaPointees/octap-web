@@ -33,6 +33,7 @@ const portalRoutes: RouteObject[] = [
           { index: true, element: <DeveloperDashboardPage /> },
           { path: 'api-keys', element: <DeveloperApiKeysPage /> },
           { path: 'members', element: <MembersPage /> },
+          { path: 'rewards', element: <RewardsPage /> },
           { path: 'webhooks', element: <DeveloperWebhooksPage /> },
           { path: 'mcp', element: <DeveloperMcpPage /> },
         ],
