@@ -36,6 +36,17 @@ start Core with its migrations applied. See
 - Developers enter `/developer`; `/developer/api-keys` lists safe credential metadata.
   They cannot manage organization profiles or invitations.
 - Owners use `/merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `/developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
+- Owners manage the reward catalog at `/merchant/rewards`; Developers have read-only
+  `/developer/rewards`. A reward is saved as a draft, then activated as a separate, confirmed
+  step: Core publishes its terms on-chain through the worker (`Publishing…`, then `Live`, or
+  `Publish failed` with a retry), after which its title, type, points, conditions and dates
+  can never change; only the number available, pause and resume can. Owners can start from a
+  template, duplicate a reward, or import a CSV (template in the import dialog) of drafts.
+- Reward kinds: percent off, amount off and free item map to Core's `discountType`; buy X get Y,
+  free delivery, special price and custom rewards are described only by `terms`. Conditions
+  (minimum order, maximum discount, applies to) also go in `terms`, shaped as
+  `{ schema: 'octap.benefit.v1', kind, … }` (see `src/app/console/rewards/benefit.ts`).
+  Core publishes `terms` but does not enforce it: the merchant applies it at checkout.
 - Invite links require the addressed Google identity and explicit one-time acceptance.
 - Dashboard modules without live adapters report that they are not connected. They do
   not run against sample data after real Google login.
@@ -44,8 +55,8 @@ start Core with its migrations applied. See
   uses no OctaP SDK or custom Redis session.
 
 Core enforces permissions independently of UI guards. Organization approval creates portal
-access, not an on-chain program. The member directory is connected to Core. Live analytics,
-points, campaigns, rewards and full governance remain separate work.
+access, not an on-chain program. The member directory and the reward catalog are connected to
+Core. Live analytics, points, campaigns and full governance remain separate work.
 
 ## Optional browser-local demo
 
