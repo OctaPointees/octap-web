@@ -125,7 +125,7 @@ test('an Owner saves a draft built from a template, with ISO dates and benefit t
   await page.getByLabel('Item').fill('Milk tea');
   await page.getByLabel('Points to claim').fill('600');
   await page.getByLabel('Claims close on').fill('2027-12-31');
-  await expect(page.getByLabel('Preview')).toContainText('Buy 1 get 1 free: Milk tea');
+  await expect(page.getByLabel('Summary')).toContainText('Buy 1 get 1 free: Milk tea');
   await page.getByRole('button', { name: 'Save as draft' }).click();
 
   await expect(page.getByRole('article', { name: 'Buy 1 get 1 free' })).toContainText('Draft');
@@ -221,9 +221,14 @@ test('a failed publish offers a retry, and a published reward only changes its s
       patches.push(route.request().postDataJSON());
       return route.fulfill({ json: { ...live, totalSupply: 25 } });
     }
+    if (route.request().url().endsWith('/live')) return route.fulfill({ json: live });
     return route.fulfill({ json: [failed, live] });
   });
   await expect(page.getByRole('article', { name: 'Failed one' })).toContainText('Publish failed');
+  // A failed publish is folded into Drafts, so a banner keeps it from being missed.
+  await expect(page.getByRole('status')).toContainText('“Failed one” could not be published');
+  await expect(page.getByRole('tab', { name: 'Drafts (1)' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Live (1)' })).toBeVisible();
   await expect(
     page
       .getByRole('article', { name: 'Failed one' })
@@ -232,19 +237,24 @@ test('a failed publish offers a retry, and a published reward only changes its s
 
   await page
     .getByRole('article', { name: 'Live one' })
-    .getByRole('button', { name: 'Restock' })
+    .getByRole('button', { name: 'Edit availability' })
     .click();
-  await page.getByLabel('Units to add').fill('15');
-  await page.getByRole('button', { name: 'Add stock' }).click();
-  await expect.poll(() => patches).toEqual([{ totalSupply: 25 }]);
+  await expect(page.getByLabel('Number available')).toHaveValue('10');
+  await page.getByLabel('Number available').fill('3');
+  await expect(page.getByText('At least 4: that many are already claimed')).toBeVisible();
+  await page.getByLabel('Number available').fill('25');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect.poll(() => patches).toEqual([{ totalSupply: 25, perMemberLimit: null }]);
 
+  // The full form only shows a published reward: availability changes in the dialog above.
   await page
     .getByRole('article', { name: 'Live one' })
-    .getByRole('button', { name: 'Details' })
+    .getByRole('button', { name: 'View' })
     .click();
   await expect(page.getByLabel('Title')).toBeDisabled();
   await expect(page.getByLabel('Points to claim')).toBeDisabled();
-  await expect(page.getByLabel('Number available')).toBeEnabled();
+  await expect(page.getByLabel('Number available')).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toHaveCount(0);
 });
 
 test('a Business Developer sees the catalog read-only', async ({ page }) => {
@@ -287,16 +297,22 @@ test('a CSV import checks each row and creates the valid ones as drafts', async 
   await expect.poll(() => created).toEqual(['DRINKS-20', 'A-FREE-LATTE']);
 });
 
-/** Answers the list with `store`, and records each POST/PATCH body. */
+/**
+ * Answers the list and single reads from `store`, and records each POST/PATCH body. A PATCH is
+ * applied to the stored reward, as Core would.
+ */
 function catalog(store: Voucher[], bodies: Record<string, unknown>[]) {
   return (route: Route) => {
     const method = route.request().method();
+    const id = new URL(route.request().url()).pathname.split('/vouchers/')[1];
     if (method === 'POST' || method === 'PATCH') {
       const body = route.request().postDataJSON();
       bodies.push(body);
       const saved = voucher({ ...store[0], ...body, id: store[0]?.id ?? 'voucher-new' });
+      if (method === 'PATCH' && store[0]) store[0] = saved;
       return route.fulfill({ status: method === 'POST' ? 201 : 200, json: saved });
     }
+    if (id) return route.fulfill({ json: store.find((v) => v.id === id) });
     return route.fulfill({ json: store });
   };
 }
@@ -309,11 +325,11 @@ test('a reward can last a number of days from each claim, with a per-member limi
   await page.getByRole('button', { name: 'New reward' }).click();
   await page.getByRole('button', { name: 'Free drink', exact: true }).click();
   await page.getByLabel('Points to claim').fill('0');
-  await page.getByLabel('For a number of days after each member claims it').check();
-  await page.getByLabel('Days after claiming').fill('14');
+  await page.getByLabel('Days after claiming').check();
+  await page.getByLabel('Number of days').fill('14');
   await page.getByLabel('Per-member limit').fill('1');
-  await expect(page.getByLabel('Preview')).toContainText('Use within 14 days of claiming');
-  await expect(page.getByLabel('Preview')).toContainText('up to 1 per member');
+  await expect(page.getByLabel('Summary')).toContainText('Use within 14 days of claiming');
+  await expect(page.getByLabel('Summary')).toContainText('up to 1 per member');
   await page.getByRole('button', { name: 'Save as draft' }).click();
 
   await expect.poll(() => bodies).toHaveLength(1);
@@ -327,8 +343,8 @@ test('the form checks the number of days and the limit before calling Core', asy
   await page.getByRole('button', { name: 'New reward' }).click();
   await page.getByRole('button', { name: 'Free drink', exact: true }).click();
   await page.getByLabel('Points to claim').fill('100');
-  await page.getByLabel('For a number of days after each member claims it').check();
-  await page.getByLabel('Days after claiming').fill('4000');
+  await page.getByLabel('Days after claiming').check();
+  await page.getByLabel('Number of days').fill('4000');
   await page.getByLabel('Per-member limit').fill('0');
   await page.getByRole('button', { name: 'Save as draft' }).click();
   await expect(page.getByText('Enter a whole number of days from 1 to 3,650')).toBeVisible();
@@ -342,7 +358,7 @@ test('a draft can go back to expiring when claims close', async ({ page }) => {
   const card = page.getByRole('article', { name: 'A free latte' });
   await expect(card).toContainText('Use within 14 days of claiming');
   await card.getByRole('button', { name: 'Edit' }).click();
-  await expect(page.getByLabel('Days after claiming')).toHaveValue('14');
+  await expect(page.getByLabel('Number of days')).toHaveValue('14');
   await page.getByLabel('Until claims close').check();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect.poll(() => bodies).toHaveLength(1);
@@ -362,9 +378,13 @@ test('after publishing, the validity is locked but the per-member limit still ch
   await openRewards(page, 'BUSINESS_OWNER', catalog([live], bodies));
   const card = page.getByRole('article', { name: 'A free latte' });
   await expect(card).toContainText('up to 1 per member');
-  await card.getByRole('button', { name: 'Details' }).click();
-  await expect(page.getByLabel('Days after claiming')).toBeDisabled();
+  await card.getByRole('button', { name: 'View' }).click();
+  await expect(page.getByLabel('Number of days')).toBeDisabled();
   await expect(page.getByLabel('Claims close on')).toBeDisabled();
+  await page.getByRole('button', { name: 'Close', exact: true }).last().click();
+
+  await card.getByRole('button', { name: 'Edit availability' }).click();
+  await expect(page.getByLabel('Per-member limit')).toHaveValue('1');
   await page.getByLabel('Per-member limit').fill('3');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   // Only what stays editable is sent: the supply and the limit, never the frozen terms.
@@ -456,3 +476,135 @@ test('the downloadable template has one cell per column on every row', async ({ 
   expect(text.split('\n')[0]).toContain('claims_close_on');
   expect(text.split('\n')[0]).toContain('valid_for_days');
 });
+
+test('restocking a sold-out reward puts it back live', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  const soldOut = voucher({
+    status: 'DEPLETED',
+    publishStatus: 'PUBLISHED',
+    totalSupply: 10,
+    claimedCount: 10,
+  });
+  await openRewards(page, 'BUSINESS_OWNER', catalog([soldOut], bodies));
+  const card = page.getByRole('article', { name: 'A free latte' });
+  await expect(card).toContainText('Sold out');
+  await card.getByRole('button', { name: 'Restock' }).click();
+  await expect(page.getByText('A number above 10 reopens claims')).toBeVisible();
+  await page.getByRole('button', { name: '+50' }).click();
+  await expect(page.getByLabel('Number available')).toHaveValue('60');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  // Core keeps a DEPLETED reward sold out after a supply-only PATCH: the status goes with it.
+  await expect
+    .poll(() => bodies)
+    .toEqual([{ totalSupply: 60, perMemberLimit: null, status: 'ACTIVE' }]);
+  await expect(card).toContainText('Live');
+});
+
+test('pausing asks first and says what happens to claimed vouchers', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  await openRewards(
+    page,
+    'BUSINESS_OWNER',
+    catalog([voucher({ status: 'ACTIVE', publishStatus: 'PUBLISHED' })], bodies),
+  );
+  await page
+    .getByRole('article', { name: 'A free latte' })
+    .getByRole('button', { name: 'Pause' })
+    .click();
+  await expect(page.getByRole('alertdialog')).toContainText(
+    'Vouchers already claimed stay usable until they expire',
+  );
+  expect(bodies).toHaveLength(0);
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Pause' }).click();
+  await expect.poll(() => bodies).toEqual([{ status: 'PAUSED' }]);
+});
+
+test('a live reward shows when claims have not opened yet or have closed', async ({ page }) => {
+  const day = 86_400_000;
+  await openRewards(
+    page,
+    'BUSINESS_OWNER',
+    catalog(
+      [
+        voucher({
+          id: 'soon',
+          title: 'Opens soon',
+          status: 'ACTIVE',
+          publishStatus: 'PUBLISHED',
+          startsAt: new Date(Date.now() + 3 * day).toISOString(),
+        }),
+        voucher({
+          id: 'over',
+          title: 'Already over',
+          status: 'ACTIVE',
+          publishStatus: 'PUBLISHED',
+          expiresAt: new Date(Date.now() - day).toISOString(),
+        }),
+      ],
+      [],
+    ),
+  );
+  await expect(page.getByRole('article', { name: 'Opens soon' })).toContainText('Scheduled');
+  await expect(page.getByRole('article', { name: 'Already over' })).toContainText('Claims closed');
+  // Both are published, so they are counted under Live.
+  await expect(page.getByRole('tab', { name: 'Live (2)' })).toBeVisible();
+});
+
+test('the form keeps typed work, clears stale Core errors and echoes VND amounts', async ({
+  page,
+}) => {
+  await openRewards(page, 'BUSINESS_OWNER', (route) =>
+    route.request().method() === 'POST'
+      ? route.fulfill({
+          status: 409,
+          json: { statusCode: 409, message: 'Voucher with code "SALE" already exists' },
+        })
+      : route.fulfill({ json: [] }),
+  );
+  await page.getByRole('button', { name: 'New reward' }).click();
+  await page.getByLabel('Title').fill('Sale');
+  await page.getByRole('button', { name: 'Free drink', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).toContainText('Replace what you entered?');
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
+  await expect(page.getByLabel('Title')).toHaveValue('Sale');
+
+  await page.getByRole('button', { name: 'Amount off', exact: true }).click();
+  await page.getByLabel('Amount off (VND)').fill('5000000');
+  await expect(page.getByText(/= 5\.000\.000/)).toBeVisible();
+  await page.getByLabel('Points to claim').fill('100');
+  await page.getByRole('button', { name: 'Save as draft' }).click();
+  await expect(page.getByText(/already exists/)).toBeVisible();
+  await page.getByLabel('Code').fill('SALE-2');
+  await expect(page.getByText(/already exists/)).toHaveCount(0);
+  await expect(page.getByLabel('Code')).not.toHaveAttribute('aria-invalid', 'true');
+});
+
+test('a draft can still change its code', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  await openRewards(page, 'BUSINESS_OWNER', catalog([voucher()], bodies));
+  await page
+    .getByRole('article', { name: 'A free latte' })
+    .getByRole('button', { name: 'Edit' })
+    .click();
+  await page.getByLabel('Code').fill('FREE-LATTE-M');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect.poll(() => bodies).toHaveLength(1);
+  expect(bodies[0]).toMatchObject({ code: 'FREE-LATTE-M' });
+});
+
+for (const kind of ['Percent off', 'Buy X get Y', 'Custom'])
+  test(`the ${kind} form fits a laptop screen without scrolling`, async ({ page }) => {
+    // A 1440×900 laptop leaves about 820 px for the page once the browser's own bars are drawn.
+    await page.setViewportSize({ width: 1440, height: 820 });
+    await openRewards(page, 'BUSINESS_OWNER', catalog([], []));
+    await page.getByRole('button', { name: 'New reward' }).click();
+    await page.getByRole('button', { name: kind, exact: true }).click();
+    await page.getByLabel('Days after claiming').check();
+    const body = page.locator('[data-panel-body]');
+    await expect(body).toBeVisible();
+    const { scroll, client } = await body.evaluate((el) => ({
+      scroll: el.scrollHeight,
+      client: el.clientHeight,
+    }));
+    expect(scroll).toBeLessThanOrEqual(client);
+  });

@@ -20,12 +20,16 @@ export type BenefitKind =
 export const BENEFIT_SCHEMA = 'octap.benefit.v1';
 
 export const BENEFIT_KINDS: { kind: BenefitKind; label: string; hint: string }[] = [
-  { kind: 'PERCENT_OFF', label: 'Percent off', hint: 'e.g. 20% off, up to 50,000 ₫' },
-  { kind: 'AMOUNT_OFF', label: 'Amount off', hint: 'e.g. 30,000 ₫ off an order' },
+  { kind: 'PERCENT_OFF', label: 'Percent off', hint: `e.g. 20% off, up to ${fmtVnd(50000)}` },
+  { kind: 'AMOUNT_OFF', label: 'Amount off', hint: `e.g. ${fmtVnd(30000)} off an order` },
   { kind: 'FREE_ITEM', label: 'Free item', hint: 'e.g. a free drink or a free upsize' },
   { kind: 'BUY_X_GET_Y', label: 'Buy X get Y', hint: 'e.g. buy 1 get 1 free' },
-  { kind: 'FREE_SHIPPING', label: 'Free delivery', hint: 'e.g. free delivery up to 20,000 ₫' },
-  { kind: 'FIXED_PRICE', label: 'Special price', hint: 'e.g. a combo for 99,000 ₫' },
+  {
+    kind: 'FREE_SHIPPING',
+    label: 'Free delivery',
+    hint: `e.g. free delivery up to ${fmtVnd(20000)}`,
+  },
+  { kind: 'FIXED_PRICE', label: 'Special price', hint: `e.g. a combo for ${fmtVnd(99000)}` },
   { kind: 'CUSTOM', label: 'Custom', hint: 'Any other gift or experience' },
 ];
 
@@ -96,7 +100,7 @@ export const TEMPLATES: { id: string; label: string; draft: Partial<RewardDraft>
   },
   {
     id: 'percent',
-    label: '20% off, up to 50,000 ₫',
+    label: `20% off, up to ${fmtVnd(50000)}`,
     draft: {
       kind: 'PERCENT_OFF',
       title: '20% off your order',
@@ -106,8 +110,13 @@ export const TEMPLATES: { id: string; label: string; draft: Partial<RewardDraft>
   },
   {
     id: 'amount',
-    label: '30,000 ₫ off from 150,000 ₫',
-    draft: { kind: 'AMOUNT_OFF', title: '30,000 ₫ off', value: '30000', minOrderVnd: '150000' },
+    label: `${fmtVnd(30000)} off from ${fmtVnd(150000)}`,
+    draft: {
+      kind: 'AMOUNT_OFF',
+      title: `${fmtVnd(30000)} off`,
+      value: '30000',
+      minOrderVnd: '150000',
+    },
   },
   {
     id: 'free-drink',
@@ -209,7 +218,7 @@ export function toVoucherInput(draft: RewardDraft): {
   switch (draft.kind) {
     case 'PERCENT_OFF':
       if (!positiveAmount(draft.value) || Number(draft.value) > 100)
-        errors.value = 'Enter a percentage between 0 and 100';
+        errors.value = 'Enter a percentage above 0, at most 100';
       optionalVnd('maxDiscountVnd');
       setNumber('maxDiscountVnd', draft.maxDiscountVnd);
       discountType = 'PERCENTAGE';
@@ -311,7 +320,7 @@ export function fromVoucher(voucher: ConsoleVoucher): RewardDraft {
   };
 }
 
-/** One line a customer can read: "20% off · up to 50,000 ₫ · orders from 200,000 ₫". */
+/** One line a customer can read: "20% off · up to 50.000 ₫ · orders from 200.000 ₫". */
 export function describeBenefit(draft: RewardDraft): string {
   const vnd = (value: string) =>
     value.trim() && Number.isFinite(Number(value)) ? fmtVnd(Number(value)) : '…';
@@ -353,7 +362,7 @@ const endOf = (day: string) => fmtDate(`${day}T23:59:59`);
 
 /**
  * How long a member can use the voucher, as they will read it: "Use within 14 days of claiming,
- * by 31/12/2027 at the latest", "Use by 31/12/2027", or "No expiry".
+ * by 31 Dec 2027 at the latest", "Use by 31 Dec 2027", or "No expiry".
  */
 export function describeValidity(draft: Pick<RewardDraft, 'expiry' | 'validForDays' | 'closesOn'>) {
   const days = Number(draft.validForDays);
@@ -364,7 +373,7 @@ export function describeValidity(draft: Pick<RewardDraft, 'expiry' | 'validForDa
   return draft.closesOn ? `Use by ${endOf(draft.closesOn)}` : 'No expiry';
 }
 
-/** When members can claim it: "Claims 01/12/2026 – 31/12/2026", "Claims until …", or open-ended. */
+/** When members can claim it: "Claims 01 Dec 2026 – 31 Dec 2026", "Claims until …", or open-ended. */
 export function describeClaimWindow(draft: Pick<RewardDraft, 'startsOn' | 'closesOn'>) {
   const opens = draft.startsOn ? fmtDate(`${draft.startsOn}T00:00:00`) : '';
   const closes = draft.closesOn ? endOf(draft.closesOn) : '';
@@ -382,14 +391,51 @@ export function describeMemberLimit(draft: Pick<RewardDraft, 'perMemberLimit'>) 
     : 'No per-member limit';
 }
 
-/** Where a reward is in its lifecycle, from Core's `status` and `publishStatus`. */
-export type Stage = 'draft' | 'publishing' | 'failed' | 'live' | 'paused' | 'sold_out';
+/**
+ * Where a reward is in its lifecycle, from Core's `status` and `publishStatus`. A live reward is
+ * also `scheduled` before claims open and `claims_closed` after they close, so the merchant can
+ * tell why nobody is claiming it.
+ */
+export type Stage =
+  | 'draft'
+  | 'publishing'
+  | 'failed'
+  | 'scheduled'
+  | 'live'
+  | 'claims_closed'
+  | 'paused'
+  | 'sold_out';
 
-export function stageOf(voucher: Pick<ConsoleVoucher, 'status' | 'publishStatus'>): Stage {
+export function stageOf(
+  voucher: Pick<ConsoleVoucher, 'status' | 'publishStatus' | 'startsAt' | 'expiresAt'>,
+  now = Date.now(),
+): Stage {
   if (voucher.status === 'DEPLETED') return 'sold_out';
   if (voucher.publishStatus === 'PUBLISHING') return 'publishing';
   if (voucher.status === 'DRAFT') return voucher.publishStatus === 'FAILED' ? 'failed' : 'draft';
-  return voucher.status === 'PAUSED' ? 'paused' : 'live';
+  if (voucher.status === 'PAUSED') return 'paused';
+  if (voucher.expiresAt && Date.parse(voucher.expiresAt) <= now) return 'claims_closed';
+  if (voucher.startsAt && Date.parse(voucher.startsAt) > now) return 'scheduled';
+  return 'live';
+}
+
+/**
+ * The PATCH that sets a published reward's availability. Core keeps a sold-out reward DEPLETED
+ * after a supply-only change, so one that has room again is reactivated in the same request.
+ */
+export function availabilityPatch(
+  voucher: Pick<ConsoleVoucher, 'status' | 'claimedCount'>,
+  totalSupply: number | null,
+  perMemberLimit: number | null,
+): { totalSupply: number | null; perMemberLimit: number | null; status?: 'ACTIVE' } {
+  const reopens =
+    voucher.status === 'DEPLETED' && (totalSupply === null || totalSupply > voucher.claimedCount);
+  return { totalSupply, perMemberLimit, ...(reopens ? { status: 'ACTIVE' as const } : {}) };
+}
+
+/** "= 5.000.000 ₫" under a VND input, so 5000000 and 500000 are easy to tell apart. */
+export function vndEcho(value: string): string | undefined {
+  return /^\d+$/.test(value.trim()) ? `= ${fmtVnd(Number(value))}` : undefined;
 }
 
 /**

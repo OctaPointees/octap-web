@@ -59,6 +59,55 @@ export function Modal({
   );
 }
 
+const panel =
+  'fixed inset-y-0 right-0 z-50 flex h-dvh w-full flex-col bg-base-100 shadow-2xl outline-none transition-transform duration-200 ease-out data-starting-style:translate-x-full data-ending-style:translate-x-full';
+
+/**
+ * A dialog that slides in from the right and takes the full height, for forms too large for a
+ * centered modal. The header and footer stay put; only the body scrolls, and only when the
+ * screen is too small for it.
+ */
+export function SidePanel({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  footer,
+  className,
+}: Omit<ModalProps, 'size'> & { className?: string }) {
+  return (
+    <Dialog.Root open={open} onOpenChange={(o) => onOpenChange(o)}>
+      <Dialog.Portal>
+        <Dialog.Backdrop className={backdrop} />
+        <Dialog.Popup className={cn(panel, 'max-w-5xl', className)}>
+          <div className="flex items-start justify-between gap-4 border-b border-base-300 px-6 py-4">
+            <div>
+              <Dialog.Title className="text-lg font-bold">{title}</Dialog.Title>
+              {description && (
+                <Dialog.Description className="mt-0.5 text-sm opacity-70">
+                  {description}
+                </Dialog.Description>
+              )}
+            </div>
+            <Dialog.Close className="btn btn-ghost btn-sm btn-square" aria-label="Close">
+              <X size={18} />
+            </Dialog.Close>
+          </div>
+          <div data-panel-body className="flex-1 overflow-y-auto px-6 py-3">
+            {children}
+          </div>
+          {footer && (
+            <div className="flex justify-end gap-2 border-t border-base-300 px-6 py-3">
+              {footer}
+            </div>
+          )}
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
 type ConfirmProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
