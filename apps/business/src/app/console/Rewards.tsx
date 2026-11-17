@@ -1,16 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Copy, FileArrowUp, Gift, PencilSimple, Plus, Ticket } from 'phosphor-react';
 import { useState } from 'react';
-import { useConsoleAuth, type ConsoleVoucher } from '@octap/shared/google-auth';
+import type { ConsoleVoucher } from '@octap/services';
+import { useConsoleAuth } from '@octap/shared/google-auth';
 import { Button } from '@/components/shared/Button';
 import { FormField, Segmented, TextInput } from '@/components/shared/Controls';
 import { EmptyState, ErrorState, LoadingBlock, PageHeader } from '@/components/shared/Display';
 import { ConfirmDialog, Modal } from '@/components/shared/Modal';
 import { cn } from '@/utils/cn';
-import { fmtDate, fmtNumber } from '@/utils/format';
+import { fmtNumber } from '@/utils/format';
 import { notify } from '@/utils/toast';
+import { rewardsApi } from './rewards/api';
 import {
   describeBenefit,
+  describeClaimWindow,
+  describeMemberLimit,
+  describeValidity,
   fromVoucher,
   remainingLabel,
   stageOf,
@@ -59,13 +64,13 @@ export default function ConnectedRewards() {
 
   const list = useQuery({
     queryKey: key,
-    queryFn: ({ signal }) => auth.client().listConsoleVouchers(orgId, signal),
+    queryFn: ({ signal }) => rewardsApi(auth).list(orgId, signal),
     refetchInterval: (query) =>
       query.state.data?.some((v) => v.publishStatus === 'PUBLISHING') ? PUBLISH_POLL_MS : false,
   });
   const setStatus = useMutation({
     mutationFn: ({ voucher, status }: { voucher: ConsoleVoucher; status: 'ACTIVE' | 'PAUSED' }) =>
-      auth.client().updateConsoleVoucher(orgId, voucher.id, { status }),
+      rewardsApi(auth).update(orgId, voucher.id, { status }),
     onSuccess: (voucher) => {
       void cache.invalidateQueries({ queryKey: key });
       const stage = stageOf(voucher);
@@ -127,6 +132,7 @@ export default function ConnectedRewards() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {rows?.map((voucher) => {
           const stage = stageOf(voucher);
+          const draft = fromVoucher(voucher);
           const busy = setStatus.isPending && setStatus.variables?.voucher.id === voucher.id;
           return (
             <article
@@ -147,18 +153,23 @@ export default function ConnectedRewards() {
               </div>
               <div>
                 <h3 className="font-semibold">{voucher.title}</h3>
-                <p className="text-xs opacity-70">{describeBenefit(fromVoucher(voucher))}</p>
+                <p className="text-xs opacity-70">{describeBenefit(draft)}</p>
                 <p className="text-xs opacity-50">{voucher.code}</p>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-bold">{fmtNumber(voucher.pointsCost)}</span>
                 <span className="text-sm opacity-60">points</span>
               </div>
-              <p className="text-xs opacity-60">{remainingLabel(voucher)}</p>
-              <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-3 text-xs">
-                <span className="opacity-60">
-                  {voucher.expiresAt ? `Expires ${fmtDate(voucher.expiresAt)}` : 'No expiry'}
-                </span>
+              <div className="flex flex-col gap-0.5 text-xs">
+                <p>{describeValidity(draft)}</p>
+                <p className="opacity-60">{describeClaimWindow(draft)}</p>
+                <p className="opacity-60">
+                  {remainingLabel(voucher)}
+                  {voucher.perMemberLimit !== null &&
+                    ` · ${describeMemberLimit(draft).toLowerCase()}`}
+                </p>
+              </div>
+              <div className="mt-auto flex flex-wrap items-center justify-end gap-2 border-t border-base-300 pt-3 text-xs">
                 <div className="flex flex-wrap gap-1">
                   {!owner || stage === 'publishing' ? (
                     <Button
@@ -261,14 +272,51 @@ export default function ConnectedRewards() {
         title={
           activating?.publishStatus === 'FAILED' ? 'Retry publishing?' : 'Activate this reward?'
         }
-        description="Its title, description, type, points, conditions and dates are published on-chain and can never change. To change them later, create a new reward. Members can claim it once publishing finishes."
+        description="Check it once more: everything under “Locked” is published on-chain and can never change. To change it later, create a new reward. Members can claim it once publishing finishes."
         confirmLabel={activating?.publishStatus === 'FAILED' ? 'Retry' : 'Activate'}
         loading={setStatus.isPending}
         onConfirm={() => activating && setStatus.mutate({ voucher: activating, status: 'ACTIVE' })}
       >
-        {activating && <p className="text-sm font-medium">{activating.title}</p>}
+        {activating && <ActivationSummary voucher={activating} />}
       </ConfirmDialog>
     </>
+  );
+}
+
+/** Everything activation freezes, so a typo (5,000,000 for 50,000) is caught before it is permanent. */
+function ActivationSummary({ voucher }: { voucher: ConsoleVoucher }) {
+  const draft = fromVoucher(voucher);
+  const row = (label: string, value: string) => (
+    <div className="grid grid-cols-[7rem_1fr] gap-2">
+      <dt className="opacity-60">{label}</dt>
+      <dd className="font-medium">{value}</dd>
+    </div>
+  );
+  return (
+    <div className="flex flex-col gap-3 text-sm">
+      <section aria-label="Locked" className="rounded-box border border-warning/40 p-3">
+        <h3 className="mb-2 text-xs font-semibold uppercase opacity-70">Locked</h3>
+        <dl className="flex flex-col gap-1.5">
+          {row('Reward', voucher.title)}
+          {row('Code', voucher.code)}
+          {row('Offer', describeBenefit(draft))}
+          {voucher.description && row('Description', voucher.description)}
+          {row('Points', `${fmtNumber(voucher.pointsCost)} points`)}
+          {row('Claims', describeClaimWindow(draft))}
+          {row('Validity', describeValidity(draft))}
+        </dl>
+      </section>
+      <section aria-label="Editable later" className="rounded-box border border-base-300 p-3">
+        <h3 className="mb-2 text-xs font-semibold uppercase opacity-70">Editable later</h3>
+        <dl className="flex flex-col gap-1.5">
+          {row(
+            'Available',
+            voucher.totalSupply === null ? 'Unlimited' : fmtNumber(voucher.totalSupply),
+          )}
+          {row('Per member', describeMemberLimit(draft))}
+        </dl>
+      </section>
+    </div>
   );
 }
 
@@ -278,7 +326,7 @@ function RestockModal({ voucher, onClose }: { voucher: ConsoleVoucher; onClose: 
   const [add, setAdd] = useState('50');
   const restock = useMutation({
     mutationFn: (total: number) =>
-      auth.client().updateConsoleVoucher(auth.organizationId, voucher.id, { totalSupply: total }),
+      rewardsApi(auth).update(auth.organizationId, voucher.id, { totalSupply: total }),
     onSuccess: (saved) => {
       notify.success('Stock updated', `${fmtNumber(saved.totalSupply ?? 0)} in total`);
       onClose();

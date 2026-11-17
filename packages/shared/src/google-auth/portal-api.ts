@@ -68,48 +68,6 @@ export interface ConsoleCredential {
   scopes: unknown;
   status: string;
 }
-/** A reward as Core's console voucher routes return it (OCT-236). */
-export interface ConsoleVoucher {
-  id: string;
-  organizationId: string;
-  code: string;
-  title: string;
-  description: string | null;
-  pointsCost: number;
-  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_ITEM' | null;
-  discountValue: string | null;
-  terms: Record<string, unknown> | null;
-  /** `PUBLISHING` until the worker freezes the terms on-chain; `FAILED` can be activated again. */
-  publishStatus: 'NOT_PUBLISHED' | 'PUBLISHING' | 'PUBLISHED' | 'FAILED';
-  suiTermsId: string | null;
-  totalSupply: number | null;
-  claimedCount: number;
-  status: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'DEPLETED';
-  startsAt: string | null;
-  expiresAt: string | null;
-  metadata: Record<string, unknown> | null;
-  createdAt: string;
-  updatedAt: string;
-}
-/** A console create is always a DRAFT; `pointsCost` is required (0 for a free reward). */
-export interface ConsoleVoucherInput {
-  code: string;
-  title: string;
-  description?: string;
-  pointsCost: number;
-  discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_ITEM';
-  discountValue?: string;
-  terms?: Record<string, unknown>;
-  totalSupply?: number | null;
-  startsAt?: string | null;
-  expiresAt?: string | null;
-}
-/** Fields to change, or `{ status }` to activate (`ACTIVE`) or pause (`PAUSED`). */
-export type ConsoleVoucherPatch = Partial<Omit<ConsoleVoucherInput, 'discountValue'>> & {
-  /** `null` clears it, e.g. when a draft changes from percent off to a free item. */
-  discountValue?: string | null;
-  status?: 'ACTIVE' | 'PAUSED';
-};
 /** A Core error response: still an `Error`, plus the HTTP status so a form can tell 400 from 403. */
 export class ConsoleApiError extends Error {
   readonly status: number;
@@ -181,6 +139,8 @@ export function createConsoleClient({
   }
   const organizationPath = (id: string) => `/v1/console/organizations/${encodeURIComponent(id)}`;
   return {
+    /** The token-carrying transport, for API modules outside this package (`@octap/services`). */
+    request,
     loginConsoleWithGoogle: (idToken: string, options: { signal?: AbortSignal } = {}) =>
       request<ConsoleIdentity>('/v1/console/auth/google', 'POST', { idToken }, options.signal),
     getConsoleIdentity: (options: { signal?: AbortSignal } = {}) =>
@@ -250,23 +210,6 @@ export function createConsoleClient({
         'GET',
         undefined,
         signal,
-      ),
-    listConsoleVouchers: (id: string, signal?: AbortSignal) =>
-      request<ConsoleVoucher[]>(`${organizationPath(id)}/vouchers`, 'GET', undefined, signal),
-    getConsoleVoucher: (id: string, voucherId: string, signal?: AbortSignal) =>
-      request<ConsoleVoucher>(
-        `${organizationPath(id)}/vouchers/${encodeURIComponent(voucherId)}`,
-        'GET',
-        undefined,
-        signal,
-      ),
-    createConsoleVoucher: (id: string, input: ConsoleVoucherInput) =>
-      request<ConsoleVoucher>(`${organizationPath(id)}/vouchers`, 'POST', input),
-    updateConsoleVoucher: (id: string, voucherId: string, patch: ConsoleVoucherPatch) =>
-      request<ConsoleVoucher>(
-        `${organizationPath(id)}/vouchers/${encodeURIComponent(voucherId)}`,
-        'PATCH',
-        patch,
       ),
     createConsoleInvitation: (id: string, email: string) =>
       request<ConsoleInvitation & { token: string }>(

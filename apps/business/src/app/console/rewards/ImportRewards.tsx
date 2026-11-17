@@ -4,8 +4,9 @@ import { Button } from '@/components/shared/Button';
 import { Modal } from '@/components/shared/Modal';
 import { cn } from '@/utils/cn';
 import { notify } from '@/utils/toast';
-import { describeBenefit, toVoucherInput } from './benefit';
-import { CSV_TEMPLATE, MAX_IMPORT_ROWS, draftsFromCsv, type ImportRow } from './csv';
+import { rewardsApi } from './api';
+import { describeBenefit, describeValidity, toVoucherInput } from './benefit';
+import { CSV_TEMPLATE, MAX_IMPORT_ROWS, columnOf, draftsFromCsv, type ImportRow } from './csv';
 import { coreErrors } from './errors';
 
 type Outcome = { state: 'created' } | { state: 'failed'; message: string };
@@ -23,11 +24,12 @@ export default function ImportRewards({ onClose }: { onClose: () => void }) {
     const problem =
       row.problem ??
       Object.entries(errors)
-        .map(([key, value]) => `${key}: ${value}`)
+        .map(([key, value]) => `${columnOf(key)}: ${value}`)
         .join('; ');
     return { ...row, input, problem: problem || undefined };
   });
-  const ready = checked.filter((row) => row.input && !outcomes[row.line]);
+  // A row with any problem, even one the form would accept (an unclear date), is never created.
+  const ready = checked.filter((row) => row.input && !row.problem && !outcomes[row.line]);
 
   async function createAll() {
     setRunning(true);
@@ -35,7 +37,7 @@ export default function ImportRewards({ onClose }: { onClose: () => void }) {
     // One at a time: rows share an organization, and Core reports each code conflict on its own row.
     for (const row of ready) {
       try {
-        await auth.client().createConsoleVoucher(auth.organizationId, row.input!);
+        await rewardsApi(auth).create(auth.organizationId, row.input!);
         created += 1;
         setOutcomes((current) => ({ ...current, [row.line]: { state: 'created' } }));
       } catch (error) {
@@ -130,7 +132,8 @@ export default function ImportRewards({ onClose }: { onClose: () => void }) {
                       <td>
                         <div className="font-medium">{row.draft.title || '—'}</div>
                         <div className="text-xs opacity-60">
-                          {row.draft.code} · {describeBenefit(row.draft)}
+                          {row.draft.code} · {describeBenefit(row.draft)} ·{' '}
+                          {describeValidity(row.draft)}
                         </div>
                       </td>
                       <td>{row.draft.pointsCost}</td>

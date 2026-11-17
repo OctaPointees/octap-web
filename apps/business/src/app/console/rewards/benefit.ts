@@ -1,5 +1,5 @@
-import type { ConsoleVoucher, ConsoleVoucherInput } from '@octap/shared/google-auth';
-import { fmtNumber, fmtVnd } from '@/utils/format';
+import { MAX_VALID_FOR_DAYS, type ConsoleVoucher, type ConsoleVoucherInput } from '@octap/services';
+import { fmtDate, fmtNumber, fmtVnd } from '@/utils/format';
 
 /**
  * Every reward kind a merchant commonly offers. Core stores three of them as `discountType`
@@ -49,9 +49,15 @@ export interface RewardDraft {
   appliesTo: string;
   /** Empty means unlimited. */
   totalSupply: string;
-  /** `YYYY-MM-DD`, as a date input gives it. */
+  /** Empty means no limit; used vouchers count, cancelled ones don't. */
+  perMemberLimit: string;
+  /** `YYYY-MM-DD`, as a date input gives it. When claims open. */
   startsOn: string;
-  expiresOn: string;
+  /** When claims close; also the latest any member's voucher can be used. */
+  closesOn: string;
+  /** `closes`: every voucher expires when claims close. `days`: each one lasts `validForDays`. */
+  expiry: 'closes' | 'days';
+  validForDays: string;
 }
 
 export type DraftField = keyof RewardDraft;
@@ -74,8 +80,11 @@ export function emptyDraft(kind: BenefitKind = 'PERCENT_OFF'): RewardDraft {
     benefit: '',
     appliesTo: '',
     totalSupply: '',
+    perMemberLimit: '',
     startsOn: '',
-    expiresOn: '',
+    closesOn: '',
+    expiry: 'closes',
+    validForDays: '',
   };
 }
 
@@ -165,10 +174,24 @@ export function toVoucherInput(draft: RewardDraft): {
     !(wholeNumber(draft.totalSupply) && Number(draft.totalSupply) > 0)
   )
     errors.totalSupply = 'Enter a positive whole number, or leave empty for unlimited';
-  for (const key of ['startsOn', 'expiresOn'] as const)
+  if (
+    draft.perMemberLimit.trim() &&
+    !(wholeNumber(draft.perMemberLimit) && Number(draft.perMemberLimit) > 0)
+  )
+    errors.perMemberLimit = 'Enter a positive whole number, or leave empty for no limit';
+  if (
+    draft.expiry === 'days' &&
+    !(
+      wholeNumber(draft.validForDays) &&
+      Number(draft.validForDays) >= 1 &&
+      Number(draft.validForDays) <= MAX_VALID_FOR_DAYS
+    )
+  )
+    errors.validForDays = `Enter a whole number of days from 1 to ${fmtNumber(MAX_VALID_FOR_DAYS)}`;
+  for (const key of ['startsOn', 'closesOn'] as const)
     if (draft[key] && !DATE_PATTERN.test(draft[key])) errors[key] = 'Pick a date';
-  if (draft.startsOn && draft.expiresOn && draft.startsOn > draft.expiresOn)
-    errors.expiresOn = 'Must be on or after the start date';
+  if (draft.startsOn && draft.closesOn && draft.startsOn > draft.closesOn)
+    errors.closesOn = 'Must be on or after the opening date';
   const optionalVnd = (key: 'maxDiscountVnd' | 'minOrderVnd' | 'priceVnd') => {
     if (draft[key].trim() && !wholeNumber(draft[key])) errors[key] = 'Enter an amount in VND';
   };
@@ -240,8 +263,10 @@ export function toVoucherInput(draft: RewardDraft): {
       ...(discountValue ? { discountValue } : {}),
       terms,
       totalSupply: draft.totalSupply.trim() ? Number(draft.totalSupply) : null,
+      perMemberLimit: draft.perMemberLimit.trim() ? Number(draft.perMemberLimit) : null,
       startsAt: draft.startsOn ? dayToIso(draft.startsOn, 'start') : null,
-      expiresAt: draft.expiresOn ? dayToIso(draft.expiresOn, 'end') : null,
+      expiresAt: draft.closesOn ? dayToIso(draft.closesOn, 'end') : null,
+      validForDays: draft.expiry === 'days' ? Number(draft.validForDays) : null,
     },
   };
 }
@@ -278,8 +303,11 @@ export function fromVoucher(voucher: ConsoleVoucher): RewardDraft {
     benefit: text('benefit'),
     appliesTo: text('appliesTo'),
     totalSupply: voucher.totalSupply === null ? '' : String(voucher.totalSupply),
+    perMemberLimit: voucher.perMemberLimit === null ? '' : String(voucher.perMemberLimit),
     startsOn: isoToDay(voucher.startsAt),
-    expiresOn: isoToDay(voucher.expiresAt),
+    closesOn: isoToDay(voucher.expiresAt),
+    expiry: voucher.validForDays ? 'days' : 'closes',
+    validForDays: voucher.validForDays ? String(voucher.validForDays) : '',
   };
 }
 
@@ -320,6 +348,40 @@ export function describeBenefit(draft: RewardDraft): string {
   return parts.join(' · ');
 }
 
+const plural = (n: number, word: string) => `${fmtNumber(n)} ${word}${n === 1 ? '' : 's'}`;
+const endOf = (day: string) => fmtDate(`${day}T23:59:59`);
+
+/**
+ * How long a member can use the voucher, as they will read it: "Use within 14 days of claiming,
+ * by 31/12/2027 at the latest", "Use by 31/12/2027", or "No expiry".
+ */
+export function describeValidity(draft: Pick<RewardDraft, 'expiry' | 'validForDays' | 'closesOn'>) {
+  const days = Number(draft.validForDays);
+  if (draft.expiry === 'days') {
+    const own = `Use within ${wholeNumber(draft.validForDays) && days > 0 ? plural(days, 'day') : '… days'} of claiming`;
+    return draft.closesOn ? `${own}, by ${endOf(draft.closesOn)} at the latest` : own;
+  }
+  return draft.closesOn ? `Use by ${endOf(draft.closesOn)}` : 'No expiry';
+}
+
+/** When members can claim it: "Claims 01/12/2026 – 31/12/2026", "Claims until …", or open-ended. */
+export function describeClaimWindow(draft: Pick<RewardDraft, 'startsOn' | 'closesOn'>) {
+  const opens = draft.startsOn ? fmtDate(`${draft.startsOn}T00:00:00`) : '';
+  const closes = draft.closesOn ? endOf(draft.closesOn) : '';
+  if (opens && closes) return `Claims ${opens} – ${closes}`;
+  if (closes) return `Claims until ${closes}`;
+  if (opens) return `Claims from ${opens}, no closing date`;
+  return 'Claims open, no closing date';
+}
+
+/** "Up to 3 per member", or "No per-member limit". */
+export function describeMemberLimit(draft: Pick<RewardDraft, 'perMemberLimit'>) {
+  const limit = Number(draft.perMemberLimit);
+  return draft.perMemberLimit.trim() && limit > 0
+    ? `Up to ${fmtNumber(limit)} per member`
+    : 'No per-member limit';
+}
+
 /** Where a reward is in its lifecycle, from Core's `status` and `publishStatus`. */
 export type Stage = 'draft' | 'publishing' | 'failed' | 'live' | 'paused' | 'sold_out';
 
@@ -330,7 +392,10 @@ export function stageOf(voucher: Pick<ConsoleVoucher, 'status' | 'publishStatus'
   return voucher.status === 'PAUSED' ? 'paused' : 'live';
 }
 
-/** Once publishing starts, the promise fields are frozen on-chain; only supply can change. */
+/**
+ * Once publishing starts, the promise fields are frozen on-chain; only the supply and the
+ * per-member limit can change.
+ */
 export const isLocked = (voucher: Pick<ConsoleVoucher, 'publishStatus'>) =>
   voucher.publishStatus === 'PUBLISHING' || voucher.publishStatus === 'PUBLISHED';
 
@@ -354,8 +419,10 @@ export function fieldOfCoreError(message: string): DraftField | 'form' {
     [/^pointsCost\b/i, 'pointsCost'],
     [/^discountValue\b|^Percentage discount/i, 'value'],
     [/^totalSupply\b|^Supply cannot/i, 'totalSupply'],
+    [/^perMemberLimit\b/i, 'perMemberLimit'],
+    [/^validForDays\b/i, 'validForDays'],
     [/^startsAt\b/i, 'startsOn'],
-    [/^expiresAt\b|stay valid for at least 24 hours/i, 'expiresOn'],
+    [/^expiresAt\b|stay valid for at least 24 hours/i, 'closesOn'],
   ];
   return rules.find(([pattern]) => pattern.test(message))?.[1] ?? 'form';
 }
