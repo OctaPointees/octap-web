@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { House, Key, PlugsConnected, ShareNetwork, Ticket, UsersThree } from 'phosphor-react';
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
+import { platformAdminLinks } from '@/components/layout/nav';
 import { useMerchantTenant } from '@/queries/merchant';
 
 export default function DeveloperLayout() {
@@ -26,29 +27,9 @@ export default function DeveloperLayout() {
   return (
     <PortalLayout
       subtitle={auth?.selected?.name ?? tenant?.name ?? 'Business'}
-      roleLabel="Business"
-      nav={
-        auth
-          ? [
-              ...nav,
-              { label: 'Organizations', path: '/organizations', icon: House },
-              { label: 'Organization onboarding', path: '/onboarding', icon: House },
-              ...(auth.identity?.user.systemRole === 'SYSTEM_ADMIN'
-                ? [
-                    {
-                      label: 'Platform administration',
-                      path:
-                        import.meta.env.VITE_ADMIN_PORTAL_URL ||
-                        (import.meta.env.DEV ? 'http://localhost:5000/admin' : '/admin'),
-                      icon: House,
-                    },
-                  ]
-                : []),
-            ]
-          : nav
-      }
+      nav={[...nav, ...platformAdminLinks(auth)]}
       useSearch={noSearch}
-      searchPlaceholder="Search developer pages…"
+      searchPlaceholder="Search pages…"
     />
   );
 }

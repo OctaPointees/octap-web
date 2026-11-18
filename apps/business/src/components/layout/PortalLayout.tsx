@@ -1,63 +1,66 @@
-import { ConsoleAccountControls, useConsoleAuth } from '@octap/shared/google-auth';
+import { useConsoleAuth } from '@octap/shared/google-auth';
 import type { ReactNode } from 'react';
 import { Outlet } from 'react-router';
 import MockApiConsole from '../dev/MockApiConsole';
 import MainToolbar, { type SearchResult } from './MainToolbar';
 import SidePanel, { type NavOption } from './SidePanel';
+import { AccountMenu } from './ToolbarMenus';
 
 type Props = {
   subtitle: string;
-  roleLabel: string;
   nav: NavOption[];
   useSearch: (q: string) => { data?: SearchResult[]; isFetching: boolean };
   searchPlaceholder?: string;
   sideFooter?: ReactNode;
+  /** Full-width pages such as the organization picker: no side panel, centered content. */
+  hideSidebar?: boolean;
 };
 
+/**
+ * The window scrolls: the full-width top bar sticks to the top, and the side panel sticks just
+ * below it at the same 1rem gap it has before scrolling (`--toolbar` is the bar's height, its
+ * bottom border included in `h-14`).
+ */
 export default function PortalLayout({
   subtitle,
-  roleLabel,
   nav,
   useSearch,
   searchPlaceholder,
   sideFooter,
+  hideSidebar = false,
 }: Props) {
   const auth = useConsoleAuth();
-  // return (
-  //     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-  //       <MainToolbar nav={nav} useResults={useSearch} placeholder={searchPlaceholder} actions={auth ? <ConsoleAccountControls /> : <MockApiConsole />} />
-  //       <main className="min-h-0 w-full flex-1 overflow-y-auto rounded-box bg-base-200 p-4 md:p-6">
-  //         <div className="mx-auto flex max-w-[1920px] flex-col gap-6">
-  //           <Outlet />
-  //         </div>
-  //       </main>
-  //     </div>
-  // );
 
   return (
-    <div className="app-wrapper flex flex-col gap-2 p-4">
-      <div className="fixed w-full left-0 top-0 p-4 z-10 select-none">
+    <div className="flex min-h-dvh flex-col bg-base-100 [--toolbar:3.5rem]">
+      <header className="sticky top-0 z-30 select-none">
         <MainToolbar
           nav={nav}
           useResults={useSearch}
           subtitle={subtitle}
           placeholder={searchPlaceholder}
-          actions={auth ? <ConsoleAccountControls /> : <MockApiConsole />}
+          actions={
+            <>
+              {!auth && <MockApiConsole />}
+              <AccountMenu />
+            </>
+          }
         />
-      </div>
+      </header>
 
-      <div className="flex gap-6 flex-1 min-h-0 pt-18 overflow-y-scroll">
-        <SidePanel
-          options={nav}
-          roleLabel={roleLabel}
-          footer={sideFooter}
-          className="sticky top-0"
-        />
+      <div className="flex flex-1 gap-6 p-4">
+        {!hideSidebar && (
+          <SidePanel
+            options={nav}
+            footer={sideFooter}
+            className="sticky top-[calc(var(--toolbar)+1rem)] h-[calc(100dvh-var(--toolbar)-2rem)]"
+          />
+        )}
 
-        <main className="flex-1 pr-4 *:max-w-[1920px] flex flex-col gap-4">
-          <Outlet />
-
-          {/* <footer className="mt-32 h-1/3 max-h-80 rounded-box bg-base-200"></footer> */}
+        <main className="min-w-0 flex-1">
+          <div className="mx-auto flex max-w-[1920px] flex-col gap-4">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

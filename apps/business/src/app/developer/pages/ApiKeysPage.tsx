@@ -379,7 +379,9 @@ function ConnectedApiKeysPage() {
                         ))}
                       </div>
                     </td>
-                    <td className="text-xs">{key.createdAt ? fmtDate(key.createdAt) : '—'}</td>
+                    <td className="text-xs">
+                      {key.createdAt ? fmtDate(key.createdAt) : 'Unknown'}
+                    </td>
                     <td className="text-xs">
                       {key.lastUsedAt ? fmtRelative(key.lastUsedAt) : 'Never'}
                     </td>
@@ -450,7 +452,7 @@ function ConnectedApiKeysPage() {
             <label className="flex flex-col gap-1 text-sm">
               Access scope
               <select
-                className="select select-bordered"
+                className="select"
                 value={scope}
                 onChange={(event) => setScope(event.target.value as 'read' | 'write')}
               >

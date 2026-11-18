@@ -74,11 +74,12 @@ test('business Google identity has no implicit organization access or password l
   await expect(page.getByRole('heading', { name: 'Sign in with Google' })).toBeVisible();
   await expect(page.locator('input[type=password]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Continue with Google' }).click();
-  await expect(page.getByText('Test Person')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Create an organization' })).toBeVisible();
   await expect(page.getByText(/no active organization access/)).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('octap.mockdb'))).toBeNull();
   await expect(page.locator('aside')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Skip setup', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Account menu' }).click();
+  await expect(page.getByText('Test Person')).toBeVisible();
   expect(
     await page.evaluate(() =>
       Object.values(localStorage).some(
@@ -86,7 +87,7 @@ test('business Google identity has no implicit organization access or password l
       ),
     ),
   ).toBe(false);
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByRole('menuitem', { name: 'Sign out' }).click();
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
 });
 
@@ -121,13 +122,18 @@ test('multiple organizations require a selection and refresh removes revoked acc
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
-  await expect(page.getByRole('combobox', { name: 'Organization', exact: true })).toHaveValue('');
-  await page.getByRole('combobox', { name: 'Organization', exact: true }).selectOption('developer');
+  // Organizations are cards on a page without the side panel.
+  await expect(page.locator('aside')).toHaveCount(0);
+  await expect(page.getByRole('list', { name: 'Organizations' }).getByRole('listitem')).toHaveCount(
+    2,
+  );
+  await page.getByRole('button', { name: 'Open Developer business' }).click();
   await expect(page).toHaveURL(/\/developer$/);
   await expect(page.getByRole('heading', { name: 'Developer dashboard' })).toBeVisible();
-  await page.getByRole('button', { name: 'Refresh access' }).click();
+  await page.getByRole('button', { name: 'Account menu' }).click();
+  await page.getByRole('menuitem', { name: 'Refresh access' }).click();
   await expect(page.getByText(/no active organization access/i)).toBeVisible();
-  await expect(page.getByRole('combobox', { name: 'Organization', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('list', { name: 'Organizations' })).toHaveCount(0);
 });
 
 test('admin portal denies a regular system user', async ({ page }) => {
@@ -194,11 +200,13 @@ test('new users submit organization requests through Core and see pending approv
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByRole('button', { name: /Individual \/ Household business/ }).click();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByLabel('Organization name', { exact: true }).fill('My Business');
   await page.getByLabel('Organization slug').fill('my-business');
-  await page.getByRole('button', { name: 'Review organization', exact: true }).click();
-  await page.getByRole('button', { name: 'Submit organization request' }).click();
-  await expect(page.getByText('My Business · PENDING')).toBeVisible();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/\/organizations$/);
+  await expect(page.getByText(/submitted for approval/)).toBeVisible();
   await page.screenshot({ path: 'test-results/organization-onboarding.png', fullPage: true });
   await expect(page.getByText(/submitted for approval/)).toBeVisible();
 });
@@ -289,11 +297,12 @@ test('an owner reaches settings and team while invitation links contain a one-ti
   await expect(page.getByLabel('Invitation link', { exact: true })).toHaveValue(
     `http://localhost:5180/?invitation=${'b'.repeat(64)}`,
   );
-  await page.getByRole('link', { name: 'Organization onboarding', exact: true }).click();
+  await page.getByRole('button', { name: /^Switch organization/ }).click();
+  await page.getByRole('menuitem', { name: 'Organization onboarding', exact: true }).click();
   await expect(page.locator('aside')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Skip setup', exact: true }).click();
-  await expect(page).toHaveURL(/\/merchant$/);
-  await expect(page.locator('aside')).toBeVisible();
+  await page.getByRole('link', { name: 'Back to organizations' }).click();
+  await expect(page).toHaveURL(/\/organizations$/);
+  await expect(page.getByRole('list', { name: 'Organizations' })).toBeVisible();
 });
 
 test('invited Google user accepts and enters the Developer portal', async ({ page }) => {
@@ -462,19 +471,19 @@ test('organization setup offers both types and company registration is required 
   ).toBeVisible();
   await page.screenshot({ path: 'test-results/organization-type-selection.png', fullPage: true });
   await page.getByRole('button', { name: /Company \(registered legal entity\)/ }).click();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByLabel('Organization name', { exact: true }).fill('Brand');
   await page.getByLabel('Organization slug').fill('registered-company');
-  await page.getByRole('button', { name: 'Review organization', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Review your organization' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Submit', exact: true })).toHaveCount(0);
   expect(requests).toBe(0);
   await page.getByLabel('Company legal name').fill('Registered Company');
   await page.getByLabel('Business registration / tax number').fill('0123456789');
-  await page.getByRole('button', { name: 'Review organization', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Review your organization' })).toBeVisible();
-  await page.getByRole('button', { name: 'Submit organization request' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Organization request submitted', exact: true }),
-  ).toBeVisible();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Submit', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/\/organizations$/);
+  await expect(page.getByText(/submitted for approval/)).toBeVisible();
   expect(requests).toBe(1);
 });
 
@@ -498,19 +507,19 @@ test('individual setup masks CCCD during review and can go back without losing d
   await page.goto('/');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await page.getByRole('button', { name: /Individual \/ Household business/ }).click();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByLabel('Organization name', { exact: true }).fill('Household');
   await page.getByLabel('Organization slug').fill('household');
   await page.getByLabel('CCCD number (optional)').fill('000000000001');
-  await page.getByRole('button', { name: 'Review organization', exact: true }).click();
-  await expect(page.getByText('••••••••0001 — not verified')).toBeVisible();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(page.getByText('••••••••0001 (not verified)')).toBeVisible();
   await expect(page.getByText('000000000001', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(page.getByLabel('Organization name', { exact: true })).toHaveValue('Household');
-  await page.getByRole('button', { name: 'Review organization', exact: true }).click();
-  await page.getByRole('button', { name: 'Submit organization request' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Organization request submitted', exact: true }),
-  ).toBeVisible();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/\/organizations$/);
+  await expect(page.getByText(/submitted for approval/)).toBeVisible();
   expect(
     await page.evaluate(() =>
       Object.values(localStorage).some((value) => value.includes('000000000001')),
@@ -601,7 +610,8 @@ test('real Owner routes keep the shell mounted and report unconnected modules', 
   hold = false;
   release!();
   await expect(page.getByRole('button', { name: 'Save profile' })).toBeVisible();
-  await page.getByRole('button', { name: 'Refresh access', exact: true }).click();
+  await page.getByRole('button', { name: 'Account menu' }).click();
+  await page.getByRole('menuitem', { name: 'Refresh access', exact: true }).click();
   await expect(page.getByText('Access refreshed')).toBeVisible();
   await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
   // Rewards is connected since OCT-283 (tests/google-login/rewards.spec.ts); Campaigns is not yet.

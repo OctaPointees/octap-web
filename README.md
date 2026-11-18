@@ -62,7 +62,8 @@ business app's default port. Explicit CLI port overrides take precedence.
   Google identity to accept and are one-time.
 - CCCD can be saved or updated by an Owner and is encrypted by Core. Responses are masked;
   CCCD and business registration verification are not implemented.
-- Google credentials stay in memory. Reloading requires sign-in again; account/organization
+- Google credentials stay in memory. A reload signs in again silently through Google's
+  automatic sign-in when it can (otherwise the login page shows); account/organization
   changes clear query caches. The real Web flows do not use the OctaP SDK.
 
 | Setting                    | App            | Purpose                                                                 |

@@ -16,6 +16,40 @@ import {
   type ConsoleStaff,
   type OrganizationApplication,
 } from './portal-api';
+import { disableGoogleAutoSelect, silentGoogleSignIn } from './client';
+
+/**
+ * Reload survival without storing credentials: a non-secret "signed in here before" flag
+ * (localStorage, so new tabs try too) and the tab's selected organization (sessionStorage).
+ * The Google ID token itself stays in memory; a reload asks Google for a fresh one.
+ */
+const resumeKeys = (portal: string) => ({
+  flag: `octap.console.${portal}.signedIn`,
+  organization: `octap.console.${portal}.organization`,
+});
+const stored = {
+  get: (area: 'local' | 'session', key: string) => {
+    try {
+      return (area === 'local' ? localStorage : sessionStorage).getItem(key) ?? '';
+    } catch {
+      return '';
+    }
+  },
+  set: (area: 'local' | 'session', key: string, value: string) => {
+    try {
+      (area === 'local' ? localStorage : sessionStorage).setItem(key, value);
+    } catch {
+      /* Storage can be unavailable (private mode, blocked site data): resume just won't happen. */
+    }
+  },
+  remove: (area: 'local' | 'session', key: string) => {
+    try {
+      (area === 'local' ? localStorage : sessionStorage).removeItem(key);
+    } catch {
+      /* As above. */
+    }
+  },
+};
 
 interface Data {
   organization?: ConsoleOrganization;
@@ -56,6 +90,15 @@ export function useConsoleController({
     () => new URLSearchParams(location.search).get('invitation') ?? '',
   );
   const [inviteLink, setInviteLink] = useState('');
+  const keys = resumeKeys(portal);
+  const [resuming, setResuming] = useState(
+    () => !!clientId && stored.get('local', keys.flag) === '1',
+  );
+  const resumeAttempt = useRef<ReturnType<typeof silentGoogleSignIn>>(undefined);
+  const forgetResume = useCallback(() => {
+    stored.remove('local', keys.flag);
+    stored.remove('session', keys.organization);
+  }, [keys.flag, keys.organization]);
   const selected = identity?.organizations.find((org) => org.organizationId === organizationId);
   const owner =
     (data.organization?.id === selected?.organizationId
@@ -74,6 +117,7 @@ export function useConsoleController({
   const signedIn = useCallback(
     (result: ConsoleIdentity, token: string) => {
       credential.current = token;
+      stored.set('local', keys.flag, '1');
       setIdentity(result);
       setError('');
       const only = result.organizations.length === 1 ? result.organizations[0] : undefined;
@@ -91,10 +135,50 @@ export function useConsoleController({
         { replace: true },
       );
     },
-    [invitation, navigate, portal],
+    [invitation, navigate, portal, keys.flag],
   );
 
+  // On load after an earlier sign-in, ask Google for a fresh token instead of the login page.
+  // The attempt lives in a ref so StrictMode's double effect does not prompt Google twice.
+  useEffect(() => {
+    if (!resuming) return;
+    let active = true;
+    resumeAttempt.current ??= silentGoogleSignIn({ clientId, apiBaseUrl });
+    void resumeAttempt.current.result.then((result) => {
+      if (!active) return;
+      resumeAttempt.current = undefined;
+      if (result) {
+        credential.current = result.credential;
+        setIdentity(result.identity);
+        const saved = stored.get('session', keys.organization);
+        const orgs = result.identity.organizations;
+        // The reloaded URL stays: route guards send the user on if this organization is gone.
+        setOrganizationId(
+          orgs.some((org) => org.organizationId === saved)
+            ? saved
+            : orgs.length === 1
+              ? orgs[0].organizationId
+              : '',
+        );
+      } else forgetResume();
+      setResuming(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [resuming, clientId, apiBaseUrl, keys.organization, forgetResume]);
+
+  useEffect(() => {
+    if (identity && organizationId) stored.set('session', keys.organization, organizationId);
+  }, [identity, organizationId, keys.organization]);
+
+  function cancelResume() {
+    resumeAttempt.current?.cancel();
+  }
+
   function signOut() {
+    forgetResume();
+    disableGoogleAutoSelect();
     credential.current = '';
     setIdentity(undefined);
     setData({});
@@ -142,9 +226,9 @@ export function useConsoleController({
         if (platformView) {
           if (identity.user.systemRole === 'SYSTEM_ADMIN')
             next.applications = await client.listPlatformOrganizationRequests(signal);
-        } else if (location.pathname === '/onboarding') {
-          next.applications = await client.listConsoleOrganizationRequests(signal);
-        } else if (selected) {
+        } else if (location.pathname === '/organizations') {
+          // Nothing to load: the list reads your requests through useOrganizationRequests().
+        } else if (selected && location.pathname !== '/onboarding') {
           next.organization = await client.getConsoleOrganization(selected.organizationId, signal);
           if (
             location.pathname === '/merchant/team' &&
@@ -265,6 +349,8 @@ export function useConsoleController({
     setInviteLink,
     signedIn,
     signOut,
+    resuming,
+    cancelResume,
     perform,
     fields,
     choose,

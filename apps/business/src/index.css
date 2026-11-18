@@ -49,3 +49,7 @@ body {
 @utility app-wrapper {
   @apply w-full h-full;
 }
+
+@utility place-center {
+  @apply items-center justify-center;
+}

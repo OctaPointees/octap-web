@@ -25,12 +25,15 @@ export function RequireRoles({ merchantRoles = [] }: { merchantRoles?: MerchantR
       return <Navigate to={auth.owner ? '/merchant' : '/developer'} replace />;
     if (!auth.data.organization)
       return (
-        <>
-          <p role={auth.error ? 'alert' : 'status'}>
-            {auth.error || 'Loading current organization access…'}
-          </p>
+        <div className="flex place-center flex-col h-full">
+          <div className="flex flex-col place-center w-1/3 h-1/3 gap-12 bg-base-200/58 backdrop-blur-2xl rounded-box">
+            <img src="/favicon.svg" className="size-30" />
+            <span className="loading loading-spinner loading-lg" />
+            Fetching the latest data for you! Hang tight!
+          </div>
+
           {auth.error && <ConsoleAccountControls />}
-        </>
+        </div>
       );
     return <Outlet />;
   }
