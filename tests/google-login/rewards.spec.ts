@@ -500,6 +500,53 @@ test('restocking a sold-out reward puts it back live', async ({ page }) => {
   await expect(card).toContainText('Live');
 });
 
+test('Edit availability shows a Core refusal about a field it does not display', async ({
+  page,
+}) => {
+  const live = voucher({ status: 'ACTIVE', publishStatus: 'PUBLISHED', totalSupply: 10 });
+  await openRewards(page, 'BUSINESS_OWNER', (route) =>
+    route.request().method() === 'PATCH'
+      ? route.fulfill({
+          status: 400,
+          json: {
+            statusCode: 400,
+            message: 'A voucher must stay valid for at least 24 hours to be activated',
+          },
+        })
+      : catalog([live], [])(route),
+  );
+  await page
+    .getByRole('article', { name: 'A free latte' })
+    .getByRole('button', { name: 'Edit availability' })
+    .click();
+  await page.getByLabel('Number available').fill('20');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('at least 24 hours');
+});
+
+test('a sold-out reward whose claims have closed offers no restock', async ({ page }) => {
+  await openRewards(
+    page,
+    'BUSINESS_OWNER',
+    catalog(
+      [
+        voucher({
+          status: 'DEPLETED',
+          publishStatus: 'PUBLISHED',
+          totalSupply: 10,
+          claimedCount: 10,
+          expiresAt: new Date(Date.now() - 86_400_000).toISOString(),
+        }),
+      ],
+      [],
+    ),
+  );
+  const card = page.getByRole('article', { name: 'A free latte' });
+  await expect(card).toContainText('Sold out');
+  await expect(card.getByRole('button', { name: 'View' })).toBeVisible();
+  await expect(card.getByRole('button', { name: 'Restock' })).toHaveCount(0);
+});
+
 test('pausing asks first and says what happens to claimed vouchers', async ({ page }) => {
   const bodies: Record<string, unknown>[] = [];
   await openRewards(

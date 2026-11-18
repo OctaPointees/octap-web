@@ -391,6 +391,14 @@ export function describeMemberLimit(draft: Pick<RewardDraft, 'perMemberLimit'>) 
     : 'No per-member limit';
 }
 
+/** Whether a reward's claims have closed: its `expiresAt` has passed. */
+export function claimsClosed(
+  voucher: Pick<ConsoleVoucher, 'expiresAt'>,
+  now = Date.now(),
+): boolean {
+  return voucher.expiresAt !== null && Date.parse(voucher.expiresAt) <= now;
+}
+
 /**
  * Where a reward is in its lifecycle, from Core's `status` and `publishStatus`. A live reward is
  * also `scheduled` before claims open and `claims_closed` after they close, so the merchant can
@@ -414,7 +422,7 @@ export function stageOf(
   if (voucher.publishStatus === 'PUBLISHING') return 'publishing';
   if (voucher.status === 'DRAFT') return voucher.publishStatus === 'FAILED' ? 'failed' : 'draft';
   if (voucher.status === 'PAUSED') return 'paused';
-  if (voucher.expiresAt && Date.parse(voucher.expiresAt) <= now) return 'claims_closed';
+  if (claimsClosed(voucher, now)) return 'claims_closed';
   if (voucher.startsAt && Date.parse(voucher.startsAt) > now) return 'scheduled';
   return 'live';
 }

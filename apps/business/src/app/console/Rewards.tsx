@@ -19,6 +19,7 @@ import { notify } from '@/utils/toast';
 import { rewardsApi } from './rewards/api';
 import {
   availabilityPatch,
+  claimsClosed,
   describeBenefit,
   describeClaimWindow,
   describeMemberLimit,
@@ -98,7 +99,9 @@ export default function ConnectedRewards() {
           ? 'Publishing on-chain'
           : stage === 'paused'
             ? 'Reward paused'
-            : 'Reward is live',
+            : stage === 'live'
+              ? 'Reward is live'
+              : `Reward resumed: ${STAGES[stage].label}`,
         voucher.title,
       );
       setActivating(null);
@@ -183,6 +186,8 @@ export default function ConnectedRewards() {
           const KindIcon = KIND_ICONS[draft.kind];
           const busy = setStatus.isPending && setStatus.variables?.voucher.id === voucher.id;
           const published = PUBLISHED.includes(stage);
+          // Core refuses to reopen a reward whose claims have closed, so a sold-out one stays so.
+          const closed = claimsClosed(voucher);
           const view = () => setForm({ kind: 'edit', voucher, readOnly: true });
           return (
             <article
@@ -269,15 +274,17 @@ export default function ConnectedRewards() {
                             </Button>
                           )
                         )}
-                        <Button
-                          className={cn(
-                            'btn-xs',
-                            stage === 'sold_out' ? 'btn-primary' : 'btn-ghost',
-                          )}
-                          onClick={() => setAvailability(voucher)}
-                        >
-                          {stage === 'sold_out' ? 'Restock' : 'Edit availability'}
-                        </Button>
+                        {!(stage === 'sold_out' && closed) && (
+                          <Button
+                            className={cn(
+                              'btn-xs',
+                              stage === 'sold_out' ? 'btn-primary' : 'btn-ghost',
+                            )}
+                            onClick={() => setAvailability(voucher)}
+                          >
+                            {stage === 'sold_out' ? 'Restock' : 'Edit availability'}
+                          </Button>
+                        )}
                         <Button className="btn-ghost btn-xs" onClick={view}>
                           View
                         </Button>
@@ -450,6 +457,9 @@ function AvailabilityDialog({
       ? 'Enter a positive whole number, or leave empty for no limit'
       : undefined;
   const fromCore = coreErrors(save.error);
+  // Core can refuse for a field this dialog doesn't show (claims close within 24 h): show it here.
+  const { totalSupply: coreTotal, perMemberLimit: coreLimit, ...otherCore } = fromCore;
+  const coreOther = Object.values(otherCore).find(Boolean);
   const soldOut = (fresh ?? voucher).status === 'DEPLETED';
   const edit = (next: { total?: string; limit?: string }) => {
     setEdits((value) => ({ ...value, ...next }));
@@ -485,6 +495,11 @@ function AvailabilityDialog({
         <LoadingBlock rows={2} />
       ) : (
         <div className="flex flex-col gap-4">
+          {coreOther && (
+            <p role="alert" className="alert alert-error alert-soft text-sm">
+              {coreOther}
+            </p>
+          )}
           {soldOut && (
             <p className="alert alert-warning alert-soft text-sm">
               Sold out. A number above {fmtNumber(claimed)} reopens claims.
@@ -492,14 +507,14 @@ function AvailabilityDialog({
           )}
           <FormField
             label="Number available"
-            error={totalError ?? fromCore.totalSupply ?? fromCore.form}
+            error={totalError ?? coreTotal}
             hint={`${remainingLabel(fresh)}. Empty = unlimited.`}
           >
             <TextInput
               value={total}
               inputMode="numeric"
               placeholder="Unlimited"
-              invalid={Boolean(totalError ?? fromCore.totalSupply)}
+              invalid={Boolean(totalError ?? coreTotal)}
               onChange={(event) => edit({ total: event.target.value })}
             />
           </FormField>
@@ -518,14 +533,14 @@ function AvailabilityDialog({
           </div>
           <FormField
             label="Per-member limit"
-            error={limitError ?? fromCore.perMemberLimit}
+            error={limitError ?? coreLimit}
             hint="Empty = no limit. Lowering it only stops new claims."
           >
             <TextInput
               value={limit}
               inputMode="numeric"
               placeholder="No limit"
-              invalid={Boolean(limitError ?? fromCore.perMemberLimit)}
+              invalid={Boolean(limitError ?? coreLimit)}
               onChange={(event) => edit({ limit: event.target.value })}
             />
           </FormField>
