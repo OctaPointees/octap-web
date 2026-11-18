@@ -14,7 +14,6 @@ import {
   type ConsoleOrganization,
   type ConsoleInvitation,
   type ConsoleStaff,
-  type ConsoleCredential,
   type OrganizationApplication,
 } from './portal-api';
 
@@ -22,7 +21,6 @@ interface Data {
   organization?: ConsoleOrganization;
   staff?: ConsoleStaff[];
   invitations?: ConsoleInvitation[];
-  credentials?: ConsoleCredential[];
   applications?: OrganizationApplication[];
 }
 const destination = (org: ConsoleIdentity['organizations'][number]) =>
@@ -157,8 +155,6 @@ export function useConsoleController({
               client.listConsoleInvitations(selected.organizationId, signal),
             ]);
           }
-          if (location.pathname === '/developer/api-keys')
-            next.credentials = await client.listConsoleCredentials(selected.organizationId, signal);
           if (
             next.organization.persona === 'BUSINESS_DEVELOPER' &&
             location.pathname.startsWith('/merchant')

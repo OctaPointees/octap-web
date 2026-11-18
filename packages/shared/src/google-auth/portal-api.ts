@@ -61,13 +61,6 @@ export interface ConsoleMember {
     observedAt: string;
   };
 }
-export interface ConsoleCredential {
-  id: string;
-  name: string;
-  keyPrefix: string;
-  scopes: unknown;
-  status: string;
-}
 /** A Core error response: still an `Error`, plus the HTTP status so a form can tell 400 from 403. */
 export class ConsoleApiError extends Error {
   readonly status: number;
@@ -203,13 +196,6 @@ export function createConsoleClient({
         `${organizationPath(id)}/staff/${encodeURIComponent(userId)}`,
         'PATCH',
         { status },
-      ),
-    listConsoleCredentials: (id: string, signal?: AbortSignal) =>
-      request<ConsoleCredential[]>(
-        `${organizationPath(id)}/api-credentials`,
-        'GET',
-        undefined,
-        signal,
       ),
     createConsoleInvitation: (id: string, email: string) =>
       request<ConsoleInvitation & { token: string }>(
