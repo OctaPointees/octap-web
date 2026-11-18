@@ -45,8 +45,14 @@ is no bootstrap form in this Web delivery. Ownership transfer remains OCT-208.
   active organizations. Legacy Manager/Admin/Staff/Viewer roles are not inferred as Developers.
 - A preexisting email account requires controlled administrator-assisted subject linking;
   the login endpoint cannot attach itself to an existing privileged account.
-- Credentials remain in memory and expire with Google's ID token. Reloading requires
-  sign-in; Refresh access re-verifies Google and reads current Core permissions.
+- Credentials remain in memory and expire with Google's ID token. On reload the portal
+  asks Google for a fresh ID token without a click (automatic sign-in, `auto_select`) and
+  verifies it with Core; it stays on the reloaded page and selected organization. Only a
+  "signed in here before" flag (localStorage) and the tab's organization id (sessionStorage)
+  are stored, never a credential. If Google cannot sign in silently (no Google session,
+  dismissed prompt, browser rate limits), the login page is shown. Sign out clears both
+  and calls `disableAutoSelect`. Refresh access re-verifies Google and reads current Core
+  permissions.
 
 ## Portal routes and onboarding
 
@@ -116,8 +122,9 @@ mode. The original sample charts, analytics and password-demo flow remain availa
 only with `VITE_ENABLE_DEMO_AUTH=true`. Campaigns, points, rewards, customer member
 directory, full governance, credential issuance and chain program provisioning remain
 separate features; approval here establishes portal access, not a provisioned Sui program.
-Lists currently return at most 100 records. A page reload requires Google sign-in
-again because provider credentials are never persisted in browser storage.
+Lists currently return at most 100 records. Provider credentials are never persisted in
+browser storage: a page reload signs in again through Google's automatic sign-in, or
+shows the login page when Google cannot do that silently.
 
 ## Verification
 

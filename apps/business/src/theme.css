@@ -1,9 +1,9 @@
 @plugin "daisyui/theme" {
-  name: 'dark';
-  default: false;
+  name: 'octap';
+  default: true;
   prefersdark: false;
 
-  color-scheme: dark;
+  color-scheme: light;
   --radius-selector: 0.4rem;
   --radius-field: 0.4rem;
   --radius-box: 0.7rem;
@@ -15,36 +15,42 @@
   --depth: 0;
   --noise: 0;
 
+  /* Brand */
   --color-primary: #9f0261;
   --color-primary-content: #ffffff;
 
-  --color-secondary: #002b49;
+  /* Deep navy: secondary actions and dark surfaces, a cool anchor for the magenta. */
+  --color-secondary: #13294b;
   --color-secondary-content: #ffffff;
 
-  --color-accent: #33bbf6;
-  --color-accent-content: #0d1b2a;
+  /* Electric iris: highlights, focus moments, magenta-to-iris gradients. */
+  --color-accent: #5b4fe9;
+  --color-accent-content: #ffffff;
 
-  --color-neutral: #8c8f96;
-  --color-neutral-content: #121212;
+  /* Plum charcoal: neutral buttons, tooltips, kbd and badges. */
+  --color-neutral: #2b2533;
+  --color-neutral-content: #f7f5fa;
 
-  --color-success: #88c057;
-  --color-success-content: #112200;
+  /* Status */
+  --color-info: #2563eb;
+  --color-info-content: #ffffff;
 
-  --color-warning: #f39c12;
-  --color-warning-content: #1a0f00;
+  --color-success: #15803d;
+  --color-success-content: #ffffff;
 
-  --color-error: #d9383a;
+  --color-warning: #b45309;
+  --color-warning-content: #ffffff;
+
+  --color-error: #dc2626;
   --color-error-content: #ffffff;
 
-  --color-info: #33bbf6;
-  --color-info-content: #00121d;
-
+  /* Surfaces: white cards on a barely lavender page, borders in a cool plum gray. */
   --color-base-100: #ffffff;
-  --color-base-200: #fbfbfb;
-  --color-base-300: #f3f0de;
+  --color-base-200: #f8f7fa;
+  --color-base-300: #e9e5ee;
+  --color-base-content: #1a1523;
 
-  --color-base-shadow: #aaaaaa;
-  --color-base-content: #000000;
+  --color-base-shadow: #1a152314;
 
   --font-sans: 'Google Sans';
   --font-mono: 'Space Mono';

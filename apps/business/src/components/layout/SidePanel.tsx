@@ -1,11 +1,6 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
-import { ArrowsLeftRight, SignOut, type Icon } from 'phosphor-react';
-import { NavLink, useLocation, useNavigate } from 'react-router';
-import { useSession } from '../../queries/useSession';
-import { authService } from '../../services/auth.service';
+import { ArrowSquareOut, type Icon } from 'phosphor-react';
+import { NavLink } from 'react-router';
 import { cn } from '../../utils/cn';
-import { toTitle } from '../../utils/format';
-import { Button } from '../shared/Button';
 
 export type NavOption = {
   label: string;
@@ -14,92 +9,69 @@ export type NavOption = {
   /** Count badge, e.g. items awaiting review. */
   badge?: number;
   end?: boolean;
+  /** Another app (e.g. the admin portal): listed apart from this portal's pages. */
+  external?: boolean;
 
   active?: (path: string) => boolean;
 };
 
 type Props = {
   options: NavOption[];
-  roleLabel: string;
   footer?: React.ReactNode;
 } & React.ComponentProps<'aside'>;
 
-export default function SidePanel({ options, roleLabel, footer, className }: Props) {
-  const session = useSession();
-  const auth = useConsoleAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const user = session?.user;
+/** Labels hide on md–lg, where the panel is an icon rail; they stay as the accessible name. */
+const label = 'truncate max-lg:sr-only';
+const row = 'btn btn-block h-11 justify-between px-4 max-lg:justify-center max-lg:px-0 font-medium';
 
-  const isDeveloperMode = location.pathname.startsWith('/developer');
-  const isOwner = ['owner'].includes(user?.merchantRole ?? '');
-
-  const clss = cn(
-    'flex w-80 shrink-0 flex-col max-lg:hidden p-3 rounded-box bg-primary text-primary-content',
-    className,
-  );
+export default function SidePanel({ options, footer, className }: Props) {
+  const pages = options.filter((opt) => !opt.external);
+  const external = options.filter((opt) => opt.external);
 
   return (
     <aside
-      className={clss}
+      className={cn(
+        'flex w-72 shrink-0 flex-col gap-2 overflow-y-auto rounded-box bg-primary p-3 text-primary-content max-md:hidden max-lg:w-18',
+        className,
+      )}
       style={{
         background: 'linear-gradient(165deg, var(--color-primary) 0%, #a2007b 48%, #7a1068 100%)',
       }}
     >
-      <div className="flex items-center gap-4 rounded-field bg-base-100 text-base-content p-2">
-        <img
-          src={user?.avatarUrl || '/icons/logo_light.png'}
-          className="size-16 rounded-box object-cover"
-          alt=""
-        />
-        <div className="min-w-0">
-          <div className="text-sm">
-            {user?.merchantRole ? `${roleLabel} ${toTitle(user.merchantRole)}` : roleLabel}
-          </div>
-          <div className="truncate font-bold">{user?.displayName}</div>
-          <div className="truncate text-xs italic opacity-67">{user?.email}</div>
-        </div>
-      </div>
-
-      {isOwner && (
-        <Button
-          className="btn-block justify-start btn-primary justify-between mt-2"
-          onClick={() => navigate(isDeveloperMode ? '/merchant' : '/developer')}
-        >
-          Switch to {isDeveloperMode ? 'Business' : 'Developer'} mode
-          <ArrowsLeftRight size="1.5em" />
-        </Button>
-      )}
-
-      <div className="border-b-2 border-dashed border-primary-content/67 my-2"></div>
-
-      <nav className="space-y-1">
-        {options.map((opt) => (
-          <NavLink key={opt.path} to={opt.path} end={opt.end}>
+      {/* Switching between the Business and Developer panels lives in the top bar. */}
+      <nav aria-label="Pages" className="flex flex-col gap-1">
+        {pages.map((opt) => (
+          <NavLink key={opt.path} to={opt.path} end={opt.end} title={opt.label}>
             {({ isActive: pathActive }) => {
               const isActive = opt.active ? opt.active(opt.path) : pathActive;
 
               return (
                 <span
                   className={cn(
-                    'btn btn-block justify-between p-4',
-                    isActive ? '' : 'btn-ghost not-hover:text-white',
+                    row,
+                    isActive
+                      ? 'border-none bg-base-100 text-primary shadow-sm'
+                      : 'btn-ghost text-primary-content hover:bg-primary-content/15 hover:text-primary-content border-none',
                   )}
                 >
-                  <span className="flex items-center gap-2">
-                    {opt.label}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className={label}>{opt.label}</span>
                     {!!opt.badge && (
                       <span
                         className={cn(
-                          'badge badge-sm',
-                          isActive ? 'badge-neutral' : 'badge-primary',
+                          'badge badge-sm max-lg:hidden',
+                          isActive ? 'badge-primary' : 'badge-neutral',
                         )}
                       >
                         {opt.badge}
                       </span>
                     )}
                   </span>
-                  <opt.icon size="1.8em" weight={isActive ? 'fill' : 'regular'} />
+                  <opt.icon
+                    size="1.4em"
+                    weight={isActive ? 'fill' : 'regular'}
+                    className="shrink-0"
+                  />
                 </span>
               );
             }}
@@ -107,21 +79,34 @@ export default function SidePanel({ options, roleLabel, footer, className }: Pro
         ))}
       </nav>
 
-      <div className="flex-1"></div>
+      <div className="flex-1" />
 
       {footer}
 
-      <Button
-        className="btn-block btn-soft btn-error justify-between"
-        onClick={() =>
-          auth
-            ? auth.signOut()
-            : authService.logout().then(() => navigate('/login', { replace: true }))
-        }
-      >
-        Log-out
-        <SignOut size="1.8em" />
-      </Button>
+      {external.length > 0 && (
+        <nav
+          aria-label="Other apps"
+          className="flex flex-col gap-1 border-t border-primary-content/25 pt-2"
+        >
+          {external.map((opt) => (
+            <a
+              key={opt.path}
+              href={opt.path}
+              title={opt.label}
+              className={cn(
+                row,
+                'btn-ghost border-none text-sm text-primary-content/85 hover:bg-primary-content/15 hover:text-primary-content',
+              )}
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <opt.icon size="1.2em" className="shrink-0 max-lg:hidden" />
+                <span className={label}>{opt.label}</span>
+              </span>
+              <ArrowSquareOut size="1.2em" className="shrink-0" aria-hidden />
+            </a>
+          ))}
+        </nav>
+      )}
     </aside>
   );
 }

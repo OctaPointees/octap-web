@@ -1,11 +1,14 @@
+import { ArrowLeft } from 'phosphor-react';
 import { OrganizationSetup } from './OrganizationSetup';
 import { OrganizationProfileForm } from './OrganizationProfileForm';
+import { OrganizationPicker } from './OrganizationPicker';
+import { OrganizationRequestList } from './OrganizationRequests';
 import { organizationTypeLabel } from './organization-types';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useConsoleAuth } from './console-session';
 const destination = (org: { persona: string }) =>
   org.persona === 'BUSINESS_OWNER' ? '/merchant' : '/developer';
-export function ConsoleScreen() {
+export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = {}) {
   const auth = useConsoleAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,8 +40,7 @@ export function ConsoleScreen() {
     portal === 'business' && (!selected || location.pathname === '/organizations');
   const onboarding = portal === 'business' && location.pathname === '/onboarding';
   const allowedPaths = ['/merchant', '/merchant/settings', '/merchant/team', '/developer'];
-
-  return (
+  const alerts = (
     <>
       {error && (
         <p role="alert" className="alert alert-error">
@@ -50,8 +52,35 @@ export function ConsoleScreen() {
           {notice}
         </p>
       )}
-      {loading && <p role="status">Loading current access and organization data…</p>}
-      <section className="bg-base-100 border border-base-300 rounded-box p-6 space-y-5">
+    </>
+  );
+
+  if (needsChoice && !adminDenied && !platformView && !onboarding)
+    return (
+      <>
+        {alerts}
+        <OrganizationPicker adminPortalUrl={adminPortalUrl} />
+      </>
+    );
+
+  // Onboarding sits on the page background, capped at 1600px like the organization list, with
+  // its alerts inside that area.
+  const onboardingPage = onboarding && !adminDenied && !platformView;
+
+  return (
+    <>
+      {!onboardingPage && alerts}
+      {!onboardingPage && loading && (
+        <p role="status">Loading current access and organization data…</p>
+      )}
+      <section
+        className={
+          onboardingPage
+            ? 'mx-auto w-full max-w-[1600px] space-y-5 pt-4'
+            : 'bg-base-100 border border-base-300 rounded-box p-6 space-y-5'
+        }
+      >
+        {onboardingPage && alerts}
         {adminDenied ? (
           <p role="alert">
             This account is not a System Admin. Platform access must be assigned by an authorized
@@ -132,64 +161,71 @@ export function ConsoleScreen() {
             ))}
           </>
         ) : onboarding ? (
-          <>
-            <h1 className="text-2xl font-bold">Organization onboarding</h1>
-            {identity.organizations.length === 0 && (
-              <p>
-                Your account has no active organization access. Request a new organization or accept
-                an invitation.
-              </p>
-            )}
-            {!invitation && <OrganizationSetup />}
-            <form
-              className="grid gap-3 max-w-xl"
-              onSubmit={(event) => {
-                fields(event);
-                let acceptedOrganizationId = '';
-                void perform(
-                  async (client) => {
-                    const result = await client.acceptConsoleInvitation(invitation);
-                    acceptedOrganizationId = result.organizationId;
-                  },
-                  'Invitation accepted',
-                  (current) => {
-                    const org = current.organizations.find(
-                      (value) => value.organizationId === acceptedOrganizationId,
+          // Form column capped at 1200px; your requests fill the rest beside it (below it on
+          // narrower screens).
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1200px)_minmax(18rem,1fr)]">
+            <div className="flex min-w-0 flex-col gap-5">
+              <Link
+                to="/organizations"
+                className="inline-flex w-fit items-center gap-1.5 text-sm opacity-70 hover:opacity-100 hover:underline"
+              >
+                <ArrowLeft size={14} /> Back to organizations
+              </Link>
+              <h1 className="text-2xl font-bold">
+                {invitation ? 'Accept a Developer invitation' : 'Create an organization'}
+              </h1>
+              {identity.organizations.length === 0 && (
+                <p>
+                  Your account has no active organization access. Request a new organization or
+                  accept an invitation.
+                </p>
+              )}
+              {!invitation && <OrganizationSetup />}
+              {/* Only when opened from an invitation link: the link fills in the token. */}
+              {invitation && (
+                <form
+                  className="grid gap-3 max-w-xl"
+                  onSubmit={(event) => {
+                    fields(event);
+                    let acceptedOrganizationId = '';
+                    void perform(
+                      async (client) => {
+                        const result = await client.acceptConsoleInvitation(invitation);
+                        acceptedOrganizationId = result.organizationId;
+                      },
+                      'Invitation accepted',
+                      (current) => {
+                        const org = current.organizations.find(
+                          (value) => value.organizationId === acceptedOrganizationId,
+                        );
+                        if (org) {
+                          setOrganizationId(org.organizationId);
+                          navigate(destination(org));
+                        }
+                        setInvitation('');
+                      },
                     );
-                    if (org) {
-                      setOrganizationId(org.organizationId);
-                      navigate(destination(org));
-                    }
-                    setInvitation('');
-                  },
-                );
-              }}
-            >
-              <h2 className="font-semibold">Accept a Developer invitation</h2>
-              <p>Sign in with the Google email addressed by the invitation.</p>
-              <label>
-                Invitation token
-                <input
-                  className="input input-bordered w-full"
-                  value={invitation}
-                  onChange={(event) => setInvitation(event.target.value)}
-                  required
-                  pattern="[a-f0-9]{64}"
-                />
-              </label>
-              <button className="btn btn-outline" disabled={busy}>
-                Accept invitation
-              </button>
-            </form>
-            <h2 className="font-semibold">Your organization requests</h2>
-            {data.applications?.map((request) => (
-              <p key={request.id}>
-                {request.name} · {request.status}
-                {request.reason ? ` · ${request.reason}` : ''}
-              </p>
-            ))}
-            {!loading && data.applications?.length === 0 && <p>No requests submitted.</p>}
-          </>
+                  }}
+                >
+                  <p>Sign in with the Google email addressed by the invitation.</p>
+                  <label>
+                    Invitation token
+                    <input
+                      className="input input-bordered w-full"
+                      value={invitation}
+                      onChange={(event) => setInvitation(event.target.value)}
+                      required
+                      pattern="[a-f0-9]{64}"
+                    />
+                  </label>
+                  <button className="btn btn-outline" disabled={busy}>
+                    Accept invitation
+                  </button>
+                </form>
+              )}
+            </div>
+            {!invitation && <OrganizationRequestList />}
+          </div>
         ) : needsChoice ? (
           <>
             <h1 className="text-2xl font-bold">Choose an organization</h1>

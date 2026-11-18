@@ -11,8 +11,27 @@ export function ConsoleRoot(props: ConsoleSessionOptions) {
   const auth = useConsoleController(props);
   return (
     <ConsoleSessionContext.Provider value={auth}>
-      <Outlet />
+      {/* Hold the routes while restoring, so guards don't bounce the reloaded URL to /login. */}
+      {auth.resuming ? <ResumingSignIn onCancel={auth.cancelResume} /> : <Outlet />}
     </ConsoleSessionContext.Provider>
+  );
+}
+function ResumingSignIn({ onCancel }: { onCancel: () => void }) {
+  return (
+    <div className="min-h-dvh flex items-center justify-center bg-base-200 p-4">
+      <section
+        role="status"
+        className="flex w-full max-w-sm flex-col items-center gap-6 rounded-box border border-base-300 bg-base-100 p-8 text-center"
+      >
+        <span className="loading loading-spinner loading-lg text-primary" />
+        <div>
+          <h1 className="text-lg font-semibold">Signing you back in!</h1>
+          <p className="mt-1 text-sm opacity-70">
+            Please hold while we authorize your access request.
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }
 export function ConsoleLogin() {

@@ -3,6 +3,7 @@ import { ConsoleRoot, ConsoleSignedIn, ConsoleScreen } from '@octap/shared/googl
 import { queryClient } from '../queries/client';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireRoles } from './guards';
+import { ADMIN_PORTAL_URL } from '@/components/layout/nav';
 
 import AuthenticationEntryPoint from './auth';
 import MerchantLayout from './merchant';
@@ -77,7 +78,10 @@ const liveRoutes: RouteObject[] = [
         element: <ConsoleAccessLayout />,
         children: [
           { path: '/onboarding', element: <ConsoleScreen /> },
-          { path: '/organizations', element: <ConsoleScreen /> },
+          {
+            path: '/organizations',
+            element: <ConsoleScreen adminPortalUrl={ADMIN_PORTAL_URL} />,
+          },
           { path: '/admin', element: <ConsoleScreen /> },
         ],
       },

@@ -14,6 +14,9 @@ export interface ConsoleIdentity {
     name: string;
     slug: string;
     persona: OrganizationPersona;
+    /** Null for organizations created before the profile fields; absent from older Core. */
+    organizationType?: OrganizationType | null;
+    representativeName?: string | null;
   }>;
   expiresAt: string;
 }
