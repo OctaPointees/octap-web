@@ -2,7 +2,7 @@ import { Check } from 'phosphor-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { organizationRequestsKey } from './OrganizationRequests';
+import { organizationRequestsKey } from './organization-requests';
 import { useConsoleAuth } from './console-session';
 import type { OrganizationType } from './portal-api';
 

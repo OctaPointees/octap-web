@@ -1,6 +1,6 @@
 import { Buildings, Layout, PlusCircle } from 'phosphor-react';
 import { useConsoleAuth } from '@octap/shared/google-auth';
-import { Outlet, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import PortalLayout from '@/components/layout/PortalLayout';
 import { platformAdminLinks } from '@/components/layout/nav';
 
