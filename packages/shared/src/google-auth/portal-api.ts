@@ -68,6 +68,15 @@ export interface ConsoleCredential {
   scopes: unknown;
   status: string;
 }
+/** A Core error response: still an `Error`, plus the HTTP status so a form can tell 400 from 403. */
+export class ConsoleApiError extends Error {
+  readonly status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'ConsoleApiError';
+    this.status = status;
+  }
+}
 export interface OrganizationApplication {
   organizationType: OrganizationType | null;
   representativeName: string | null;
@@ -120,7 +129,8 @@ export function createConsoleClient({
     });
     const result = await response.json().catch(() => null);
     if (!response.ok)
-      throw new Error(
+      throw new ConsoleApiError(
+        response.status,
         typeof result?.message === 'string'
           ? result.message
           : `Core request failed (${response.status}).`,
@@ -129,6 +139,8 @@ export function createConsoleClient({
   }
   const organizationPath = (id: string) => `/v1/console/organizations/${encodeURIComponent(id)}`;
   return {
+    /** The token-carrying transport, for API modules outside this package (`@octap/services`). */
+    request,
     loginConsoleWithGoogle: (idToken: string, options: { signal?: AbortSignal } = {}) =>
       request<ConsoleIdentity>('/v1/console/auth/google', 'POST', { idToken }, options.signal),
     getConsoleIdentity: (options: { signal?: AbortSignal } = {}) =>

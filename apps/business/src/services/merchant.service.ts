@@ -10,7 +10,6 @@ import type {
   Membership,
   MerchantRole,
   Range,
-  Reward,
   Tenant,
   TxChannel,
   TxKind,
@@ -44,16 +43,6 @@ export type CampaignInput = {
   startAt: string;
   endAt: string;
   publish: boolean;
-};
-
-export type RewardInput = {
-  title: string;
-  description: string;
-  category: Reward['category'];
-  pointCost: number;
-  faceValueVnd: number;
-  stock: number;
-  expiresAt: string;
 };
 
 export type TxFilters = {
@@ -338,91 +327,6 @@ export const merchantService = {
       db.campaigns.splice(idx, 1);
       return { id };
     });
-  },
-
-  /* ------------------------------------------------------------------ rewards */
-
-  listRewards() {
-    return simulate('GET /v1/merchant/rewards', () => {
-      const tenantId = requireMerchant();
-      return getDb()
-        .rewards.filter((r) => r.tenantId === tenantId)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    });
-  },
-
-  createReward(input: RewardInput) {
-    return simulate(
-      'POST /v1/merchant/rewards',
-      (): Reward => {
-        const tenantId = requireMerchant('manager');
-        const errors: Record<string, string> = {};
-        if (input.title.trim().length < 3) errors.title = 'At least 3 characters';
-        if (!(input.pointCost > 0)) errors.pointCost = 'Must be greater than 0';
-        if (!(input.faceValueVnd >= 0)) errors.faceValueVnd = 'Cannot be negative';
-        if (!(input.stock > 0)) errors.stock = 'Must be at least 1';
-        if (!input.expiresAt || new Date(input.expiresAt).getTime() < Date.now())
-          errors.expiresAt = 'Must be in the future';
-        if (Object.keys(errors).length)
-          throw badRequest('Please fix the highlighted fields', errors);
-        const r: Reward = {
-          id: uid('rwd'),
-          tenantId,
-          ...input,
-          title: input.title.trim(),
-          redeemedCount: 0,
-          status: 'pending_review',
-          expiresAt: new Date(input.expiresAt).toISOString(),
-          createdAt: new Date().toISOString(),
-        };
-        getDb().rewards.push(r);
-        writeAudit({
-          actorType: 'merchant',
-          actorName: actorEmail(),
-          action: 'reward.create',
-          tenantId,
-          severity: 'info',
-          summary: `Submitted reward "${r.title}" for review`,
-          onChain: false,
-        });
-        return r;
-      },
-      input,
-    );
-  },
-
-  setRewardStatus(id: string, status: 'active' | 'paused') {
-    return simulate(
-      `POST /v1/merchant/rewards/${id}/status`,
-      () => {
-        const tenantId = requireMerchant('manager');
-        const r = getDb().rewards.find((x) => x.id === id && x.tenantId === tenantId);
-        if (!r) throw notFound('Reward');
-        if (!['active', 'paused'].includes(r.status))
-          throw conflict(
-            `A ${r.status.replace('_', ' ')} reward cannot be ${status === 'active' ? 'resumed' : 'paused'}.`,
-          );
-        r.status = status;
-        return r;
-      },
-      { status },
-    );
-  },
-
-  restockReward(id: string, add: number) {
-    return simulate(
-      `POST /v1/merchant/rewards/${id}/restock`,
-      () => {
-        const tenantId = requireMerchant('manager');
-        const r = getDb().rewards.find((x) => x.id === id && x.tenantId === tenantId);
-        if (!r) throw notFound('Reward');
-        if (!(Number.isInteger(add) && add > 0))
-          throw badRequest('Invalid quantity', { add: 'Enter a positive whole number' });
-        r.stock += add;
-        return r;
-      },
-      { add },
-    );
   },
 
   /* ------------------------------------------------------------------ members */

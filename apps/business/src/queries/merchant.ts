@@ -3,7 +3,6 @@ import {
   merchantService,
   type CampaignInput,
   type IssuePointsInput,
-  type RewardInput,
   type TxFilters,
 } from '../services/merchant.service';
 import type { ApiKey, ApiScope, McpTool, MerchantRole, Range } from '../types/domain';
@@ -12,7 +11,6 @@ export const merchantKeys = {
   tenant: ['merchant', 'tenant'] as const,
   overview: (r: Range) => ['merchant', 'overview', r] as const,
   campaigns: ['merchant', 'campaigns'] as const,
-  rewards: ['merchant', 'rewards'] as const,
   members: (q: string) => ['merchant', 'members', q] as const,
   member: (id: string) => ['merchant', 'member', id] as const,
   txs: (f: TxFilters) => ['merchant', 'transactions', f] as const,
@@ -31,8 +29,6 @@ export const useMerchantOverview = (range: Range) =>
   });
 export const useCampaigns = () =>
   useQuery({ queryKey: merchantKeys.campaigns, queryFn: merchantService.listCampaigns });
-export const useRewards = () =>
-  useQuery({ queryKey: merchantKeys.rewards, queryFn: merchantService.listRewards });
 export const useMembers = (q: string, enabled = true) =>
   useQuery({
     queryKey: merchantKeys.members(q),
@@ -79,19 +75,6 @@ export const useSetCampaignStatus = () =>
   });
 export const useDeleteCampaign = () =>
   useMutation({ mutationFn: (id: string) => merchantService.deleteCampaign(id) });
-
-export const useCreateReward = () =>
-  useMutation({ mutationFn: (input: RewardInput) => merchantService.createReward(input) });
-export const useSetRewardStatus = () =>
-  useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'active' | 'paused' }) =>
-      merchantService.setRewardStatus(id, status),
-  });
-export const useRestockReward = () =>
-  useMutation({
-    mutationFn: ({ id, add }: { id: string; add: number }) =>
-      merchantService.restockReward(id, add),
-  });
 
 export const useAdjustPoints = () =>
   useMutation({

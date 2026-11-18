@@ -604,10 +604,9 @@ test('real Owner routes keep the shell mounted and report unconnected modules', 
   await page.getByRole('button', { name: 'Refresh access', exact: true }).click();
   await expect(page.getByText('Access refreshed')).toBeVisible();
   await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
-  for (const path of ['/merchant/rewards']) {
-    await page
-      .getByRole('link', { name: path.endsWith('rewards') ? 'Rewards' : 'Members', exact: true })
-      .click();
+  // Rewards is connected since OCT-283 (tests/google-login/rewards.spec.ts); Campaigns is not yet.
+  for (const path of ['/merchant/campaigns']) {
+    await page.getByRole('link', { name: 'Campaigns', exact: true }).click();
     await expect(page).toHaveURL(new RegExp(path + '$'));
     await expect(
       page.getByText('This dashboard module is not connected to Core yet.'),
