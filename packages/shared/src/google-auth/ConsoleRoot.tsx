@@ -12,11 +12,11 @@ export function ConsoleRoot(props: ConsoleSessionOptions) {
   return (
     <ConsoleSessionContext.Provider value={auth}>
       {/* Hold the routes while restoring, so guards don't bounce the reloaded URL to /login. */}
-      {auth.resuming ? <ResumingSignIn onCancel={auth.cancelResume} /> : <Outlet />}
+      {auth.resuming ? <ResumingSignIn /> : <Outlet />}
     </ConsoleSessionContext.Provider>
   );
 }
-function ResumingSignIn({ onCancel }: { onCancel: () => void }) {
+function ResumingSignIn() {
   return (
     <div className="min-h-dvh flex items-center justify-center bg-base-200 p-4">
       <section

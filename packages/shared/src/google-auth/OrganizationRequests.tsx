@@ -1,27 +1,10 @@
 import { Menu } from '@base-ui/react/menu';
-import { useQuery } from '@tanstack/react-query';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ArrowSquareOut, Buildings, Copy, DotsThreeCircle } from 'phosphor-react';
 import { useEffect, useState } from 'react';
 import { useConsoleAuth } from './console-session';
+import { useOrganizationRequests } from './organization-requests';
 import type { OrganizationApplication } from './portal-api';
-
-/** Prefix of the organization-requests query key: invalidate it after submitting a request. */
-export const organizationRequestsKey = ['console', 'organization-requests'] as const;
-
-/**
- * The signed-in user's own organization requests, cached by TanStack Query and shared by the
- * organization list and the create page. Keyed per user; signing out clears the cache.
- */
-export function useOrganizationRequests() {
-  const auth = useConsoleAuth();
-  const userId = auth?.identity?.user.id;
-  return useQuery({
-    queryKey: [...organizationRequestsKey, userId],
-    queryFn: ({ signal }) => auth!.client().listConsoleOrganizationRequests(signal),
-    enabled: !!userId,
-  });
-}
 
 const STATUS: Record<OrganizationApplication['status'], { label: string; badge: string }> = {
   PENDING: { label: 'Pending review', badge: 'badge-warning' },

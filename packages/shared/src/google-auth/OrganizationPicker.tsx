@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useConsoleAuth } from './console-session';
-import { useOrganizationRequests } from './OrganizationRequests';
+import { useOrganizationRequests } from './organization-requests';
 import type {
   ConsoleIdentity,
   OrganizationApplication,
