@@ -17,6 +17,7 @@ import {
   type OrganizationApplication,
 } from './portal-api';
 import { disableGoogleAutoSelect, silentGoogleSignIn } from './client';
+import { notify } from '../toast';
 
 /**
  * Reload survival without storing credentials: a non-secret "signed in here before" flag
@@ -82,7 +83,6 @@ export function useConsoleController({
   const [organizationId, setOrganizationId] = useState('');
   const [data, setData] = useState<Data>({});
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [revision, setRevision] = useState(0);
@@ -184,7 +184,6 @@ export function useConsoleController({
     setData({});
     setOrganizationId('');
     setError('');
-    setNotice('');
     setInviteLink('');
     onReset?.();
     navigate('/login', { replace: true });
@@ -261,20 +260,23 @@ export function useConsoleController({
     };
   }, [identity, selected, location.pathname, platformView, revision, api, navigate]);
 
+  /**
+   * Runs a console action, then refreshes the identity. Its result is a toast: `success` (when
+   * not empty) or the error. `error` state stays for problems that block a page, such as a
+   * failed data load or an expired sign-in, which render inline.
+   */
   async function perform(
     action: (client: ReturnType<typeof createConsoleClient>) => Promise<void>,
     success: string,
     after?: (current: ConsoleIdentity) => void,
   ) {
     setBusy(true);
-    setError('');
-    setNotice('');
     try {
       await action(api());
       const current = await api().getConsoleIdentity({ signal: AbortSignal.timeout(30_000) });
       setIdentity(current);
       setRevision((value) => value + 1);
-      setNotice(success);
+      if (success) notify.success(success);
       if (after) after(current);
       else if (
         organizationId &&
@@ -284,7 +286,7 @@ export function useConsoleController({
         navigate('/organizations');
       }
     } catch (cause) {
-      setError(message(cause));
+      notify.error(cause, 'That did not work');
     } finally {
       setBusy(false);
     }
@@ -339,7 +341,6 @@ export function useConsoleController({
     },
     data,
     error,
-    notice,
     busy,
     loading,
     revision,

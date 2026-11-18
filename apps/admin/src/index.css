@@ -2,6 +2,7 @@
 
 @import 'tailwindcss';
 @source "../../../packages/shared/src/google-auth";
+@source "../../../packages/shared/src/toast";
 
 @import '@octap/shared/styles/index.css';
 

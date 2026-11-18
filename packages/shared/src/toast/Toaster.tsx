@@ -1,7 +1,10 @@
 import { Toast } from '@base-ui/react/toast';
 import { CheckCircle, Info, WarningCircle, X } from 'phosphor-react';
-import { cn } from '../../utils/cn';
-import { toastManager } from '../../utils/toast';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { toastManager } from './notify';
+
+const cn = (...classes: Parameters<typeof clsx>) => twMerge(clsx(classes));
 
 const TONE: Record<string, { icon: typeof Info; className: string }> = {
   success: { icon: CheckCircle, className: 'text-success' },
@@ -43,6 +46,7 @@ function ToastList() {
   });
 }
 
+/** Renders the shared toast queue in the bottom-right corner. Wrap the app once. */
 export function ToasterProvider({ children }: { children: React.ReactNode }) {
   return (
     <Toast.Provider toastManager={toastManager} limit={4}>

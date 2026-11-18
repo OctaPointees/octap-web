@@ -68,7 +68,7 @@ export function OrganizationSetup() {
         await client.requestConsoleOrganization(input);
       },
       'Organization request submitted for approval',
-      // perform() keeps its success notice, so the list shows it after the redirect.
+      // perform() shows its success toast, which stays up across the redirect.
       () => {
         void queryClient.invalidateQueries({ queryKey: organizationRequestsKey });
         navigate('/organizations');
