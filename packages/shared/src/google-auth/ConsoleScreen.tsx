@@ -23,7 +23,6 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
     setOrganizationId,
     data,
     error,
-    notice,
     busy,
     loading,
     revision,
@@ -45,11 +44,6 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
       {error && (
         <p role="alert" className="alert alert-error">
           {error}
-        </p>
-      )}
-      {notice && (
-        <p role="status" className="alert alert-success">
-          {notice}
         </p>
       )}
     </>
