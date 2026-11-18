@@ -36,13 +36,7 @@ export function ConsoleScreen() {
   const needsChoice =
     portal === 'business' && (!selected || location.pathname === '/organizations');
   const onboarding = portal === 'business' && location.pathname === '/onboarding';
-  const allowedPaths = [
-    '/merchant',
-    '/merchant/settings',
-    '/merchant/team',
-    '/developer',
-    '/developer/api-keys',
-  ];
+  const allowedPaths = ['/merchant', '/merchant/settings', '/merchant/team', '/developer'];
 
   return (
     <>
@@ -331,17 +325,6 @@ export function ConsoleScreen() {
                     )}
                   </div>
                 ))}
-              </>
-            ) : location.pathname === '/developer/api-keys' ? (
-              <>
-                <h2 className="font-semibold">API credentials</h2>
-                <p>Credential metadata only. Secret keys stay in Core.</p>
-                {data.credentials?.map((key) => (
-                  <p key={key.id}>
-                    {key.name} · {key.keyPrefix}… · {key.status}
-                  </p>
-                ))}
-                {data.credentials?.length === 0 && <p>No API credentials issued.</p>}
               </>
             ) : allowedPaths.includes(location.pathname) ? (
               <>

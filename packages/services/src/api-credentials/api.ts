@@ -1,4 +1,9 @@
-import type { ConsoleCredential, IssuedConsoleCredential } from './types';
+import {
+  normalizeCredential,
+  type ConsoleCredential,
+  type IssuedConsoleCredential,
+  type RawConsoleCredential,
+} from './types';
 import type { CoreRequest } from '../rewards/api';
 
 /** Organization API credentials through Core's console routes. */
@@ -9,12 +14,25 @@ export function createApiCredentialsApi(request: CoreRequest) {
     `${credentials(organizationId)}/${encodeURIComponent(id)}`;
 
   return {
-    list: (organizationId: string, signal?: AbortSignal) =>
-      request<ConsoleCredential[]>(credentials(organizationId), 'GET', undefined, signal),
-    issue: (organizationId: string, input: { name: string; scope?: 'read' | 'write' }) =>
-      request<IssuedConsoleCredential>(credentials(organizationId), 'POST', input),
-    rename: (organizationId: string, id: string, name: string) =>
-      request<ConsoleCredential>(credential(organizationId, id), 'PATCH', { name }),
+    list: async (organizationId: string, signal?: AbortSignal): Promise<ConsoleCredential[]> =>
+      (
+        await request<RawConsoleCredential[]>(credentials(organizationId), 'GET', undefined, signal)
+      ).map(normalizeCredential),
+    issue: async (
+      organizationId: string,
+      input: { name: string; scope?: 'read' | 'write' },
+    ): Promise<IssuedConsoleCredential> => {
+      const issued = await request<RawConsoleCredential & { rawKey: string }>(
+        credentials(organizationId),
+        'POST',
+        input,
+      );
+      return { ...normalizeCredential(issued), rawKey: issued.rawKey };
+    },
+    rename: async (organizationId: string, id: string, name: string): Promise<ConsoleCredential> =>
+      normalizeCredential(
+        await request<RawConsoleCredential>(credential(organizationId, id), 'PATCH', { name }),
+      ),
     revoke: (organizationId: string, id: string) =>
       request<{ revoked: true }>(credential(organizationId, id), 'DELETE'),
   };
