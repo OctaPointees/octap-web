@@ -17,11 +17,6 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
             : 'Your organization and access are verified by OctaP Core.'
         }
       />
-      {auth.notice && (
-        <p role="status" className="alert alert-success">
-          {auth.notice}
-        </p>
-      )}
       {auth.error && (
         <p role="alert" className="alert alert-error">
           {auth.error}
