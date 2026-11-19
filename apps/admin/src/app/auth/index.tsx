@@ -1,25 +1,6 @@
-import { ConsoleLogin } from '@octap/shared/google-auth';
-import { Checkbox } from '@base-ui/react/checkbox';
-import { Form } from '@base-ui/react/form';
-import { useMutation } from '@tanstack/react-query';
-import {
-  Check,
-  Fingerprint,
-  LockKey,
-  ShieldCheck,
-  Stack,
-  Warning,
-  ArrowLeft,
-} from 'phosphor-react';
-import { useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router';
-import { FormField, TextInput } from '../../components/shared/Controls';
-import { Button } from '../../components/shared/Button';
-import { Modal } from '../../components/shared/Modal';
-import { useSession } from '../../queries/useSession';
-import { authService, DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../services';
-import { fieldErrorsOf, formErrorOf } from '../../utils/errors';
-import { homeFor } from '../../utils/constants';
+import { Navigate } from 'react-router';
+import { Fingerprint, ShieldCheck, Stack } from 'phosphor-react';
+import { GoogleSignInForm, useAuth } from '@octap/shared/authentication';
 
 const PILLARS = [
   {
@@ -38,198 +19,6 @@ const PILLARS = [
     text: 'Members sign in with a phone number via zkLogin; gas is sponsored.',
   },
 ];
-
-function ForgotPassword({
-  open,
-  onOpenChange,
-}: {
-  open: boolean;
-  onOpenChange: (o: boolean) => void;
-}) {
-  const [email, setEmail] = useState('');
-  const reset = useMutation({ mutationFn: authService.requestPasswordReset });
-  const errors = fieldErrorsOf(reset.error);
-  return (
-    <Modal
-      open={open}
-      onOpenChange={(o) => {
-        onOpenChange(o);
-        if (!o) reset.reset();
-      }}
-      title="Reset your password"
-      description="We'll email you a secure link to set a new password."
-      size="sm"
-    >
-      {reset.isSuccess ? (
-        <div role="status" className="alert alert-success alert-soft">
-          <Check /> {reset.data.message}
-        </div>
-      ) : (
-        <Form
-          className="flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            reset.mutate(email);
-          }}
-        >
-          <FormField label="Work email" error={errors.email}>
-            <TextInput
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              invalid={!!errors.email}
-              autoFocus
-            />
-          </FormField>
-          <Button type="submit" className="btn-primary" disabled={reset.isPending}>
-            {reset.isPending && <span className="loading loading-spinner loading-sm" />}
-            Send reset link
-          </Button>
-        </Form>
-      )}
-    </Modal>
-  );
-}
-
-function DemoAuthenticationEntryPoint() {
-  const session = useSession();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(true);
-  const [forgotOpen, setForgotOpen] = useState(false);
-
-  const login = useMutation({
-    mutationFn: authService.login,
-    onSuccess: (s) => {
-      const from = (location.state as { from?: string } | null)?.from;
-      navigate(from?.startsWith(homeFor(s.user.role)) ? from : homeFor(s.user.role), {
-        replace: true,
-      });
-    },
-  });
-
-  if (session && !login.isPending && !login.isSuccess)
-    return <Navigate to={homeFor(session.user.role)} replace />;
-
-  const errors = fieldErrorsOf(login.error);
-  const formError = formErrorOf(login.error);
-
-  return (
-    <div className="app-wrapper grid lg:grid-cols-2">
-      <AuthenticationBrandPanel />
-
-      <section className="flex items-center justify-center overflow-y-auto p-6">
-        <div className="flex w-full max-w-sm flex-col gap-6">
-          <div>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mb-3"
-            >
-              <ArrowLeft size={13} weight="bold" />
-              <span>Back to OctaP Home</span>
-            </Link>
-            <h2 className="text-2xl font-bold">Sign in</h2>
-            <p className="text-sm opacity-65">OctaP administrator console</p>
-          </div>
-
-          {formError && (
-            <div role="alert" className="alert alert-error alert-soft text-sm">
-              <Warning size={18} /> {formError}
-            </div>
-          )}
-
-          <Form
-            className="flex flex-col gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              login.mutate({ email, password, remember });
-            }}
-          >
-            <FormField label="Work email" error={errors.email}>
-              <TextInput
-                type="email"
-                autoComplete="username"
-                placeholder="you@company.vn"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                invalid={!!errors.email}
-              />
-            </FormField>
-            <FormField label="Password" error={errors.password}>
-              <TextInput
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                invalid={!!errors.password}
-              />
-            </FormField>
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex cursor-pointer items-center gap-2">
-                <Checkbox.Root
-                  checked={remember}
-                  onCheckedChange={(c) => setRemember(c)}
-                  className="flex size-5 items-center justify-center rounded border border-base-300 data-checked:border-primary data-checked:bg-primary"
-                >
-                  <Checkbox.Indicator className="text-primary-content">
-                    <Check size={14} weight="bold" />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                Keep me signed in
-              </label>
-              <button
-                type="button"
-                className="link link-primary"
-                onClick={() => setForgotOpen(true)}
-              >
-                Forgot password?
-              </button>
-            </div>
-            <Button type="submit" className="btn-primary" disabled={login.isPending}>
-              {login.isPending ? (
-                <span className="loading loading-spinner loading-sm" />
-              ) : (
-                <LockKey size={18} />
-              )}
-              Sign in
-            </Button>
-          </Form>
-
-          <div className="rounded-box border border-dashed border-base-300 p-4">
-            <div className="mb-2 text-xs font-semibold tracking-wide uppercase opacity-60">
-              Demo accounts · password “{DEMO_PASSWORD}”
-            </div>
-            <div className="flex flex-col gap-1">
-              {DEMO_ACCOUNTS.filter((a) => a.email === 'admin@octap.io').map((a) => (
-                <button
-                  key={a.email}
-                  type="button"
-                  className="flex items-center justify-between rounded-field px-2 py-1.5 text-left text-sm hover:bg-base-200"
-                  onClick={() => {
-                    setEmail(a.email);
-                    setPassword(DEMO_PASSWORD);
-                    login.reset();
-                  }}
-                >
-                  <span>
-                    <span className="font-medium">{a.label}</span>
-                    <span className="block text-xs opacity-60">{a.email}</span>
-                  </span>
-                  <span className="text-xs opacity-50">{a.hint}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <ForgotPassword open={forgotOpen} onOpenChange={setForgotOpen} />
-    </div>
-  );
-}
 
 function AuthenticationBrandPanel() {
   return (
@@ -264,20 +53,29 @@ function AuthenticationBrandPanel() {
           ))}
         </ul>
       </div>
-      <div className="relative text-xs opacity-50">
-        © 2026 OctaPoint · Design draft — all data is simulated
-      </div>
+      <div className="relative text-xs opacity-50">© 2026 OctaPoint</div>
     </section>
   );
 }
+/** The admin login page: the brand panel and the shared Google sign-in form. */
 export default function AuthenticationEntryPoint() {
-  if (import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true') return <DemoAuthenticationEntryPoint />;
+  const { identity } = useAuth();
+  if (identity) return <Navigate to="/admin" replace />;
   return (
     <div className="app-wrapper grid lg:grid-cols-5">
       <AuthenticationBrandPanel />
       <section className="flex items-center justify-center overflow-y-auto p-6 col-span-2">
         <div className="flex w-full max-w-sm flex-col gap-6">
-          <ConsoleLogin />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+              OctaP Platform administration
+            </p>
+            <h1 className="text-3xl font-bold mt-3">Sign in with Google</h1>
+            <p className="text-sm opacity-70 mt-4">
+              Use your Google account. Your organization and permissions are provided by OctaP Core.
+            </p>
+          </div>
+          <GoogleSignInForm />
         </div>
       </section>
     </div>

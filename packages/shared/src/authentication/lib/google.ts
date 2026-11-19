@@ -1,30 +1,5 @@
-import { createConsoleClient, type ConsoleIdentity } from './portal-api';
-export type { ConsoleIdentity } from './portal-api';
-
-function readIdentity(body: ConsoleIdentity): ConsoleIdentity {
-  if (
-    !body?.user?.id ||
-    !['SYSTEM_USER', 'SYSTEM_ADMIN'].includes(body.user.systemRole) ||
-    !Array.isArray(body.organizations) ||
-    !Number.isFinite(Date.parse(body.expiresAt)) ||
-    body.organizations.some(
-      (org: ConsoleIdentity['organizations'][number]) =>
-        !org.organizationId || !['BUSINESS_OWNER', 'BUSINESS_DEVELOPER'].includes(org.persona),
-    )
-  ) {
-    throw new Error('Core returned an invalid portal identity.');
-  }
-  return body;
-}
-
-export async function verifyConsoleGoogleCredential(
-  base: string,
-  idToken: string,
-  signal?: AbortSignal,
-): Promise<ConsoleIdentity> {
-  const client = createConsoleClient({ apiBaseUrl: base });
-  return readIdentity(await client.loginConsoleWithGoogle(idToken, { signal }));
-}
+import type { ConsoleIdentity } from '../../console-api/client';
+import { verifyGoogleCredential } from './identity';
 
 /** What Google reports about a prompt. Under FedCM only some of these methods exist. */
 interface PromptMoment {
@@ -37,7 +12,7 @@ interface PromptMoment {
   getDismissedReason?(): string;
 }
 
-interface GoogleIdentity {
+export interface GoogleIdentity {
   initialize(options: {
     client_id: string;
     nonce: string;
@@ -59,9 +34,9 @@ const loadedSdk = () =>
   (window as unknown as { google?: { accounts?: { id?: GoogleIdentity } } }).google?.accounts?.id;
 
 let loading: Promise<GoogleIdentity> | undefined;
+/** Loads Google Identity Services once per page. */
 export function loadGoogleIdentity(): Promise<GoogleIdentity> {
-  const get = loadedSdk;
-  const existing = get();
+  const existing = loadedSdk();
   if (existing) return Promise.resolve(existing);
   if (loading) return loading;
   loading = new Promise((resolve, reject) => {
@@ -77,7 +52,7 @@ export function loadGoogleIdentity(): Promise<GoogleIdentity> {
     const timer = window.setTimeout(fail, 20_000);
     script.onerror = fail;
     script.onload = () => {
-      const sdk = get();
+      const sdk = loadedSdk();
       if (!sdk) return fail();
       window.clearTimeout(timer);
       resolve(sdk);
@@ -87,10 +62,28 @@ export function loadGoogleIdentity(): Promise<GoogleIdentity> {
   return loading;
 }
 
+/** A fresh nonce binds Google's answer to this one sign-in attempt. */
 export const newLoginNonce = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(32)), (value) =>
     value.toString(16).padStart(2, '0'),
   ).join('');
+
+/** This is a browser flow-binding check only. Core performs cryptographic verification. */
+export function assertLoginNonce(jwt: string, expected: string): void {
+  try {
+    const part = jwt.split('.')[1];
+    const payload = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload.nonce === expected) return;
+  } catch {
+    /* Report the same failure for malformed or mismatching responses. */
+  }
+  throw new Error('Google login response did not match this sign-in attempt. Please retry.');
+}
+
+export interface SignInResult {
+  identity: ConsoleIdentity;
+  credential: string;
+}
 
 /**
  * Asks Google for a fresh ID token without a click (automatic sign-in for a returning user),
@@ -106,32 +99,24 @@ export function silentGoogleSignIn({
   clientId: string;
   apiBaseUrl?: string;
   timeoutMs?: number;
-}): {
-  result: Promise<{ identity: ConsoleIdentity; credential: string } | null>;
-  cancel: () => void;
-} {
+}): { result: Promise<SignInResult | null>; cancel: () => void } {
   const abort = new AbortController();
-  let finish: (
-    value: { identity: ConsoleIdentity; credential: string } | null,
-    reason?: string,
-  ) => void = () => {};
+  let finish: (value: SignInResult | null, reason?: string) => void = () => {};
   let sdk: GoogleIdentity | undefined;
   let verifying = false;
-  const result = new Promise<{ identity: ConsoleIdentity; credential: string } | null>(
-    (resolve) => {
-      const timer = window.setTimeout(
-        () => cancel(`no answer from Google in ${timeoutMs} ms`),
-        timeoutMs,
-      );
-      finish = (value, reason) => {
-        window.clearTimeout(timer);
-        finish = () => {};
-        // Google's own [GSI_LOGGER] lines in the console usually say more.
-        if (!value) console.warn(`[OctaP] Automatic Google sign-in did not complete: ${reason}`);
-        resolve(value);
-      };
-    },
-  );
+  const result = new Promise<SignInResult | null>((resolve) => {
+    const timer = window.setTimeout(
+      () => cancel(`no answer from Google in ${timeoutMs} ms`),
+      timeoutMs,
+    );
+    finish = (value, reason) => {
+      window.clearTimeout(timer);
+      finish = () => {};
+      // Google's own [GSI_LOGGER] lines in the console usually say more.
+      if (!value) console.warn(`[OctaP] Automatic Google sign-in did not complete: ${reason}`);
+      resolve(value);
+    };
+  });
   const cancel = (reason = 'cancelled') => {
     abort.abort();
     sdk?.cancel?.();
@@ -155,7 +140,7 @@ export function silentGoogleSignIn({
           void (async () => {
             try {
               assertLoginNonce(response.credential, nonce);
-              const identity = await verifyConsoleGoogleCredential(
+              const identity = await verifyGoogleCredential(
                 apiBaseUrl,
                 response.credential,
                 AbortSignal.any([abort.signal, AbortSignal.timeout(30_000)]),
@@ -190,16 +175,4 @@ export function silentGoogleSignIn({
 /** After an explicit sign-out, stops Google from signing the user straight back in. */
 export function disableGoogleAutoSelect(): void {
   loadedSdk()?.disableAutoSelect();
-}
-
-/** This is a browser flow-binding check only. Core performs cryptographic verification. */
-export function assertLoginNonce(jwt: string, expected: string): void {
-  try {
-    const part = jwt.split('.')[1];
-    const payload = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
-    if (payload.nonce === expected) return;
-  } catch {
-    /* Report the same failure for malformed or mismatching responses. */
-  }
-  throw new Error('Google login response did not match this sign-in attempt. Please retry.');
 }

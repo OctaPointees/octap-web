@@ -3,21 +3,19 @@ import { OrganizationSetup } from './OrganizationSetup';
 import { OrganizationProfileForm } from './OrganizationProfileForm';
 import { OrganizationPicker } from './OrganizationPicker';
 import { OrganizationRequestList } from './OrganizationRequests';
-import { organizationTypeLabel } from './organization-types';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { useConsoleAuth } from './console-session';
-import { cn } from '../utils';
-const destination = (org: { persona: string }) =>
-  org.persona === 'BUSINESS_OWNER' ? '/merchant' : '/developer';
-export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = {}) {
-  const auth = useConsoleAuth();
+import { useAuth } from '@octap/shared/authentication';
+import { cn } from '@/utils/cn';
+import { dashboardPath, useOrganization } from './context';
+
+/** The organization list, onboarding, and the owner's settings and team pages. */
+export function OrganizationScreen({ adminPortalUrl }: { adminPortalUrl?: string } = {}) {
+  const { identity } = useAuth();
+  const organization = useOrganization();
   const location = useLocation();
   const navigate = useNavigate();
-  if (!auth?.identity) return null;
+  if (!identity) return null;
   const {
-    identity,
-    portal,
-    platformView,
     selected,
     owner,
     organizationId,
@@ -34,11 +32,9 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
     perform,
     fields,
     choose,
-  } = auth;
-  const adminDenied = platformView && identity.user.systemRole !== 'SYSTEM_ADMIN';
-  const needsChoice =
-    portal === 'business' && (!selected || location.pathname === '/organizations');
-  const onboarding = portal === 'business' && location.pathname === '/onboarding';
+  } = organization;
+  const needsChoice = !selected || location.pathname === '/organizations';
+  const onboarding = location.pathname === '/onboarding';
   const allowedPaths = ['/merchant', '/merchant/settings', '/merchant/team', '/developer'];
   const alerts = (
     <>
@@ -50,7 +46,7 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
     </>
   );
 
-  if (needsChoice && !adminDenied && !platformView && !onboarding)
+  if (needsChoice && !onboarding)
     return (
       <>
         {alerts}
@@ -60,7 +56,7 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
 
   // Onboarding sits on the page background, capped at 1600px like the organization list, with
   // its alerts inside that area.
-  const onboardingPage = onboarding && !adminDenied && !platformView;
+  const onboardingPage = onboarding;
 
   return (
     <>
@@ -75,86 +71,7 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
         })}
       >
         {onboardingPage && alerts}
-        {adminDenied ? (
-          <p role="alert">
-            This account is not a System Admin. Platform access must be assigned by an authorized
-            administrator.
-          </p>
-        ) : platformView ? (
-          <>
-            <h1 className="text-2xl font-bold">Organization requests</h1>
-            <p>
-              Approve a new organization to activate it and assign its applicant as Business Owner.
-            </p>
-            {!loading && data.applications?.length === 0 && <p>No organization requests.</p>}
-            {data.applications?.map((request) => (
-              <article
-                key={request.id}
-                className="border border-base-300 rounded-box p-4 space-y-3"
-              >
-                <h2 className="font-semibold">
-                  {request.name} · {request.slug}
-                </h2>
-                <p>
-                  {request.applicantEmail} · {request.status}
-                </p>
-                <p className="text-sm">{organizationTypeLabel(request.organizationType)}</p>
-                {request.legalName && <p>Legal name: {request.legalName}</p>}
-                {request.taxId && <p>Business registration / tax number: {request.taxId}</p>}
-                {request.representativeName && (
-                  <p>Owner / representative: {request.representativeName}</p>
-                )}
-                {request.nationalIdLast4 && (
-                  <p>
-                    CCCD: {'\u2022'.repeat(8)}
-                    {request.nationalIdLast4} {'\u2014'} not verified
-                  </p>
-                )}
-                {request.reason && <p>{request.reason}</p>}
-                {request.status === 'PENDING' && (
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      className="btn btn-primary btn-sm"
-                      disabled={busy}
-                      onClick={() =>
-                        void perform(async (client) => {
-                          await client.decidePlatformOrganizationRequest(request.id, 'approve');
-                        }, 'Organization approved')
-                      }
-                    >
-                      Approve {request.name}
-                    </button>
-                    <form
-                      className="flex gap-2 flex-wrap"
-                      onSubmit={(event) => {
-                        const form = fields(event);
-                        void perform(async (client) => {
-                          await client.decidePlatformOrganizationRequest(
-                            request.id,
-                            'reject',
-                            String(form.get('reason')),
-                          );
-                        }, 'Organization rejected');
-                      }}
-                    >
-                      <input
-                        name="reason"
-                        aria-label={`Rejection reason for ${request.name}`}
-                        className="input input-bordered"
-                        required
-                        maxLength={1000}
-                        placeholder="Rejection reason"
-                      />
-                      <button className="btn btn-outline btn-sm" disabled={busy}>
-                        Reject
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </article>
-            ))}
-          </>
-        ) : onboarding ? (
+        {onboarding ? (
           // Form column capped at 1200px; your requests fill the rest beside it (below it on
           // narrower screens).
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1200px)_minmax(18rem,1fr)]">
@@ -194,7 +111,7 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
                         );
                         if (org) {
                           setOrganizationId(org.organizationId);
-                          navigate(destination(org));
+                          navigate(dashboardPath(org));
                         }
                         setInvitation('');
                       },
@@ -369,7 +286,7 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
             ) : (
               <p>
                 This operation is not available here.{' '}
-                <Link className="link" to={destination(selected!)}>
+                <Link className="link" to={dashboardPath(selected!)}>
                   Return to overview
                 </Link>
               </p>

@@ -1,19 +1,27 @@
 import { Buildings, Layout, PlusCircle } from 'phosphor-react';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/context';
 import { useLocation } from 'react-router';
 import PortalLayout from '@/components/layout/PortalLayout';
 import { platformAdminLinks } from '@/components/layout/nav';
 
 export default function ConsoleAccessLayout() {
-  const auth = useConsoleAuth();
+  const { identity } = useAuth();
+  const organization = useOrganization();
   const location = useLocation();
   const nav = [
-    ...(auth?.selected
-      ? [{ label: 'Dashboard', path: auth.owner ? '/merchant' : '/developer', icon: Layout }]
+    ...(organization.selected
+      ? [
+          {
+            label: 'Dashboard',
+            path: organization.owner ? '/merchant' : '/developer',
+            icon: Layout,
+          },
+        ]
       : []),
     { label: 'Organizations', path: '/organizations', icon: Buildings },
     { label: 'Organization onboarding', path: '/onboarding', icon: PlusCircle },
-    ...platformAdminLinks(auth),
+    ...platformAdminLinks(identity),
   ];
   return (
     <PortalLayout
