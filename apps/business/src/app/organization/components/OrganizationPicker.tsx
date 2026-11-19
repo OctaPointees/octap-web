@@ -17,8 +17,8 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/utils/cn';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '../hooks/useOrganization';
 import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
+import { organizationPath, panelFor } from '../utils';
 import type {
   ConsoleIdentity,
   OrganizationApplication,
@@ -94,7 +94,6 @@ function entries(identity: ConsoleIdentity, applications: OrganizationApplicatio
 /** The organization list: every organization you belong to or asked to create. */
 export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string }) {
   const { identity } = useAuth();
-  const { organizationId, choose, busy } = useOrganization();
   const navigate = useNavigate();
   const requests = useOrganizationRequests();
   if (!identity) return null;
@@ -146,20 +145,16 @@ export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string
             <li key={entry.key}>
               <OrganizationCard
                 entry={entry}
-                current={!!entry.persona && entry.organizationId === organizationId}
-                disabled={busy}
                 onOpen={
                   entry.persona && entry.organizationId
-                    ? () => choose(entry.organizationId!)
+                    ? () =>
+                        navigate(organizationPath(entry.organizationId!, panelFor(entry.persona!)))
                     : undefined
                 }
                 onSettings={
                   entry.persona === 'BUSINESS_OWNER' && entry.organizationId
-                    ? () => {
-                        // choose() routes to the dashboard; this later navigation wins.
-                        choose(entry.organizationId!);
-                        navigate('/merchant/settings');
-                      }
+                    ? () =>
+                        navigate(organizationPath(entry.organizationId!, 'merchant', 'settings'))
                     : undefined
                 }
               />
@@ -192,14 +187,10 @@ const developerTip = 'Developers manage API keys, webhooks and integrations for 
  */
 function OrganizationCard({
   entry,
-  current,
-  disabled,
   onOpen,
   onSettings,
 }: {
   entry: Entry;
-  current: boolean;
-  disabled: boolean;
   onOpen?: () => void;
   onSettings?: () => void;
 }) {
@@ -230,17 +221,15 @@ function OrganizationCard({
         'relative flex h-full min-h-48 flex-col rounded-box border border-base-300 bg-base-200/40 p-5',
         onOpen &&
           'bg-base-100 transition-[border-color,box-shadow] hover:border-base-content/25 hover:shadow-sm has-[button[data-open]:focus-visible]:outline-2 has-[button[data-open]:focus-visible]:outline-offset-2 has-[button[data-open]:focus-visible]:outline-primary',
-        current && 'border-primary',
       )}
     >
       {onOpen && (
         <button
           type="button"
           data-open
-          disabled={disabled}
           onClick={onOpen}
           aria-label={`Open ${entry.name}`}
-          className="absolute inset-0 cursor-pointer rounded-box outline-none disabled:cursor-wait"
+          className="absolute inset-0 cursor-pointer rounded-box outline-none"
         />
       )}
 
@@ -249,9 +238,6 @@ function OrganizationCard({
           <h2 className={cn('truncate font-semibold', status && 'opacity-75')} title={entry.name}>
             {entry.name}
           </h2>
-          {current && (
-            <span className="badge badge-primary badge-soft badge-xs shrink-0">Current</span>
-          )}
           {status && (
             <span className={cn('badge badge-soft badge-xs shrink-0', status.badge)}>
               {status.label}
@@ -321,7 +307,7 @@ function OrganizationCard({
                     <Copy size={16} className="opacity-70" /> Copy organization ID
                   </Menu.Item>
                   {onSettings && (
-                    <Menu.Item className={menuItem} disabled={disabled} onClick={onSettings}>
+                    <Menu.Item className={menuItem} onClick={onSettings}>
                       <Gear size={16} className="opacity-70" /> Settings
                     </Menu.Item>
                   )}
