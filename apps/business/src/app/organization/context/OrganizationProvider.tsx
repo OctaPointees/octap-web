@@ -48,21 +48,22 @@ export function OrganizationProvider() {
 
 function OrganizationLoading({ error }: { error: Error | null }) {
   return (
-    <div className="flex place-center flex-col h-full">
-      <div className="flex flex-col place-center w-1/3 h-1/3 gap-12 bg-base-200/58 backdrop-blur-2xl rounded-box">
-        <img src="/favicon.svg" className="size-30" />
+    <div className="flex min-h-dvh flex-col place-center gap-6 p-4">
+      <div className="flex w-full max-w-md flex-col place-center gap-8 rounded-box bg-base-200/58 p-8 text-center backdrop-blur-2xl">
+        <img src="/favicon.svg" className="size-24" alt="" />
         {error ? (
-          <>
-            <p role="alert">{error.message}</p>
+          <div role="alert" className="flex flex-col gap-3">
+            <p className="font-semibold">This organization could not be loaded.</p>
+            <p className="text-sm opacity-75">{error.message}</p>
             <Link className="link" to="/organizations">
               Back to organizations
             </Link>
-          </>
+          </div>
         ) : (
-          <>
-            <span className="loading loading-spinner loading-lg" />
+          <div role="status" className="flex flex-col place-center gap-4">
+            <span className="loading loading-spinner loading-lg" aria-hidden />
             Fetching the latest data for you! Hang tight!
-          </>
+          </div>
         )}
       </div>
       {error && <AccountControls />}
