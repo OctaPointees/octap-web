@@ -132,6 +132,24 @@ test('balance and history use only the authenticated member and redact the Core 
   assert.equal(data.transactions[0].metadata, undefined);
 });
 
+test('history accepts the paged Core response as well as the old array', async () => {
+  configure();
+  globalThis.fetch = async (url) =>
+    Response.json(
+      url.endsWith('/balance')
+        ? { confirmedBalance: 10, pendingEarn: 0 }
+        : {
+            items: [{ id: 'tx', transactionType: 'EARN', pointsAmount: 10, status: 'CONFIRMED' }],
+            nextCursor: null,
+          },
+    );
+  const response = await POST(request(encodeCustomerSession(session())));
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.transactions.length, 1);
+  assert.equal(data.transactions[0].points, 10);
+});
+
 test('pending earn history never presents a purchase as confirmed points', async () => {
   configure();
   globalThis.fetch = async (url) =>
