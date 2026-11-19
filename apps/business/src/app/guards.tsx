@@ -1,23 +1,18 @@
-import { Navigate, Outlet, useLocation } from 'react-router';
-import type { MerchantRole } from '@/types/domain';
+import { Navigate, Outlet } from 'react-router';
 import { AccountControls, useAuth } from '@octap/shared/authentication';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 
 /** Signed in, with an organization selected, in the panel its role allows. */
-export function RequireRoles({ merchantRoles = [] }: { merchantRoles?: MerchantRole[] }) {
+export function RequireRoles({ allow }: { allow: ('owner' | 'developer')[] }) {
   const { identity } = useAuth();
   const organization = useOrganization();
-  const location = useLocation();
 
   if (!identity) return <Navigate to="/login" replace />;
   if (!organization.selected)
     return (
       <Navigate to={identity.organizations.length ? '/organizations' : '/onboarding'} replace />
     );
-  if (
-    !merchantRoles.includes(organization.owner ? 'owner' : 'developer') ||
-    (!organization.owner && location.pathname.startsWith('/merchant'))
-  )
+  if (!allow.includes(organization.owner ? 'owner' : 'developer'))
     return <Navigate to={organization.owner ? '/merchant' : '/developer'} replace />;
   if (!organization.data.organization)
     return (

@@ -1,8 +1,7 @@
 # OctaP Business / Developer dashboard
 
-The app reuses the existing Owner/Developer layouts, navigation and page components.
-Google login and supported organization workflows call Core directly by default. The
-original sample dashboards and password login require explicit demo mode.
+Owner and Developer dashboards for an OctaP organization. Sign-in is Google only, and every
+page reads and writes Core directly. There is no demo mode or sample data.
 
 ## Run locally
 
@@ -18,7 +17,7 @@ public Google client ID and Core target, authorize the browser origin in Google,
 start Core with its migrations applied. See
 [the portal guide](../../docs/google-login.md) for full configuration.
 
-## Default Google/Core mode
+## How it works
 
 - Google verifies identity/email. Core owns system roles and active memberships. The same
   account may be an Owner in one organization and a Developer in another. System Admin
@@ -48,8 +47,7 @@ start Core with its migrations applied. See
   `{ schema: 'octap.benefit.v1', kind, … }` (see `src/app/console/rewards/benefit.ts`).
   Core publishes `terms` but does not enforce it: the merchant applies it at checkout.
 - Invite links require the addressed Google identity and explicit one-time acceptance.
-- Dashboard modules without live adapters report that they are not connected. They do
-  not run against sample data after real Google login.
+- Dashboard modules without live adapters report that they are not connected.
 - Provider credentials stay in memory, not localStorage/sessionStorage. Reloading requires
   sign-in again. Organization switches and sign-out clear query caches. The real portal
   uses no OctaP SDK or custom Redis session.
@@ -58,11 +56,7 @@ Core enforces permissions independently of UI guards. Organization approval crea
 access, not an on-chain program. The member directory and the reward catalog are connected to
 Core. Live analytics, points, campaigns and full governance remain separate work.
 
-## Demo mode
-
-Password demo sign-in has been removed: both portals sign in with Google only.
-`VITE_ENABLE_DEMO_AUTH=true` still switches a few pages to their old sample data. That
-leftover demo code is due for removal.
+## System Admin
 
 The System Admin app is separate at http://localhost:5000/admin. Configure
 `VITE_ADMIN_PORTAL_URL` for its link. System Admin accounts still need explicit tenant
@@ -75,11 +69,8 @@ From the repository root:
 ```sh
 npm run build
 npm run lint
-npm test -w @octap/admin
 npm run test:google-login
 ```
 
-The shared Node regression suite checks real-mode mock isolation in this app as well as
-admin. Browser tests check real-mode routing and the original opt-in demo with controlled
-Google/Core responses. Actual OAuth configuration still requires real Google sign-in;
+Browser tests check routing with controlled Google/Core responses. Actual OAuth configuration still requires real Google sign-in;
 Core's integration suite covers API/database behavior.

@@ -1,26 +1,24 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query';
-import { ApiError } from '../services/mock/http';
-import { sessionStore } from '../services/session';
+
+/** HTTP status of a failed request, when the error carries one (Core's `ConsoleApiError`). */
+const statusOf = (error: unknown) =>
+  typeof error === 'object' && error && 'status' in error && typeof error.status === 'number'
+    ? error.status
+    : undefined;
 
 export const queryClient: QueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
       refetchOnWindowFocus: false,
-      retry: (count, error) => !(error instanceof ApiError && error.status < 500) && count < 2,
+      // Client errors will not change on a retry.
+      retry: (count, error) => (statusOf(error) ?? 500) >= 500 && count < 2,
     },
   },
   mutationCache: new MutationCache({
-    onError: (error) => {
-      if (error instanceof ApiError && error.status === 401) sessionStore.set(null);
-    },
-    // Every write may affect dashboards/audit, so refresh anything visible.
+    // Every write may affect what is on screen, so refresh anything visible.
     onSuccess: () => {
       void queryClient.invalidateQueries();
     },
   }),
-});
-
-sessionStore.subscribe(() => {
-  if (!sessionStore.get()) queryClient.clear();
 });
