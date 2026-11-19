@@ -13,7 +13,7 @@ import {
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
 import { platformAdminLinks } from '@/components/layout/nav';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 
 // Core has no member search yet.
 const noSearch = () => ({ data: [], isFetching: false });

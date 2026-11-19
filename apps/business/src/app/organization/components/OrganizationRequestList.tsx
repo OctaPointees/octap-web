@@ -4,8 +4,8 @@ import { ArrowSquareOut, Buildings, Copy, DotsThreeCircle } from 'phosphor-react
 import { useEffect, useState } from 'react';
 import { cn } from '@/utils/cn';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from './context';
-import { useOrganizationRequests } from './organization-requests';
+import { useOrganization } from '../hooks/useOrganization';
+import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
 import type { OrganizationApplication } from '@octap/shared/console-api';
 
 const STATUS: Record<OrganizationApplication['status'], { label: string; badge: string }> = {

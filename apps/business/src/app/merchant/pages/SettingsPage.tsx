@@ -1,4 +1,5 @@
-import ConnectedSettings from '../../console/Settings';
+import { useLocation } from 'react-router';
+import { OrganizationSettings } from '@/app/organization/components/OrganizationSettings';
 import { Form } from '@base-ui/react/form';
 import { UserPlus } from 'phosphor-react';
 import { useState } from 'react';
@@ -351,9 +352,10 @@ function DemoSettingsPage() {
 }
 
 export default function SettingsPage() {
+  const { pathname } = useLocation();
   return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
     <DemoSettingsPage />
   ) : (
-    <ConnectedSettings />
+    <OrganizationSettings view={pathname.endsWith('/team') ? 'team' : 'profile'} />
   );
 }

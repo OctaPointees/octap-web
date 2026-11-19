@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 import type { MerchantRole } from '@/types/domain';
 import { AccountControls, useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 
 /** Signed in, with an organization selected, in the panel its role allows. */
 export function RequireRoles({ merchantRoles = [] }: { merchantRoles?: MerchantRole[] }) {

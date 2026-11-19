@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiCredentialsApi, type ConsoleCredential } from '@octap/services';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { useState } from 'react';
 import { Key, PencilSimple, Plus, Warning } from 'phosphor-react';
 import { Button } from '@/components/shared/Button';

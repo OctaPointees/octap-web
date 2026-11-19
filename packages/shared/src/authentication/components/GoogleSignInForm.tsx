@@ -25,19 +25,22 @@ export function GoogleSignInForm({
         </p>
       )}
       {configured ? (
-        <div
-          ref={ref}
-          aria-label="Sign in with Google"
-          className={cn(busy && 'pointer-events-none opacity-50')}
-        />
+        <>
+          <div
+            ref={ref}
+            aria-label="Sign in with Google"
+            className={cn('w-full', busy && 'pointer-events-none opacity-50')}
+          />
+        </>
       ) : (
         <p role="alert" className="alert alert-warning">
           Google sign-in is not configured. Set VITE_GOOGLE_CLIENT_ID for this portal.
         </p>
       )}
       {busy && (
-        <p role="status" className="text-sm">
-          Verifying with Core…
+        <p role="status" className="text-sm flex items-center gap-4">
+          <span className="loading loading-spin"></span>
+          Processing your request . . .
         </p>
       )}
       {error && (

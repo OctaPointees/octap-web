@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router';
 import { AuthProvider, ResumeGate } from '@octap/shared/authentication';
-import { OrganizationProvider } from '@/app/organization/OrganizationProvider';
+import { OrganizationProvider } from '@/app/organization/context/OrganizationProvider';
 import { queryClient } from '../queries/client';
 
 /** Sign-in for every route, then the organization the user works in. */

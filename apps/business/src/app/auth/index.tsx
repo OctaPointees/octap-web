@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router';
 import { Fingerprint, ShieldCheck, Stack } from 'phosphor-react';
 import { GoogleSignInForm, useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 
 const PILLARS = [
   {
@@ -83,9 +83,10 @@ export default function AuthenticationEntryPoint() {
   return (
     <div className="app-wrapper grid lg:grid-cols-5">
       <AuthenticationBrandPanel />
-      <section className="flex items-center justify-center overflow-y-auto p-6 col-span-2">
-        <div className="flex w-full max-w-sm flex-col gap-6">
-          <div>
+
+      <section className="flex place-center overflow-y-auto p-6 col-span-2">
+        <div className="w-full max-w-md flex flex-col gap-6 scale-110">
+          <div className="mb-6">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary">
               OctaP Business portal
             </p>
@@ -94,6 +95,7 @@ export default function AuthenticationEntryPoint() {
               Use your Google account. Your organization and permissions are provided by OctaP Core.
             </p>
           </div>
+
           <GoogleSignInForm />
         </div>
       </section>
