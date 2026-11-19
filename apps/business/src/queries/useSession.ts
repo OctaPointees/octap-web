@@ -1,6 +1,6 @@
 import { useMemo, useSyncExternalStore } from 'react';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import type { Session } from '../types/domain';
 import { walletSession } from '../services/wallet.service';
 

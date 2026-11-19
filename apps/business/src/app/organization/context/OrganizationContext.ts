@@ -1,4 +1,4 @@
-import { createContext, useContext, type FormEvent } from 'react';
+import { createContext, type FormEvent } from 'react';
 import type {
   ConsoleClient,
   ConsoleIdentity,
@@ -52,13 +52,6 @@ export interface OrganizationSession {
 }
 
 export const OrganizationContext = createContext<OrganizationSession | null>(null);
-
-/** The current organization. Must be used below `OrganizationProvider`. */
-export function useOrganization(): OrganizationSession {
-  const session = useContext(OrganizationContext);
-  if (!session) throw new Error('useOrganization() must be used inside <OrganizationProvider>.');
-  return session;
-}
 
 export const dashboardPath = (org: { persona: string }) =>
   org.persona === 'BUSINESS_OWNER' ? '/merchant' : '/developer';

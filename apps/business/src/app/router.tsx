@@ -1,10 +1,10 @@
-import ConsoleAccessLayout from './console/AccessLayout';
 import { RequireSignIn } from '@octap/shared/authentication';
-import { OrganizationScreen } from '@/app/organization/OrganizationScreen';
+import OrganizationLayout from './organization';
+import OrganizationsPage from './organization/pages/OrganizationsPage';
+import OnboardingPage from './organization/pages/OnboardingPage';
 import BusinessRoot from './Root';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireRoles } from './guards';
-import { ADMIN_PORTAL_URL } from '@/components/layout/nav';
 
 import AuthenticationEntryPoint from './auth';
 import MerchantLayout from './merchant';
@@ -74,13 +74,10 @@ const accountRoutes: RouteObject[] = [
     element: <RequireSignIn />,
     children: [
       {
-        element: <ConsoleAccessLayout />,
+        element: <OrganizationLayout />,
         children: [
-          { path: '/onboarding', element: <OrganizationScreen /> },
-          {
-            path: '/organizations',
-            element: <OrganizationScreen adminPortalUrl={ADMIN_PORTAL_URL} />,
-          },
+          { path: '/onboarding', element: <OnboardingPage /> },
+          { path: '/organizations', element: <OrganizationsPage /> },
         ],
       },
     ],

@@ -8,7 +8,7 @@ import {
   dashboardPath,
   type OrganizationData,
   type OrganizationSession,
-} from './context';
+} from './OrganizationContext';
 
 /** The tab's selected organization survives a reload; a new tab starts without one. */
 const savedKey = 'octap.console.business.organization';
@@ -64,15 +64,22 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       navigate(location.pathname, { replace: true });
   }, [location.pathname, location.search, navigate]);
 
-  // Remember the selection for reloads; forget it once nobody is signed in.
-  useEffect(() => {
-    if (identity) saved.set(organizationId);
-    else if (!resuming) {
-      saved.set('');
+  // Forget the selection once nobody is signed in.
+  const signedOut = !identity && !resuming;
+  const [wasSignedOut, setWasSignedOut] = useState(signedOut);
+  if (signedOut !== wasSignedOut) {
+    setWasSignedOut(signedOut);
+    if (signedOut) {
       setChosenId('');
       setData({});
       setInviteLink('');
     }
+  }
+
+  // Remember the selection for reloads.
+  useEffect(() => {
+    if (identity) saved.set(organizationId);
+    else if (!resuming) saved.set('');
   }, [identity, resuming, organizationId]);
 
   // Load what the current page needs for the selected organization.

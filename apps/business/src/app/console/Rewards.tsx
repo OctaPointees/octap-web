@@ -3,7 +3,7 @@ import { Copy, FileArrowUp, PencilSimple, Plus, Ticket, Warning } from 'phosphor
 import { useState } from 'react';
 import type { ConsoleVoucher } from '@octap/services';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Button } from '@/components/shared/Button';
 import { FormField, Segmented, TextInput } from '@/components/shared/Controls';
 import {
