@@ -103,7 +103,7 @@ export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string
   const isAdmin = identity.user.systemRole === 'SYSTEM_ADMIN';
 
   return (
-    <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 pt-4">
+    <div className="mx-auto flex w-full max-w-(--size-article) flex-col gap-6 pt-4">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Choose an organization</h1>

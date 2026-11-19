@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Outlet } from 'react-router';
+import { cn } from '../../utils/cn';
 import MainToolbar, { type SearchResult } from './MainToolbar';
 import SidePanel, { type NavOption } from './SidePanel';
 import { AccountMenu } from './ToolbarMenus';
@@ -15,9 +16,9 @@ type Props = {
 };
 
 /**
- * The window scrolls: the full-width top bar sticks to the top, and the side panel sticks just
- * below it at the same 1rem gap it has before scrolling (`--toolbar` is the bar's height, its
- * bottom border included in `h-14`).
+ * The window scrolls: the full-width top bar sticks to the top, and the side panel sticks right
+ * below it, flush with the window's left edge and bottom (`--toolbar` is the bar's height, its
+ * bottom border included in `h-14`). Only the page content has padding.
  */
 export default function PortalLayout({
   subtitle,
@@ -39,17 +40,17 @@ export default function PortalLayout({
         />
       </header>
 
-      <div className="flex flex-1 gap-6 p-4">
+      <div className="flex flex-1">
         {!hideSidebar && (
           <SidePanel
             options={nav}
             footer={sideFooter}
-            className="sticky top-[calc(var(--toolbar)+1rem)] h-[calc(100dvh-var(--toolbar)-2rem)]"
+            className="sticky top-(--toolbar) h-[calc(100dvh-var(--toolbar))]"
           />
         )}
 
-        <main className="min-w-0 flex-1">
-          <div className="mx-auto flex max-w-[1920px] flex-col gap-4">
+        <main className={cn('min-w-0 flex-1 p-4', !hideSidebar && 'md:pl-6')}>
+          <div className="flex max-w-(--size-article) flex-col gap-4 mx-auto">
             <Outlet />
           </div>
         </main>
