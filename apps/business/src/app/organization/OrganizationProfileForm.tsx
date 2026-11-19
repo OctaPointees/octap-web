@@ -1,17 +1,22 @@
 import { useState } from 'react';
-import { useConsoleAuth } from './console-session';
-import type { ConsoleOrganization, OrganizationType } from './portal-api';
-import { organizationTypeLabel } from './organization-types';
+import { useAuth } from '@octap/shared/authentication';
+import {
+  organizationTypeLabel,
+  type ConsoleOrganization,
+  type OrganizationType,
+} from '@octap/shared/console-api';
+import { useOrganization } from './context';
 
 export function OrganizationProfileForm({ organization }: { organization: ConsoleOrganization }) {
-  const auth = useConsoleAuth();
+  const { identity } = useAuth();
+  const org = useOrganization();
   const [type, setType] = useState<OrganizationType | ''>(organization.organizationType ?? '');
-  if (!auth?.identity) return null;
+  if (!identity) return null;
   return (
     <form
       className="grid gap-4 max-w-xl"
       onSubmit={(event) => {
-        const form = auth.fields(event);
+        const form = org.fields(event);
         if (!type) return;
         const nationalId = String(form.get('nationalId') ?? '').trim();
         const input = {
@@ -24,7 +29,7 @@ export function OrganizationProfileForm({ organization }: { organization: Consol
                 ...(nationalId ? { nationalId } : {}),
               }),
         };
-        void auth.perform(async (client) => {
+        void org.perform(async (client) => {
           await client.updateConsoleOrganizationProfile(organization.id, input);
         }, 'Organization profile saved');
       }}
@@ -90,7 +95,7 @@ export function OrganizationProfileForm({ organization }: { organization: Consol
             <input
               name="representativeName"
               className="input input-bordered w-full"
-              defaultValue={organization.representativeName ?? auth.identity.user.fullName}
+              defaultValue={organization.representativeName ?? identity.user.fullName}
               required
               minLength={2}
               maxLength={160}
@@ -118,7 +123,7 @@ export function OrganizationProfileForm({ organization }: { organization: Consol
           </p>
         </>
       ) : null}
-      <button className="btn btn-primary" disabled={auth.busy || !type}>
+      <button className="btn btn-primary" disabled={org.busy || !type}>
         Save profile
       </button>
     </form>

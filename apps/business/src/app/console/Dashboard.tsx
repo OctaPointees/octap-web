@@ -1,11 +1,11 @@
 import { Buildings, ShieldCheck, UsersThree } from 'phosphor-react';
 import { Link } from 'react-router';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useOrganization } from '@/app/organization/context';
 import { Card, PageHeader, StatCard, StatusBadge } from '@/components/shared/Display';
 
 export default function ConnectedDashboard({ developer = false }: { developer?: boolean }) {
-  const auth = useConsoleAuth();
-  const org = auth?.data.organization;
+  const organization = useOrganization();
+  const org = organization.data.organization;
   if (!org) return null;
   return (
     <>
@@ -17,9 +17,9 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
             : 'Your organization and access are verified by OctaP Core.'
         }
       />
-      {auth.error && (
+      {organization.error && (
         <p role="alert" className="alert alert-error">
-          {auth.error}
+          {organization.error}
         </p>
       )}
       {/* One 6-column grid: stats take 2 columns each and cards 3, so both rows share edges. */}
@@ -66,7 +66,7 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
               </>
             ) : (
               <>
-                {auth.owner && (
+                {organization.owner && (
                   <>
                     <Link className="link" to="/merchant/settings">
                       Organization settings

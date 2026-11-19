@@ -1,14 +1,14 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
 import { useMemo } from 'react';
 import { House, Key, PlugsConnected, ShareNetwork, Ticket, UsersThree } from 'phosphor-react';
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
 import { platformAdminLinks } from '@/components/layout/nav';
-import { useMerchantTenant } from '@/queries/merchant';
+import { useOrganization } from '@/app/organization/context';
 
 export default function DeveloperLayout() {
-  const auth = useConsoleAuth();
-  const tenant = useMerchantTenant(!auth).data;
+  const { identity } = useAuth();
+  const { selected } = useOrganization();
 
   const nav = useMemo<NavOption[]>(
     () => [
@@ -26,8 +26,8 @@ export default function DeveloperLayout() {
 
   return (
     <PortalLayout
-      subtitle={auth?.selected?.name ?? tenant?.name ?? 'Business'}
-      nav={[...nav, ...platformAdminLinks(auth)]}
+      subtitle={selected?.name ?? 'Business'}
+      nav={[...nav, ...platformAdminLinks(identity)]}
       useSearch={noSearch}
       searchPlaceholder="Search pages…"
     />

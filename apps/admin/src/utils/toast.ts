@@ -1,2 +1,2 @@
-// The toast queue lives in the shared package so the console code reports results there too.
-export { notify, toastManager } from '@octap/shared/toast';
+// The toast queue lives in the shared components so every app and package reports there.
+export { notify, toastManager } from '@octap/shared/components';

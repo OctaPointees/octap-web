@@ -1,33 +1,32 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
-import { useMemo } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/context';
 import type { Session } from '../types/domain';
-import { useSyncExternalStore } from 'react';
-import { sessionStore } from '../services/session';
 import { walletSession } from '../services/wallet.service';
 
-export function useSession() {
-  const auth = useConsoleAuth();
-  const legacy = useSyncExternalStore(sessionStore.subscribe, sessionStore.get);
-  const mapped = useMemo<Session | null>(
+/** The signed-in user in the `Session` shape the older dashboard pages read. */
+export function useSession(): Session | null {
+  const { identity } = useAuth();
+  const { selected, owner } = useOrganization();
+  return useMemo<Session | null>(
     () =>
-      auth?.identity
+      identity
         ? {
             token: '',
-            expiresAt: auth.identity.expiresAt,
+            expiresAt: identity.expiresAt,
             user: {
-              id: auth.identity.user.id,
-              email: auth.identity.user.email,
-              displayName: auth.identity.user.fullName,
-              avatarUrl: auth.identity.user.avatarUrl ?? '',
+              id: identity.user.id,
+              email: identity.user.email,
+              displayName: identity.user.fullName,
+              avatarUrl: identity.user.avatarUrl ?? '',
               role: 'merchant',
-              tenantId: auth.selected?.organizationId,
-              merchantRole: auth.selected ? (auth.owner ? 'owner' : 'developer') : undefined,
+              tenantId: selected?.organizationId,
+              merchantRole: selected ? (owner ? 'owner' : 'developer') : undefined,
             },
           }
         : null,
-    [auth],
+    [identity, selected, owner],
   );
-  return auth ? mapped : legacy;
 }
 
 export function useWalletSession() {

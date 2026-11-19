@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ToasterProvider } from '@octap/shared/toast';
+import { ToasterProvider } from '@octap/shared/components';
 import { queryClient } from '../queries/client';
 
 export function AppProviders({ children }: { children: ReactNode }) {

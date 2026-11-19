@@ -2,12 +2,12 @@ import { Check } from 'phosphor-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { cn } from '../utils';
+import { cn } from '@/utils/cn';
 import { organizationRequestsKey } from './organization-requests';
-import { useConsoleAuth } from './console-session';
-import type { OrganizationType } from './portal-api';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from './context';
+import { organizationTypeLabel, type OrganizationType } from '@octap/shared/console-api';
 
-import { organizationTypeLabel } from './organization-types';
 const initialDetails = (fullName: string) => ({
   name: '',
   slug: '',
@@ -33,14 +33,15 @@ const input = 'input w-full font-normal';
  * through Continue, so the form's own validation always runs before the review.
  */
 export function OrganizationSetup() {
-  const auth = useConsoleAuth();
+  const { identity } = useAuth();
+  const org = useOrganization();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [type, setType] = useState<OrganizationType>();
   const [step, setStep] = useState<StepIndex>(0);
-  const [details, setDetails] = useState(() => initialDetails(auth?.identity?.user.fullName ?? ''));
-  if (!auth?.identity) return null;
-  const busy = auth.busy;
+  const [details, setDetails] = useState(() => initialDetails(identity?.user.fullName ?? ''));
+  if (!identity) return null;
+  const busy = org.busy;
   const set = (key: keyof typeof details, value: string) =>
     setDetails((current) => ({ ...current, [key]: value }));
   function select(value: OrganizationType) {
@@ -64,7 +65,7 @@ export function OrganizationSetup() {
             ...(details.nationalId ? { nationalId: details.nationalId } : {}),
           }),
     };
-    void auth!.perform(
+    void org.perform(
       async (client) => {
         await client.requestConsoleOrganization(input);
       },

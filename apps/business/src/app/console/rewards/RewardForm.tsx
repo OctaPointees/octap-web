@@ -3,7 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { LockSimple, PencilSimple } from 'phosphor-react';
 import { useState, type ReactNode } from 'react';
 import { MAX_VALID_FOR_DAYS, type ConsoleVoucher, type ConsoleVoucherInput } from '@octap/services';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/context';
 import { Button } from '@/components/shared/Button';
 import { FormField, TextInput } from '@/components/shared/Controls';
 import { ConfirmDialog, SidePanel } from '@/components/shared/Modal';
@@ -94,8 +95,9 @@ export default function RewardForm({
   mode: RewardFormMode;
   onClose: () => void;
 }) {
-  const auth = useConsoleAuth()!;
-  const orgId = auth.organizationId;
+  const auth = useAuth();
+  const organization = useOrganization();
+  const orgId = organization.organizationId;
   const editing = mode.kind === 'edit' ? mode.voucher : undefined;
   const locked = editing ? isLocked(editing) : false;
   const readOnly = (mode.kind === 'edit' && mode.readOnly) || locked;

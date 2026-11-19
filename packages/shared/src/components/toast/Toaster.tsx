@@ -1,6 +1,6 @@
 import { Toast } from '@base-ui/react/toast';
 import { CheckCircle, Info, WarningCircle, X } from 'phosphor-react';
-import { cn } from '../utils';
+import { cn } from '../../utils';
 import { toastManager } from './notify';
 
 const TONE: Record<string, { icon: typeof Info; className: string }> = {

@@ -223,3 +223,6 @@ export function createConsoleClient({
       ),
   };
 }
+
+/** The client `createConsoleClient` returns. */
+export type ConsoleClient = ReturnType<typeof createConsoleClient>;

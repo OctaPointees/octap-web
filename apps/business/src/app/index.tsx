@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
-import { ToasterProvider } from '@octap/shared/toast';
+import { ToasterProvider } from '@octap/shared/components';
 import { queryClient } from '../queries/client';
 import { router } from './router';
 

@@ -1,0 +1,97 @@
+import { useEffect, useRef, useState } from 'react';
+import type { ConsoleIdentity } from '../../console-api/client';
+import { assertLoginNonce, loadGoogleIdentity, newLoginNonce } from '../lib/google';
+import { verifyGoogleCredential } from '../lib/identity';
+import { useAuth } from './useAuth';
+
+/**
+ * Renders Google's sign-in button into `ref` and signs the user in when it succeeds. Build a
+ * custom form around it; `GoogleSignInForm` is the default one.
+ */
+export function useGoogleSignInButton({
+  onSignedIn,
+}: { onSignedIn?: (identity: ConsoleIdentity) => void } = {}) {
+  const { clientId, apiBaseUrl, signIn } = useAuth();
+  const ref = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const signedIn = useRef(onSignedIn);
+  useEffect(() => {
+    signedIn.current = onSignedIn;
+  });
+
+  useEffect(() => {
+    if (!clientId) return;
+    let active = true;
+    let submitting = false;
+    const abort = new AbortController();
+    const nonce = newLoginNonce();
+    void loadGoogleIdentity()
+      .then((sdk) => {
+        if (!active || !ref.current) return;
+        sdk.initialize({
+          client_id: clientId,
+          nonce,
+          auto_select: false,
+          callback: (response) => {
+            if (!active || submitting) return;
+            submitting = true;
+            setBusy(true);
+            setError('');
+            void (async () => {
+              try {
+                assertLoginNonce(response.credential, nonce);
+                const identity = await verifyGoogleCredential(
+                  apiBaseUrl,
+                  response.credential,
+                  AbortSignal.any([abort.signal, AbortSignal.timeout(30_000)]),
+                );
+                if (!active) return;
+                signIn(identity, response.credential);
+                signedIn.current?.(identity);
+              } catch (cause) {
+                if (active)
+                  setError(cause instanceof Error ? cause.message : 'Sign-in failed. Try again.');
+              } finally {
+                if (active) {
+                  submitting = false;
+                  setBusy(false);
+                }
+              }
+            })();
+          },
+        });
+        ref.current.replaceChildren();
+        sdk.renderButton(ref.current, {
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          width: Math.max(200, Math.min(300, ref.current.clientWidth)),
+        });
+      })
+      .catch((cause) => {
+        if (active)
+          setError(cause instanceof Error ? cause.message : 'Google sign-in could not load.');
+      });
+    return () => {
+      active = false;
+      abort.abort();
+    };
+  }, [clientId, apiBaseUrl, signIn, attempt]);
+
+  return {
+    /** Attach to an empty element: Google draws its button inside it. */
+    ref,
+    /** False when the portal has no Google client ID configured. */
+    configured: !!clientId,
+    /** True while Core verifies the Google token. */
+    busy,
+    error,
+    /** Loads the button again after an error. */
+    retry: () => {
+      setError('');
+      setAttempt((value) => value + 1);
+    },
+  };
+}

@@ -58,22 +58,11 @@ Core enforces permissions independently of UI guards. Organization approval crea
 access, not an on-chain program. The member directory and the reward catalog are connected to
 Core. Live analytics, points, campaigns and full governance remain separate work.
 
-## Optional browser-local demo
+## Demo mode
 
-Set `VITE_ENABLE_DEMO_AUTH=true` in this app's `.env.local` and restart Vite. The original
-password login and sample dashboards return. Example accounts use password `octap123`:
-
-| Account   | Email                    | Purpose                                                 |
-| --------- | ------------------------ | ------------------------------------------------------- |
-| Owner     | `owner@lotusmart.vn`     | Sample business operations, settings and Developer mode |
-| Developer | `developer@lotusmart.vn` | Sample API keys, webhooks and MCP tools                 |
-| Cashier   | `cashier@lotusmart.vn`   | Legacy prototype role demonstration                     |
-
-Manager/Cashier/Viewer are legacy demo roles; the real tenant personas are Owner and
-Developer. The Mock API console can simulate latency/failures and reset sample data.
-`octap.mockdb` initializes lazily on first demo use, and `octap.session` stores only demo
-sessions. Real mode never reads, creates, resets or commits that database. Existing demo
-data is retained without being read or rewritten in real mode.
+Password demo sign-in has been removed: both portals sign in with Google only.
+`VITE_ENABLE_DEMO_AUTH=true` still switches a few pages to their old sample data. That
+leftover demo code is due for removal.
 
 The System Admin app is separate at http://localhost:5000/admin. Configure
 `VITE_ADMIN_PORTAL_URL` for its link. System Admin accounts still need explicit tenant
