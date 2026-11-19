@@ -22,7 +22,6 @@ export default function ConnectedMembers() {
       if (cursors.at(-1)) query.set('cursor', cursors.at(-1)!);
       return auth.client().listMembers(orgId, query, signal);
     },
-    enabled: Boolean(organization.data.organization),
   });
   const detail = useQuery({
     queryKey: [...prefix, 'detail', selected],

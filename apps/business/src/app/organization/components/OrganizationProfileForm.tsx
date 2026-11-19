@@ -5,18 +5,19 @@ import {
   type ConsoleOrganization,
   type OrganizationType,
 } from '@octap/shared/console-api';
-import { useOrganization } from '../hooks/useOrganization';
+import { useOrganizationAction } from '../hooks/useOrganizationAction';
+import { formFields } from '../utils';
 
 export function OrganizationProfileForm({ organization }: { organization: ConsoleOrganization }) {
   const { identity } = useAuth();
-  const org = useOrganization();
+  const { run, busy } = useOrganizationAction();
   const [type, setType] = useState<OrganizationType | ''>(organization.organizationType ?? '');
   if (!identity) return null;
   return (
     <form
       className="grid gap-4 max-w-xl"
       onSubmit={(event) => {
-        const form = org.fields(event);
+        const form = formFields(event);
         if (!type) return;
         const nationalId = String(form.get('nationalId') ?? '').trim();
         const input = {
@@ -29,7 +30,7 @@ export function OrganizationProfileForm({ organization }: { organization: Consol
                 ...(nationalId ? { nationalId } : {}),
               }),
         };
-        void org.perform(async (client) => {
+        run(async (client) => {
           await client.updateConsoleOrganizationProfile(organization.id, input);
         }, 'Organization profile saved');
       }}
@@ -123,7 +124,7 @@ export function OrganizationProfileForm({ organization }: { organization: Consol
           </p>
         </>
       ) : null}
-      <button className="btn btn-primary" disabled={org.busy || !type}>
+      <button className="btn btn-primary" disabled={busy || !type}>
         Save profile
       </button>
     </form>

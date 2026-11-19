@@ -1,27 +1,24 @@
 import { Buildings, ShieldCheck, UsersThree } from 'phosphor-react';
 import { Link } from 'react-router';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { organizationPath } from '@/app/organization/utils';
 import { Card, PageHeader, StatCard, StatusBadge } from '@/components/shared/Display';
 
 export default function ConnectedDashboard({ developer = false }: { developer?: boolean }) {
   const organization = useOrganization();
-  const org = organization.data.organization;
-  if (!org) return null;
+  const org = organization.organization;
+  const path = (panel: 'merchant' | 'developer', page: string) =>
+    organizationPath(organization.organizationId, panel, page);
   return (
     <>
       <PageHeader
         title={developer ? 'Developer dashboard' : `${org.name} loyalty`}
         description={
           developer
-            ? 'Integration status, credentials and webhooks for this organization.'
+            ? 'Integration status and credentials for this organization.'
             : 'Your organization and access are verified by OctaP Core.'
         }
       />
-      {organization.error && (
-        <p role="alert" className="alert alert-error">
-          {organization.error}
-        </p>
-      )}
       {/* One 6-column grid: stats take 2 columns each and cards 3, so both rows share edges. */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <div className="xl:col-span-2 *:h-full">
@@ -54,7 +51,7 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
           <div className="flex flex-col gap-3">
             {developer ? (
               <>
-                <Link className="link" to="/developer/api-keys">
+                <Link className="link" to={path('developer', 'api-keys')}>
                   API credentials
                 </Link>
               </>
@@ -62,15 +59,15 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
               <>
                 {organization.owner && (
                   <>
-                    <Link className="link" to="/merchant/settings">
+                    <Link className="link" to={path('merchant', 'settings')}>
                       Organization settings
                     </Link>
-                    <Link className="link" to="/merchant/team">
+                    <Link className="link" to={path('merchant', 'team')}>
                       Team and invitations
                     </Link>
                   </>
                 )}
-                <Link className="link" to="/developer/api-keys">
+                <Link className="link" to={path('developer', 'api-keys')}>
                   API credentials
                 </Link>
               </>
