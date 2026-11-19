@@ -29,14 +29,18 @@ start Core with its migrations applied. See
 - Users already in organizations can skip setup. Core permissions are refreshed first:
   one organization opens directly, multiple organizations lead to `/organizations`, and
   no active memberships stays in onboarding. Skipping grants no new privileges.
-- Owners enter `/merchant`. `/merchant/settings` updates permitted profile fields and
-  optional CCCD; `/merchant/team` lists staff and creates/revokes Developer invitations.
+- Every dashboard page has the organization in its URL: `/organizations/:id/merchant/…`
+  (Business panel, Owners only) and `/organizations/:id/developer/…` (Developer panel).
+  `/organizations/:id` opens the panel for your role, and links can be bookmarked or shared
+  with other members. Old `/merchant` and `/developer` links go to the organization list.
+- Owners enter `merchant`. `merchant/settings` updates permitted profile fields and
+  optional CCCD; `merchant/team` lists staff and creates/revokes Developer invitations.
   CCCD responses are masked and Core encrypts the stored value.
-- Developers enter `/developer`; `/developer/api-keys` lists safe credential metadata.
+- Developers enter `developer`; `developer/api-keys` lists safe credential metadata.
   They cannot manage organization profiles or invitations.
-- Owners use `/merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `/developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
-- Owners manage the reward catalog at `/merchant/rewards`; Developers have read-only
-  `/developer/rewards`. A reward is saved as a draft, then activated as a separate, confirmed
+- Owners use `merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
+- Owners manage the reward catalog at `merchant/rewards`; Developers have read-only
+  `developer/rewards`. A reward is saved as a draft, then activated as a separate, confirmed
   step: Core publishes its terms on-chain through the worker (`Publishing…`, then `Live`, or
   `Publish failed` with a retry), after which its title, type, points, conditions and dates
   can never change; only the number available, pause and resume can. Owners can start from a
@@ -49,7 +53,7 @@ start Core with its migrations applied. See
 - Invite links require the addressed Google identity and explicit one-time acceptance.
 - Dashboard modules without live adapters report that they are not connected.
 - Provider credentials stay in memory, not localStorage/sessionStorage. Reloading requires
-  sign-in again. Organization switches and sign-out clear query caches. The real portal
+  sign-in again. Each organization's data is cached under its own ID; sign-out clears the cache. The real portal
   uses no OctaP SDK or custom Redis session.
 
 Core enforces permissions independently of UI guards. Organization approval creates portal

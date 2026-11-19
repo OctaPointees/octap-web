@@ -1,27 +1,21 @@
 import { ArrowLeft } from 'phosphor-react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { InvitationForm } from '../components/InvitationForm';
 import { OrganizationRequestList } from '../components/OrganizationRequestList';
 import { OrganizationSetup } from '../components/OrganizationSetup';
-import { useOrganization } from '../hooks/useOrganization';
 
 /**
- * `/onboarding`: create an organization, or accept the invitation the user arrived with. Sits on
+ * `/onboarding`: create an organization, or accept the invitation in `?invitation=`. Sits on
  * the page background, capped at 1600px like the organization list.
  */
 export default function OnboardingPage() {
   const { identity } = useAuth();
-  const { error, invitation } = useOrganization();
+  const invitation = useSearchParams()[0].get('invitation') ?? '';
   if (!identity) return null;
 
   return (
     <section className="mx-auto w-full max-w-[1600px] pt-4 space-y-5">
-      {error && (
-        <p role="alert" className="alert alert-error">
-          {error}
-        </p>
-      )}
       {/* Form column capped at 1200px; your requests fill the rest beside it (below it on
           narrower screens). */}
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1200px)_minmax(18rem,1fr)]">
@@ -42,7 +36,7 @@ export default function OnboardingPage() {
             </p>
           )}
           {/* Only when opened from an invitation link: the link fills in the token. */}
-          {invitation ? <InvitationForm /> : <OrganizationSetup />}
+          {invitation ? <InvitationForm token={invitation} /> : <OrganizationSetup />}
         </div>
         {!invitation && <OrganizationRequestList />}
       </div>

@@ -1,33 +1,31 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { dashboardPath } from '../context/OrganizationContext';
-import { useOrganization } from '../hooks/useOrganization';
+import { useOrganizationAction } from '../hooks/useOrganizationAction';
+import { dashboardPath, formFields } from '../utils';
 
 /** Accepts the Developer invitation from an invitation link, then opens its organization. */
-export function InvitationForm() {
-  const { invitation, setInvitation, setOrganizationId, perform, fields, busy } = useOrganization();
+export function InvitationForm({ token }: { token: string }) {
+  const [invitation, setInvitation] = useState(token);
+  const { run, busy } = useOrganizationAction();
   const navigate = useNavigate();
 
   return (
     <form
       className="grid gap-3 max-w-xl"
       onSubmit={(event) => {
-        fields(event);
+        formFields(event);
         let acceptedOrganizationId = '';
-        void perform(
+        run(
           async (client) => {
             const result = await client.acceptConsoleInvitation(invitation);
             acceptedOrganizationId = result.organizationId;
           },
           'Invitation accepted',
-          (current) => {
-            const org = current.organizations.find(
+          (identity) => {
+            const org = identity.organizations.find(
               (value) => value.organizationId === acceptedOrganizationId,
             );
-            if (org) {
-              setOrganizationId(org.organizationId);
-              navigate(dashboardPath(org));
-            }
-            setInvitation('');
+            navigate(org ? dashboardPath(org) : '/organizations');
           },
         );
       }}

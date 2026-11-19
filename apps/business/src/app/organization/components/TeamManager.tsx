@@ -1,17 +1,41 @@
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@octap/shared/authentication';
 import { useOrganization } from '../hooks/useOrganization';
+import { useOrganizationAction } from '../hooks/useOrganizationAction';
+import { formFields, organizationKeys } from '../utils';
 
 const personaLabel = (persona: string) =>
   persona === 'BUSINESS_OWNER' ? 'Business Owner' : 'Business Developer';
 
 /** The organization's staff and Developer invitations, for its Business Owner. */
 export function TeamManager() {
-  const { organizationId, data, busy, perform, fields, inviteLink, setInviteLink } =
-    useOrganization();
+  const { client } = useAuth();
+  const { organizationId } = useOrganization();
+  const { run, busy } = useOrganizationAction();
+  const [inviteLink, setInviteLink] = useState('');
+  const staff = useQuery({
+    queryKey: organizationKeys.staff(organizationId),
+    queryFn: ({ signal }) => client().listConsoleStaff(organizationId, signal),
+  });
+  const invitations = useQuery({
+    queryKey: organizationKeys.invitations(organizationId),
+    queryFn: ({ signal }) => client().listConsoleInvitations(organizationId, signal),
+  });
+  const error = staff.error ?? invitations.error;
 
   return (
     <>
       <h2 className="font-semibold">Team and invitations</h2>
-      {data.staff?.map((person) => (
+      {error && (
+        <p role="alert" className="alert alert-error">
+          {error.message}
+        </p>
+      )}
+      {(staff.isPending || invitations.isPending) && !error && (
+        <p role="status">Loading the team…</p>
+      )}
+      {staff.data?.map((person) => (
         <div key={person.id} className="flex flex-wrap items-center gap-3">
           <p>
             {person.fullName} · {person.email} · {personaLabel(person.persona)} · {person.status}
@@ -23,8 +47,8 @@ export function TeamManager() {
               disabled={busy}
               aria-label={`${person.status === 'ACTIVE' ? 'Suspend' : 'Restore'} ${person.email}`}
               onClick={() =>
-                void perform(async (client) => {
-                  await client.updateConsoleStaffAccess(
+                run(async (api) => {
+                  await api.updateConsoleStaffAccess(
                     organizationId,
                     person.id,
                     person.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE',
@@ -40,9 +64,9 @@ export function TeamManager() {
       <form
         className="flex flex-wrap gap-3"
         onSubmit={(event) => {
-          const form = fields(event);
-          void perform(async (client) => {
-            const result = await client.createConsoleInvitation(
+          const form = formFields(event);
+          run(async (api) => {
+            const result = await api.createConsoleInvitation(
               organizationId,
               String(form.get('email')),
             );
@@ -70,7 +94,7 @@ export function TeamManager() {
           />
         </label>
       )}
-      {data.invitations?.map((invite) => (
+      {invitations.data?.map((invite) => (
         <div key={invite.id} className="flex flex-wrap gap-3 items-center">
           <p>
             {invite.email} · {invite.status} · Expires{' '}
@@ -81,8 +105,8 @@ export function TeamManager() {
               className="btn btn-outline btn-sm"
               disabled={busy}
               onClick={() =>
-                void perform(async (client) => {
-                  await client.revokeConsoleInvitation(organizationId, invite.id);
+                run(async (api) => {
+                  await api.revokeConsoleInvitation(organizationId, invite.id);
                 }, 'Invitation revoked')
               }
             >

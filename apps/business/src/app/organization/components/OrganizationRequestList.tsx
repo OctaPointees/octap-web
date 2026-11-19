@@ -4,7 +4,8 @@ import { ArrowSquareOut, Buildings, Copy, DotsThreeCircle } from 'phosphor-react
 import { useEffect, useState } from 'react';
 import { cn } from '@/utils/cn';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '../hooks/useOrganization';
+import { useNavigate } from 'react-router';
+import { dashboardPath } from '../utils';
 import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
 import type { OrganizationApplication } from '@octap/shared/console-api';
 
@@ -69,7 +70,7 @@ export function OrganizationRequestList() {
 /** One request: building mark, name and status, how long ago, and a menu. */
 function RequestRow({ request }: { request: OrganizationApplication }) {
   const { identity } = useAuth();
-  const { choose } = useOrganization();
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     if (!copied) return;
@@ -80,7 +81,7 @@ function RequestRow({ request }: { request: OrganizationApplication }) {
   const parsed = request.createdAt ? new Date(request.createdAt) : null;
   const created = parsed && !Number.isNaN(parsed.getTime()) ? parsed : null;
   // Approved requests you are a member of can be opened from here.
-  const openable = identity?.organizations.some(
+  const membership = identity?.organizations.find(
     (org) => org.organizationId === request.organizationId,
   );
 
@@ -133,8 +134,11 @@ function RequestRow({ request }: { request: OrganizationApplication }) {
                 {request.reason && (
                   <p className="px-3 pt-2 pb-1 text-xs opacity-70">Reason: {request.reason}</p>
                 )}
-                {openable && (
-                  <Menu.Item className={menuItem} onClick={() => choose(request.organizationId)}>
+                {membership && (
+                  <Menu.Item
+                    className={menuItem}
+                    onClick={() => membership && navigate(dashboardPath(membership))}
+                  >
                     <ArrowSquareOut size={16} className="opacity-70" /> Open organization
                   </Menu.Item>
                 )}

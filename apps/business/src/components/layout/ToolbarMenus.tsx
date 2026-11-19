@@ -11,8 +11,11 @@ import {
   SignOut,
   Storefront,
 } from 'phosphor-react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { notify } from '@octap/shared/components';
+import { useCurrentOrganization } from '@/app/organization/hooks/useOrganization';
+import { dashboardPath, organizationPath, type Panel } from '@/app/organization/utils';
 import { cn } from '../../utils/cn';
 import type { NavOption } from './SidePanel';
 
@@ -29,12 +32,24 @@ const tag =
 /** The signed-in person: who they are, plus refresh and sign-out. The only sign-out in the shell. */
 export function AccountMenu() {
   const auth = useAuth();
-  const organization = useOrganization();
+  const organization = useCurrentOrganization();
+  const [refreshing, setRefreshing] = useState(false);
   const user = auth.identity?.user;
   if (!user) return null;
 
+  const refresh = () => {
+    setRefreshing(true);
+    auth
+      .refresh()
+      .then(
+        () => notify.success('Access refreshed'),
+        (cause) => notify.error(cause, 'That did not work'),
+      )
+      .finally(() => setRefreshing(false));
+  };
+
   const access = [
-    organization.selected ? (organization.owner ? 'Business Owner' : 'Business Developer') : null,
+    organization ? (organization.owner ? 'Business Owner' : 'Business Developer') : null,
     auth.identity?.user.systemRole === 'SYSTEM_ADMIN' ? 'System Admin' : null,
   ].filter((role): role is string => !!role);
 
@@ -75,16 +90,12 @@ export function AccountMenu() {
               </div>
             </div>
             <div className={separator} />
-            <Menu.Item
-              className={item}
-              disabled={organization.busy}
-              onClick={() => void organization.perform(async () => {}, 'Access refreshed')}
-            >
+            <Menu.Item className={item} disabled={refreshing} onClick={refresh}>
               <ArrowClockwise size={16} /> Refresh access
             </Menu.Item>
             <Menu.Item
               className={cn(item, 'text-error')}
-              disabled={organization.busy}
+              disabled={refreshing}
               onClick={auth.signOut}
             >
               <SignOut size={16} /> Sign out
@@ -99,10 +110,10 @@ export function AccountMenu() {
 /** The organization segment: name, your role, and a switcher when signed in with Google. */
 export function OrganizationMenu({ label }: { label: string }) {
   const { identity } = useAuth();
-  const organization = useOrganization();
+  const organization = useCurrentOrganization();
   const navigate = useNavigate();
-  const name = organization.selected?.name ?? label;
-  const role = organization.selected ? (organization.owner ? 'Owner' : 'Developer') : null;
+  const name = organization?.membership.name ?? label;
+  const role = organization ? (organization.owner ? 'Owner' : 'Developer') : null;
   const content = (
     <>
       <Buildings size={16} className="shrink-0 opacity-70" />
@@ -126,12 +137,12 @@ export function OrganizationMenu({ label }: { label: string }) {
               <>
                 <div className="px-3 pt-1 pb-1 text-xs font-medium opacity-60">Organizations</div>
                 {identity.organizations.map((org) => {
-                  const current = org.organizationId === organization.organizationId;
+                  const current = org.organizationId === organization?.organizationId;
                   return (
                     <Menu.Item
                       key={org.organizationId}
                       className={item}
-                      onClick={() => !current && organization.choose(org.organizationId)}
+                      onClick={() => !current && navigate(dashboardPath(org))}
                     >
                       <Check size={16} className={cn(!current && 'invisible')} />
                       <span className="min-w-0 flex-1 truncate">{org.name}</span>
@@ -157,20 +168,20 @@ export function OrganizationMenu({ label }: { label: string }) {
   );
 }
 
-const PANELS = [
+const PANELS: { panel: Panel; label: string; description: string; icon: typeof Code }[] = [
   {
-    path: '/merchant',
+    panel: 'merchant',
     label: 'Business',
-    description: 'Members, rewards and campaigns',
+    description: 'Members, rewards and settings',
     icon: Storefront,
   },
   {
-    path: '/developer',
+    panel: 'developer',
     label: 'Developer',
-    description: 'API keys, webhooks and MCP tools',
+    description: 'API keys, members and rewards',
     icon: Code,
   },
-] as const;
+];
 
 /**
  * The panel segment (Business or Developer), in place of Supabase's branch. Owners switch
@@ -178,12 +189,16 @@ const PANELS = [
  * pages outside a panel, such as the organization picker.
  */
 export function PanelMenu() {
-  const { owner } = useOrganization();
+  const organization = useCurrentOrganization();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const current = PANELS.find((panel) => pathname.startsWith(panel.path));
+  if (!organization) return null;
+  const pathOf = (panel: Panel) => organizationPath(organization.organizationId, panel);
+  const current = PANELS.find((option) => pathname.startsWith(pathOf(option.panel)));
   if (!current) return null;
-  const available = owner ? PANELS : PANELS.filter((panel) => panel.path === '/developer');
+  const available = organization.owner
+    ? PANELS
+    : PANELS.filter((option) => option.panel === 'developer');
   const content = (
     <>
       <current.icon size={16} className="shrink-0 opacity-70" />
@@ -206,9 +221,9 @@ export function PanelMenu() {
             <div className="px-3 pt-1 pb-1 text-xs font-medium opacity-60">Panels</div>
             {available.map((panel) => (
               <Menu.Item
-                key={panel.path}
+                key={panel.panel}
                 className={item}
-                onClick={() => panel !== current && navigate(panel.path)}
+                onClick={() => panel !== current && navigate(pathOf(panel.panel))}
               >
                 <Check size={16} className={cn(panel !== current && 'invisible')} />
                 <panel.icon size={18} className="shrink-0 opacity-70" />

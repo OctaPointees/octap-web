@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { cn } from '@/utils/cn';
 import { organizationRequestsKey } from '../hooks/useOrganizationRequests';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '../hooks/useOrganization';
+import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import { organizationTypeLabel, type OrganizationType } from '@octap/shared/console-api';
 
 const initialDetails = (fullName: string) => ({
@@ -34,14 +34,13 @@ const input = 'input w-full font-normal';
  */
 export function OrganizationSetup() {
   const { identity } = useAuth();
-  const org = useOrganization();
+  const { run, busy } = useOrganizationAction();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [type, setType] = useState<OrganizationType>();
   const [step, setStep] = useState<StepIndex>(0);
   const [details, setDetails] = useState(() => initialDetails(identity?.user.fullName ?? ''));
   if (!identity) return null;
-  const busy = org.busy;
   const set = (key: keyof typeof details, value: string) =>
     setDetails((current) => ({ ...current, [key]: value }));
   function select(value: OrganizationType) {
@@ -65,12 +64,12 @@ export function OrganizationSetup() {
             ...(details.nationalId ? { nationalId: details.nationalId } : {}),
           }),
     };
-    void org.perform(
+    run(
       async (client) => {
         await client.requestConsoleOrganization(input);
       },
       'Organization request submitted for approval',
-      // perform() shows its success toast, which stays up across the redirect.
+      // run() shows its success toast, which stays up across the redirect.
       () => {
         void queryClient.invalidateQueries({ queryKey: organizationRequestsKey });
         navigate('/organizations');

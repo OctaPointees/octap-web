@@ -1,8 +1,9 @@
 import { Menu } from '@base-ui/react/menu';
-import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { useCurrentOrganization } from '@/app/organization/hooks/useOrganization';
+import { dashboardPath } from '@/app/organization/utils';
 import { List, MagnifyingGlass } from 'phosphor-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { cn } from '../../utils/cn';
 import type { NavOption } from './SidePanel';
 import { OrganizationMenu, PageMenu, PanelMenu } from './ToolbarMenus';
@@ -57,7 +58,7 @@ export default function MainToolbar({
   actions,
   subtitle,
 }: Props) {
-  const organization = useOrganization();
+  const organization = useCurrentOrganization();
   const navigate = useNavigate();
   const input = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState('');
@@ -65,11 +66,7 @@ export default function MainToolbar({
   const [active, setActive] = useState(0);
   const debounced = useDebounced(q);
   const { data, isFetching } = useResults(debounced);
-  const home = organization.selected
-    ? organization.owner
-      ? '/merchant'
-      : '/developer'
-    : '/organizations';
+  const home = organization ? dashboardPath(organization.membership) : '/organizations';
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -226,8 +223,7 @@ export default function MainToolbar({
  * the page segment hides (the menu button lists pages); below `sm` the panel hides too.
  */
 function PanelBreadcrumb({ nav }: { nav: NavOption[] }) {
-  const { pathname } = useLocation();
-  if (!pathname.startsWith('/merchant') && !pathname.startsWith('/developer')) return null;
+  if (!useCurrentOrganization()) return null;
   return (
     <>
       <Slash className="max-sm:hidden" />
