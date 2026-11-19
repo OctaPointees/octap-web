@@ -1,10 +1,7 @@
 import { Toast } from '@base-ui/react/toast';
 import { CheckCircle, Info, WarningCircle, X } from 'phosphor-react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { cn } from '../utils';
 import { toastManager } from './notify';
-
-const cn = (...classes: Parameters<typeof clsx>) => twMerge(clsx(classes));
 
 const TONE: Record<string, { icon: typeof Info; className: string }> = {
   success: { icon: CheckCircle, className: 'text-success' },
