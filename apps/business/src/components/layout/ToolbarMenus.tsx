@@ -13,7 +13,6 @@ import {
 } from 'phosphor-react';
 import { useLocation, useNavigate } from 'react-router';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
-import { useSession } from '../../queries/useSession';
 import { cn } from '../../utils/cn';
 import type { NavOption } from './SidePanel';
 
@@ -31,7 +30,7 @@ const tag =
 export function AccountMenu() {
   const auth = useAuth();
   const organization = useOrganization();
-  const user = useSession()?.user;
+  const user = auth.identity?.user;
   if (!user) return null;
 
   const access = [
@@ -44,7 +43,7 @@ export function AccountMenu() {
       <Menu.Trigger
         className="flex size-9 shrink-0 items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-base-100 hover:ring-2 hover:ring-base-300 focus-visible:ring-2 focus-visible:ring-primary data-popup-open:ring-2 data-popup-open:ring-base-300"
         aria-label="Account menu"
-        title={user.displayName}
+        title={user.fullName}
       >
         <img
           src={user.avatarUrl || '/icons/logo_light.png'}
@@ -62,7 +61,7 @@ export function AccountMenu() {
                 alt=""
               />
               <div className="min-w-0">
-                <div className="truncate font-semibold">{user.displayName}</div>
+                <div className="truncate font-semibold">{user.fullName}</div>
                 <div className="truncate text-xs opacity-65">{user.email}</div>
                 {access.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1">
