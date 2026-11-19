@@ -4,6 +4,9 @@ import { assertLoginNonce, loadGoogleIdentity, newLoginNonce } from '../lib/goog
 import { verifyGoogleCredential } from '../lib/identity';
 import { useAuth } from './useAuth';
 
+/** Google renders its button between 200 and 400 pixels wide. */
+const buttonWidth = (available: number) => Math.round(Math.max(200, Math.min(1200, available)));
+
 /**
  * Renders Google's sign-in button into `ref` and signs the user in when it succeeds. Build a
  * custom form around it; `GoogleSignInForm` is the default one.
@@ -27,6 +30,7 @@ export function useGoogleSignInButton({
     let submitting = false;
     const abort = new AbortController();
     const nonce = newLoginNonce();
+    let stopObserving = () => {};
     void loadGoogleIdentity()
       .then((sdk) => {
         if (!active || !ref.current) return;
@@ -62,13 +66,33 @@ export function useGoogleSignInButton({
             })();
           },
         });
-        ref.current.replaceChildren();
-        sdk.renderButton(ref.current, {
-          theme: 'outline',
-          size: 'large',
-          text: 'signin_with',
-          width: Math.max(200, Math.min(300, ref.current.clientWidth)),
+        // Google draws the button at a fixed pixel width, so draw it again whenever the
+        // container's width changes.
+        const container = ref.current;
+        let width = 0;
+        let frame = 0;
+        const render = () => {
+          const next = buttonWidth(container.clientWidth);
+          if (!active || next === width) return;
+          width = next;
+          container.replaceChildren();
+          sdk.renderButton(container, {
+            theme: 'outline',
+            size: 'large',
+            text: 'signin_with',
+            width: next,
+          });
+        };
+        render();
+        const observer = new ResizeObserver(() => {
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(render);
         });
+        observer.observe(container);
+        stopObserving = () => {
+          cancelAnimationFrame(frame);
+          observer.disconnect();
+        };
       })
       .catch((cause) => {
         if (active)
@@ -77,6 +101,7 @@ export function useGoogleSignInButton({
     return () => {
       active = false;
       abort.abort();
+      stopObserving();
     };
   }, [clientId, apiBaseUrl, signIn, attempt]);
 

@@ -5,7 +5,7 @@ import {
   type ConsoleOrganization,
   type OrganizationType,
 } from '@octap/shared/console-api';
-import { useOrganization } from './context';
+import { useOrganization } from '../hooks/useOrganization';
 
 export function OrganizationProfileForm({ organization }: { organization: ConsoleOrganization }) {
   const { identity } = useAuth();

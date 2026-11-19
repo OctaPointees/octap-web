@@ -17,8 +17,8 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/utils/cn';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from './context';
-import { useOrganizationRequests } from './organization-requests';
+import { useOrganization } from '../hooks/useOrganization';
+import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
 import type {
   ConsoleIdentity,
   OrganizationApplication,

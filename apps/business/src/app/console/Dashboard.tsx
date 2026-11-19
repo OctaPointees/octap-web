@@ -1,6 +1,6 @@
 import { Buildings, ShieldCheck, UsersThree } from 'phosphor-react';
 import { Link } from 'react-router';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Card, PageHeader, StatCard, StatusBadge } from '@/components/shared/Display';
 
 export default function ConnectedDashboard({ developer = false }: { developer?: boolean }) {

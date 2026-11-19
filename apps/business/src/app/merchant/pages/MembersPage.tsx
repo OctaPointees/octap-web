@@ -1,4 +1,4 @@
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import ConnectedMembers from '../../console/Members';
 import { Form } from '@base-ui/react/form';
 import { UsersThree } from 'phosphor-react';

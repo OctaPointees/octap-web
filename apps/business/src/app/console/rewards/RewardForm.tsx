@@ -4,7 +4,7 @@ import { LockSimple, PencilSimple } from 'phosphor-react';
 import { useState, type ReactNode } from 'react';
 import { MAX_VALID_FOR_DAYS, type ConsoleVoucher, type ConsoleVoucherInput } from '@octap/services';
 import { useAuth } from '@octap/shared/authentication';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Button } from '@/components/shared/Button';
 import { FormField, TextInput } from '@/components/shared/Controls';
 import { ConfirmDialog, SidePanel } from '@/components/shared/Modal';

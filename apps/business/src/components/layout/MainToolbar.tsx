@@ -1,5 +1,5 @@
 import { Menu } from '@base-ui/react/menu';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { List, MagnifyingGlass } from 'phosphor-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';

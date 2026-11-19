@@ -12,7 +12,7 @@ import {
   Storefront,
 } from 'phosphor-react';
 import { useLocation, useNavigate } from 'react-router';
-import { useOrganization } from '@/app/organization/context';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { useSession } from '../../queries/useSession';
 import { cn } from '../../utils/cn';
 import type { NavOption } from './SidePanel';
