@@ -16,6 +16,7 @@ import {
 import { ConfirmDialog, Modal } from '@/components/shared/Modal';
 import { useApiKeys, useCreateApiKey, useRevokeApiKey } from '@/queries/merchant';
 import type { ApiKey, ApiScope } from '@/types/domain';
+import { cn } from '@/utils/cn';
 import { fmtCompact, fmtDate, fmtRelative } from '@/utils/format';
 import { notify } from '@/utils/toast';
 
@@ -108,7 +109,10 @@ function DemoDeveloperApiKeysPage() {
                   <td className="font-mono text-xs">
                     {key.prefix}_••••{' '}
                     <span
-                      className={`badge badge-xs ml-2 ${key.env === 'live' ? 'badge-primary' : 'badge-ghost'}`}
+                      className={cn('badge badge-xs ml-2', {
+                        'badge-primary': key.env === 'live',
+                        'badge-ghost': key.env !== 'live',
+                      })}
                     >
                       {key.env}
                     </span>

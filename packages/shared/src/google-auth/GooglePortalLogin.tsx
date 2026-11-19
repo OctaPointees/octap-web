@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { cn } from '../utils';
 import {
   assertLoginNonce,
   loadGoogleIdentity,
@@ -86,16 +87,17 @@ export function GooglePortalLogin({
 
   return (
     <div
-      className={
-        embedded ? 'w-full' : 'min-h-screen bg-base-200 flex items-center justify-center p-4 sm:p-6'
-      }
+      className={cn(
+        'w-full',
+        !embedded && 'min-h-screen bg-base-200 flex items-center justify-center p-4 sm:p-6',
+      )}
     >
       <section
-        className={
-          embedded
-            ? 'w-full'
-            : 'w-full max-w-xl rounded-box bg-base-100 border border-base-300 p-6 sm:p-8 shadow-sm'
-        }
+        className={cn(
+          'w-full',
+          !embedded &&
+            'max-w-xl rounded-box bg-base-100 border border-base-300 p-6 sm:p-8 shadow-sm',
+        )}
       >
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">
           OctaP · {portal === 'admin' ? 'Platform administration' : 'Business portal'}
@@ -112,7 +114,7 @@ export function GooglePortalLogin({
           <div
             ref={button}
             aria-label="Sign in with Google"
-            className={busy ? 'pointer-events-none opacity-50' : ''}
+            className={cn(busy && 'pointer-events-none opacity-50')}
           />
         )}
         {busy && (
