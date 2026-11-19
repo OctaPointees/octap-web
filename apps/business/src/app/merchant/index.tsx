@@ -4,6 +4,7 @@ import { Gear, Layout, Megaphone, Receipt, Storefront, Ticket, UsersThree } from
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { SearchResult } from '@/components/layout/MainToolbar';
 import type { NavOption } from '@/components/layout/SidePanel';
+import { usePendingApprovalCount } from '@/app/console/rewards/pending';
 import { useMembers, useMerchantTenant } from '@/queries/merchant';
 import { toTitle } from '@/utils/format';
 
@@ -26,12 +27,13 @@ function useMerchantSearch(q: string) {
 export default function MerchantLayout() {
   const auth = useConsoleAuth();
   const tenant = useMerchantTenant(!auth).data;
+  const pending = usePendingApprovalCount();
 
   const nav: NavOption[] = [
     { label: 'Dashboard', path: '/merchant', icon: Layout, end: true },
     { label: 'Issue points', path: '/merchant/pos', icon: Storefront },
     { label: 'Campaigns', path: '/merchant/campaigns', icon: Megaphone },
-    { label: 'Rewards', path: '/merchant/rewards', icon: Ticket },
+    { label: 'Rewards', path: '/merchant/rewards', icon: Ticket, badge: pending },
     { label: 'Members', path: '/merchant/members', icon: UsersThree },
     { label: 'Transactions', path: '/merchant/transactions', icon: Receipt },
     { label: 'Settings', path: '/merchant/settings', icon: Gear },

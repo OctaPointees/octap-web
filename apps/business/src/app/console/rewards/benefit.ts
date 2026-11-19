@@ -402,10 +402,11 @@ export function claimsClosed(
 /**
  * Where a reward is in its lifecycle, from Core's `status` and `publishStatus`. A live reward is
  * also `scheduled` before claims open and `claims_closed` after they close, so the merchant can
- * tell why nobody is claiming it.
+ * tell why nobody is claiming it. `pending` waits for an Owner's approval (OCT-59).
  */
 export type Stage =
   | 'draft'
+  | 'pending'
   | 'publishing'
   | 'failed'
   | 'scheduled'
@@ -419,12 +420,23 @@ export function stageOf(
   now = Date.now(),
 ): Stage {
   if (voucher.status === 'DEPLETED') return 'sold_out';
+  // Never published yet, so neither live nor pausable: an Owner approves or rejects it.
+  if (voucher.status === 'PENDING_APPROVAL') return 'pending';
   if (voucher.publishStatus === 'PUBLISHING') return 'publishing';
   if (voucher.status === 'DRAFT') return voucher.publishStatus === 'FAILED' ? 'failed' : 'draft';
   if (voucher.status === 'PAUSED') return 'paused';
   if (claimsClosed(voucher, now)) return 'claims_closed';
   if (voucher.startsAt && Date.parse(voucher.startsAt) > now) return 'scheduled';
   return 'live';
+}
+
+/** An Owner's rejection, while the reward is back in DRAFT for the submitter to fix. */
+export function rejectionOf(
+  voucher: Pick<ConsoleVoucher, 'status' | 'approval'>,
+): { reason: string; reviewedById: string | null } | null {
+  const approval = voucher.approval;
+  if (voucher.status !== 'DRAFT' || approval?.status !== 'REJECTED') return null;
+  return { reason: approval.reason ?? '', reviewedById: approval.reviewedById };
 }
 
 /**

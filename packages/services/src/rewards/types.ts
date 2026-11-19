@@ -1,4 +1,17 @@
-/** A reward as Core's console voucher routes return it (OCT-236, OCT-291). */
+/** The latest request to take a reward live, when the organization requires approval (OCT-59). */
+export interface VoucherApproval {
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
+  /** A console user (Business Developer) or an API key; `null` once that user or key is deleted. */
+  submittedBy: { type: 'USER' | 'API_CREDENTIAL'; id: string } | null;
+  submittedAt: string;
+  /** The Owner who approved or rejected it, or whoever withdrew it. */
+  reviewedById: string | null;
+  reviewedAt: string | null;
+  /** Why an Owner rejected it. */
+  reason: string | null;
+}
+
+/** A reward as Core's console voucher routes return it (OCT-236, OCT-291, OCT-59). */
 export interface ConsoleVoucher {
   id: string;
   organizationId: string;
@@ -19,7 +32,11 @@ export interface ConsoleVoucher {
    */
   perMemberLimit: number | null;
   claimedCount: number;
-  status: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'DEPLETED';
+  /**
+   * `PENDING_APPROVAL`: waiting for an Owner, when the organization requires approval. It can't be
+   * edited meanwhile; approved, it starts publishing; rejected or withdrawn, it is a DRAFT again.
+   */
+  status: 'DRAFT' | 'PENDING_APPROVAL' | 'ACTIVE' | 'PAUSED' | 'DEPLETED';
   /** When claims open. */
   startsAt: string | null;
   /** When claims close; also the latest any member's voucher can be used. */
@@ -30,6 +47,8 @@ export interface ConsoleVoucher {
    */
   validForDays: number | null;
   metadata: Record<string, unknown> | null;
+  /** The latest approval request, `null` if there never was one. */
+  approval?: VoucherApproval | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,7 +72,11 @@ export interface ConsoleVoucherInput {
   validForDays?: number | null;
 }
 
-/** Fields to change, or `{ status }` to activate (`ACTIVE`) or pause (`PAUSED`). */
+/**
+ * Fields to change, or `{ status }` to activate (`ACTIVE`) or pause (`PAUSED`). Only an Owner
+ * pauses or changes a published reward. A Business Developer's `ACTIVE` is refused (403) while the
+ * organization requires approval: they submit the draft instead.
+ */
 export type ConsoleVoucherPatch = Partial<Omit<ConsoleVoucherInput, 'discountValue'>> & {
   /** `null` clears it, e.g. when a draft changes from percent off to a free item. */
   discountValue?: string | null;

@@ -196,9 +196,11 @@ export default function RewardForm({
       description={
         locked
           ? 'Published on-chain: these terms never change. To offer something different, duplicate it.'
-          : readOnly
-            ? 'Only the Owner can change rewards.'
-            : 'Saved as a draft until you activate it. Activation publishes the locked fields on-chain for good, so leave out personal information.'
+          : editing?.status === 'PENDING_APPROVAL'
+            ? 'Waiting for an Owner’s approval, so it can’t change meanwhile. Withdraw it to draft to edit it.'
+            : readOnly
+              ? 'View only.'
+              : 'Saved as a draft until you activate it. Activation publishes the locked fields on-chain for good, so leave out personal information.'
       }
       footer={
         readOnly ? (

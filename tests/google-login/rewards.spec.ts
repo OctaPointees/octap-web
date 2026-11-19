@@ -2,7 +2,8 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 
 /**
  * OCT-283: the Rewards page against a stand-in for Core's console voucher routes (OCT-236), with
- * OCT-291's per-member limit and validity counted from the day a member claims.
+ * OCT-291's per-member limit and validity counted from the day a member claims, and OCT-292's
+ * approval before a reward goes live (Core: OCT-59).
  */
 
 type Voucher = Record<string, unknown> & { id: string; status: string; publishStatus: string };
@@ -36,11 +37,19 @@ function voucher(overrides: Partial<Voucher> = {}): Voucher {
   };
 }
 
-/** Signs in as `persona` of one organization, then opens the Rewards page from the sidebar. */
+/** What Core says about the organization; a test may change it, and the next read sees that. */
+interface OrgOptions {
+  voucherApprovalRequired?: boolean;
+  /** The team, as an Owner lists it. */
+  staff?: { id: string; fullName: string }[];
+}
+
+/** Signs in as `persona` (user `u1`) of one organization, then opens Rewards from the sidebar. */
 async function openRewards(
   page: Page,
   persona: 'BUSINESS_OWNER' | 'BUSINESS_DEVELOPER',
   vouchers: (route: Route) => Promise<void> | void,
+  org: OrgOptions = {},
 ) {
   const identity = {
     user: {
@@ -82,18 +91,30 @@ async function openRewards(
         persona,
         legalName: null,
         taxId: null,
+        voucherApprovalRequired: org.voucherApprovalRequired ?? false,
       },
     }),
   );
-  for (const path of ['staff', 'invitations', 'api-credentials'])
+  for (const path of ['invitations', 'api-credentials'])
     await page.route(`**/v1/console/organizations/${ORG}/${path}`, (route) =>
       route.fulfill({ json: [] }),
     );
+  await page.route(`**/v1/console/organizations/${ORG}/staff`, (route) =>
+    route.fulfill({
+      json: (org.staff ?? []).map((person) => ({
+        ...person,
+        email: `${person.id}@example.com`,
+        persona: 'BUSINESS_DEVELOPER',
+        status: 'ACTIVE',
+      })),
+    }),
+  );
   await page.route(`**/v1/console/organizations/${ORG}/vouchers**`, vouchers);
   await page.goto('/');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   // An Owner lands in /merchant, a Business Developer in /developer: both have a Rewards link.
-  await page.getByRole('link', { name: 'Rewards', exact: true }).click();
+  // An Owner's link also counts the rewards waiting for approval.
+  await page.getByRole('link', { name: /^Rewards\s*\d*$/ }).click();
   await expect(page).toHaveURL(
     persona === 'BUSINESS_OWNER' ? /\/merchant\/rewards$/ : /\/developer\/rewards$/,
   );
@@ -257,16 +278,246 @@ test('a failed publish offers a retry, and a published reward only changes its s
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toHaveCount(0);
 });
 
-test('a Business Developer sees the catalog read-only', async ({ page }) => {
-  await openRewards(page, 'BUSINESS_DEVELOPER', (route) => route.fulfill({ json: [voucher()] }));
+test('a Business Developer writes drafts and activates them while approval is off', async ({
+  page,
+}) => {
+  const patches: unknown[] = [];
+  const live = voucher({
+    id: 'live',
+    title: 'Live one',
+    status: 'ACTIVE',
+    publishStatus: 'PUBLISHED',
+  });
+  await openRewards(page, 'BUSINESS_DEVELOPER', (route) => {
+    if (route.request().method() === 'PATCH') {
+      patches.push(route.request().postDataJSON());
+      return route.fulfill({ json: voucher({ publishStatus: 'PUBLISHING' }) });
+    }
+    return route.fulfill({ json: [voucher(), live] });
+  });
+  await expect(page.getByRole('button', { name: 'New reward' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Import CSV' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: /Pending approval/ })).toHaveCount(0);
   const card = page.getByRole('article', { name: 'A free latte' });
-  await expect(card).toContainText('Draft');
-  await expect(page.getByRole('button', { name: 'New reward' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Import CSV' })).toHaveCount(0);
+  await expect(card.getByRole('button', { name: 'Edit' })).toBeVisible();
+  await expect(card.getByRole('button', { name: 'Submit for approval' })).toHaveCount(0);
+  await card.getByRole('button', { name: 'Activate' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Activate' }).click();
+  await expect.poll(() => patches).toEqual([{ status: 'ACTIVE' }]);
+
+  // Only an Owner pauses or changes a published reward.
+  const published = page.getByRole('article', { name: 'Live one' });
+  await expect(published.getByRole('button', { name: 'View' })).toBeVisible();
+  await expect(published.getByRole('button', { name: 'Pause' })).toHaveCount(0);
+  await expect(published.getByRole('button', { name: 'Edit availability' })).toHaveCount(0);
+});
+
+test('with approval on, a Business Developer submits a draft, waits, and can withdraw it', async ({
+  page,
+}) => {
+  const actions: string[] = [];
+  let state = voucher();
+  await openRewards(
+    page,
+    'BUSINESS_DEVELOPER',
+    (route) => {
+      const action = route.request().url().split('/').pop();
+      if (route.request().method() === 'POST' && (action === 'submit' || action === 'withdraw')) {
+        actions.push(action);
+        state =
+          action === 'submit'
+            ? voucher({
+                status: 'PENDING_APPROVAL',
+                approval: {
+                  status: 'PENDING',
+                  submittedBy: { type: 'USER', id: 'u1' },
+                  submittedAt: '2026-11-19T00:00:00.000Z',
+                  reviewedById: null,
+                  reviewedAt: null,
+                  reason: null,
+                },
+              })
+            : voucher({ approval: { ...(state.approval as object), status: 'WITHDRAWN' } });
+        return route.fulfill({ status: 201, json: state });
+      }
+      return route.fulfill({ json: [state] });
+    },
+    { voucherApprovalRequired: true },
+  );
+  await expect(page.getByText('Drafts stay private until an Owner approves them.')).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Pending approval (0)' })).toBeVisible();
+  const card = page.getByRole('article', { name: 'A free latte' });
   await expect(card.getByRole('button', { name: 'Activate' })).toHaveCount(0);
+  await card.getByRole('button', { name: 'Submit for approval' }).click();
+  const dialog = page.getByRole('alertdialog');
+  await expect(dialog).toContainText('An Owner checks it before it goes live');
+  await expect(dialog.getByLabel('Locked')).toContainText('FREE-LATTE');
+  await dialog.getByRole('button', { name: 'Submit' }).click();
+
+  await expect(card).toContainText('Pending approval');
+  await expect(card).toContainText('Submitted by you');
+  await expect(page.getByRole('tab', { name: 'Pending approval (1)' })).toBeVisible();
+  await expect(card.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+  await expect(card.getByRole('button', { name: 'Pause' })).toHaveCount(0);
   await card.getByRole('button', { name: 'View' }).click();
+  await expect(page.getByText(/Waiting for an Owner’s approval/)).toBeVisible();
   await expect(page.getByLabel('Title')).toBeDisabled();
-  await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close', exact: true }).last().click();
+
+  await card.getByRole('button', { name: 'Withdraw to draft' }).click();
+  await expect(card).toContainText('Draft');
+  await expect(card.getByRole('button', { name: 'Edit' })).toBeVisible();
+  expect(actions).toEqual(['submit', 'withdraw']);
+});
+
+const pendingFrom = (by: { type: 'USER' | 'API_CREDENTIAL'; id: string }) =>
+  voucher({
+    status: 'PENDING_APPROVAL',
+    approval: {
+      status: 'PENDING',
+      submittedBy: by,
+      submittedAt: '2026-11-19T00:00:00.000Z',
+      reviewedById: null,
+      reviewedAt: null,
+      reason: null,
+    },
+  });
+
+test('an Owner reviews a pending reward: a rejection needs a reason, then shows on the draft', async ({
+  page,
+}) => {
+  const rejected: unknown[] = [];
+  let state = pendingFrom({ type: 'USER', id: 'bd-1' });
+  const apiKey = {
+    ...pendingFrom({ type: 'API_CREDENTIAL', id: 'key-1' }),
+    id: 'k',
+    title: 'From CRM',
+  };
+  await openRewards(
+    page,
+    'BUSINESS_OWNER',
+    (route) => {
+      if (route.request().method() === 'POST' && route.request().url().endsWith('/reject')) {
+        rejected.push(route.request().postDataJSON());
+        state = voucher({
+          approval: {
+            ...(state.approval as object),
+            status: 'REJECTED',
+            reviewedById: 'u1',
+            reason: 'Cap too high',
+          },
+        });
+        return route.fulfill({ status: 201, json: state });
+      }
+      return route.fulfill({ json: [state, apiKey] });
+    },
+    { voucherApprovalRequired: true, staff: [{ id: 'bd-1', fullName: 'Bao Dev' }] },
+  );
+  await expect(page.getByRole('link', { name: /^Rewards\s*2$/ })).toBeVisible();
+  await page.getByRole('tab', { name: 'Pending approval (2)' }).click();
+  await expect(page.getByRole('article', { name: 'From CRM' })).toContainText(
+    'Submitted by an API key',
+  );
+  const card = page.getByRole('article', { name: 'A free latte' });
+  await expect(card).toContainText('Submitted by Bao Dev');
+  // Never published yet, so not live: nothing to pause.
+  await expect(card.getByRole('button', { name: 'Pause' })).toHaveCount(0);
+
+  await card.getByRole('button', { name: 'Review' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('submitted by Bao Dev');
+  await expect(dialog.getByLabel('Locked')).toContainText('500 points');
+  await dialog.getByRole('button', { name: 'Reject' }).click();
+  const reject = dialog.getByRole('button', { name: 'Reject' });
+  await expect(reject).toBeDisabled();
+  await dialog.getByLabel('Reason').fill('x'.repeat(501));
+  await expect(reject).toBeDisabled();
+  await dialog.getByLabel('Reason').fill('  Cap too high ');
+  await reject.click();
+  await expect.poll(() => rejected).toEqual([{ reason: 'Cap too high' }]);
+
+  await page.getByRole('tab', { name: /^Drafts/ }).click();
+  await expect(card.getByRole('note')).toContainText('Rejected by you: Cap too high');
+  await expect(page.getByRole('link', { name: /^Rewards\s*1$/ })).toBeVisible();
+});
+
+test('an Owner approves a pending reward, and it publishes like an activation', async ({
+  page,
+}) => {
+  const approved: string[] = [];
+  let state = pendingFrom({ type: 'USER', id: 'bd-1' });
+  await openRewards(page, 'BUSINESS_OWNER', (route) => {
+    if (route.request().method() === 'POST' && route.request().url().endsWith('/approve')) {
+      approved.push(route.request().url());
+      // Core queues the publish: the reward is a DRAFT until the worker confirms it on-chain.
+      state = voucher({ publishStatus: 'PUBLISHING' });
+      return route.fulfill({ status: 201, json: state });
+    }
+    if (state.publishStatus === 'PUBLISHING')
+      state = { ...state, status: 'ACTIVE', publishStatus: 'PUBLISHED' };
+    return route.fulfill({ json: [state] });
+  });
+  const card = page.getByRole('article', { name: 'A free latte' });
+  await card.getByRole('button', { name: 'Review' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Approve and publish' }).click();
+  await expect.poll(() => approved).toHaveLength(1);
+  expect(approved[0]).toMatch(/\/vouchers\/voucher-1\/approve$/);
+  await expect(card).toContainText('Live', { timeout: 10_000 });
+  await expect(card.getByRole('button', { name: 'Pause' })).toBeVisible();
+});
+
+test('a Business Developer reads why an Owner rejected their reward', async ({ page }) => {
+  const rejected = voucher({
+    approval: {
+      status: 'REJECTED',
+      submittedBy: { type: 'USER', id: 'u1' },
+      submittedAt: '2026-11-19T00:00:00.000Z',
+      reviewedById: 'owner-9',
+      reviewedAt: '2026-11-19T01:00:00.000Z',
+      reason: 'Use 50.000 ₫ as the cap',
+    },
+  });
+  await openRewards(page, 'BUSINESS_DEVELOPER', (route) => route.fulfill({ json: [rejected] }), {
+    voucherApprovalRequired: true,
+  });
+  const card = page.getByRole('article', { name: 'A free latte' });
+  await expect(card.getByRole('note')).toContainText(
+    'Rejected by an Owner: Use 50.000 ₫ as the cap',
+  );
+  await expect(card.getByRole('button', { name: 'Submit for approval' })).toBeVisible();
+});
+
+test('only an Owner sees the approval switch, and it saves at once', async ({ page }) => {
+  const org: OrgOptions = { voucherApprovalRequired: false };
+  const saved: unknown[] = [];
+  await page.route(`**/v1/console/organizations/${ORG}/settings`, (route) => {
+    saved.push(route.request().postDataJSON());
+    org.voucherApprovalRequired = route.request().postDataJSON().voucherApprovalRequired;
+    return route.fulfill({ json: { updated: true } });
+  });
+  await openRewards(page, 'BUSINESS_OWNER', (route) => route.fulfill({ json: [] }), org);
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  const toggle = page.getByRole('switch', { name: /Require approval before publishing/ });
+  await expect(toggle).not.toBeChecked();
+  await toggle.click();
+  await expect.poll(() => saved).toEqual([{ voucherApprovalRequired: true }]);
+  await expect(
+    page.getByText('Rewards now need an Owner’s approval before publishing'),
+  ).toBeVisible();
+  await expect(toggle).toBeChecked();
+
+  // A Business Owner's settings page is the only place it shows.
+  await page.getByRole('link', { name: /^Rewards\s*\d*$/ }).click();
+  await expect(page.getByRole('tab', { name: 'Pending approval (0)' })).toBeVisible();
+});
+
+test('a Business Developer has no approval switch', async ({ page }) => {
+  await openRewards(page, 'BUSINESS_DEVELOPER', (route) => route.fulfill({ json: [] }), {
+    voucherApprovalRequired: true,
+  });
+  await page.goto('/merchant/settings');
+  await expect(page.getByRole('switch', { name: /Require approval/ })).toHaveCount(0);
 });
 
 test('a CSV import checks each row and creates the valid ones as drafts', async ({ page }) => {
