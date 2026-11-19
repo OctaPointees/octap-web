@@ -5,8 +5,8 @@
 
   color-scheme: light;
   --radius-selector: 0.4rem;
-  --radius-field: 0.4rem;
-  --radius-box: 0.7rem;
+  --radius-field: 0.2rem;
+  --radius-box: 0.4rem;
 
   --size-field: 0.28rem;
   --size-selector: 0.28rem;
@@ -51,7 +51,4 @@
   --color-base-content: #1a1523;
 
   --color-base-shadow: #1a152314;
-
-  --font-sans: 'Google Sans';
-  --font-mono: 'Space Mono';
 }

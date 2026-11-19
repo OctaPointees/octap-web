@@ -101,7 +101,7 @@ export default function MainToolbar({
   };
 
   return (
-    <div className="flex h-14 items-center gap-2 border-b border-base-300 bg-base-100 px-4">
+    <div className="flex h-14 items-center gap-2 border-b border-base-300 bg-base-100 pr-4 pl-1">
       <Menu.Root>
         <Menu.Trigger
           className="btn btn-ghost btn-square btn-sm -ml-1 md:hidden"
@@ -130,7 +130,7 @@ export default function MainToolbar({
         <Link
           to={home}
           aria-label="OctaP Credit System home"
-          className="flex size-9 shrink-0 items-center justify-center rounded-field hover:bg-base-200"
+          className="flex shrink-0 items-center justify-center rounded-field hover:bg-base-200 w-(--size-sidebar-retract)"
         >
           <img src="/icons/logo_light.png" className="h-7" alt="" />
         </Link>

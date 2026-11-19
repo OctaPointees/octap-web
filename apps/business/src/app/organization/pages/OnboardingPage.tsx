@@ -15,10 +15,8 @@ export default function OnboardingPage() {
   if (!identity) return null;
 
   return (
-    <section className="mx-auto w-full max-w-[1600px] pt-4 space-y-5">
-      {/* Form column capped at 1200px; your requests fill the rest beside it (below it on
-          narrower screens). */}
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1200px)_minmax(18rem,1fr)]">
+    <section className="mx-auto w-full max-w-(--size-article) pt-4 space-y-5">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,900px)_minmax(18rem,1fr)]">
         <div className="flex min-w-0 flex-col gap-5">
           <Link
             to="/organizations"
@@ -35,7 +33,7 @@ export default function OnboardingPage() {
               an invitation.
             </p>
           )}
-          {/* Only when opened from an invitation link: the link fills in the token. */}
+
           {invitation ? <InvitationForm token={invitation} /> : <OrganizationSetup />}
         </div>
         {!invitation && <OrganizationRequestList />}
