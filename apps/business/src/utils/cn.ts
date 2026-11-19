@@ -1,6 +1,1 @@
-import { twMerge } from 'tailwind-merge';
-import clsx, { type ClassArray } from 'clsx';
-
-export const cn = (...inputs: ClassArray) => {
-  return twMerge(clsx(inputs));
-};
+export { cn } from '@octap/shared/utils';

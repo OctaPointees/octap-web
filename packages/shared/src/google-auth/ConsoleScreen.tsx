@@ -6,6 +6,7 @@ import { OrganizationRequestList } from './OrganizationRequests';
 import { organizationTypeLabel } from './organization-types';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useConsoleAuth } from './console-session';
+import { cn } from '../utils';
 const destination = (org: { persona: string }) =>
   org.persona === 'BUSINESS_OWNER' ? '/merchant' : '/developer';
 export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = {}) {
@@ -68,11 +69,10 @@ export function ConsoleScreen({ adminPortalUrl }: { adminPortalUrl?: string } = 
         <p role="status">Loading current access and organization data…</p>
       )}
       <section
-        className={
-          onboardingPage
-            ? 'mx-auto w-full max-w-[1600px] space-y-5 pt-4'
-            : 'bg-base-100 border border-base-300 rounded-box p-6 space-y-5'
-        }
+        className={cn('space-y-5', {
+          'mx-auto w-full max-w-[1600px] pt-4': onboardingPage,
+          'bg-base-100 border border-base-300 rounded-box p-6': !onboardingPage,
+        })}
       >
         {onboardingPage && alerts}
         {adminDenied ? (

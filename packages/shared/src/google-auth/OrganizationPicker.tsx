@@ -14,6 +14,7 @@ import {
   type Icon,
 } from 'phosphor-react';
 import { useEffect, useState } from 'react';
+import { cn } from '../utils';
 import { Link, useNavigate } from 'react-router';
 import { useConsoleAuth } from './console-session';
 import { useOrganizationRequests } from './organization-requests';
@@ -224,13 +225,12 @@ function OrganizationCard({
 
   return (
     <article
-      className={
-        'relative flex h-full min-h-48 flex-col rounded-box border p-5 ' +
-        (onOpen
-          ? 'bg-base-100 transition-[border-color,box-shadow] hover:border-base-content/25 hover:shadow-sm has-[button[data-open]:focus-visible]:outline-2 has-[button[data-open]:focus-visible]:outline-offset-2 has-[button[data-open]:focus-visible]:outline-primary '
-          : 'bg-base-200/40 ') +
-        (current ? 'border-primary' : 'border-base-300')
-      }
+      className={cn(
+        'relative flex h-full min-h-48 flex-col rounded-box border border-base-300 bg-base-200/40 p-5',
+        onOpen &&
+          'bg-base-100 transition-[border-color,box-shadow] hover:border-base-content/25 hover:shadow-sm has-[button[data-open]:focus-visible]:outline-2 has-[button[data-open]:focus-visible]:outline-offset-2 has-[button[data-open]:focus-visible]:outline-primary',
+        current && 'border-primary',
+      )}
     >
       {onOpen && (
         <button
@@ -244,15 +244,15 @@ function OrganizationCard({
       )}
 
       <div className="pointer-events-none relative flex min-w-0 flex-1 flex-col">
-        <div className={`flex min-w-0 items-center gap-2 ${hasMenu ? 'pr-8' : ''}`}>
-          <h2 className={`truncate font-semibold ${status ? 'opacity-75' : ''}`} title={entry.name}>
+        <div className={cn('flex min-w-0 items-center gap-2', hasMenu && 'pr-8')}>
+          <h2 className={cn('truncate font-semibold', status && 'opacity-75')} title={entry.name}>
             {entry.name}
           </h2>
           {current && (
             <span className="badge badge-primary badge-soft badge-xs shrink-0">Current</span>
           )}
           {status && (
-            <span className={`badge badge-soft badge-xs shrink-0 ${status.badge}`}>
+            <span className={cn('badge badge-soft badge-xs shrink-0', status.badge)}>
               {status.label}
             </span>
           )}
@@ -276,7 +276,7 @@ function OrganizationCard({
               )}
             </>
           ) : (
-            <span className={`${chip} opacity-60`}>Profile not set</span>
+            <span className={cn(chip, 'opacity-60')}>Profile not set</span>
           )}
         </div>
 

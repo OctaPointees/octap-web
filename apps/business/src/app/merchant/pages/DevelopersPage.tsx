@@ -24,6 +24,7 @@ import {
 import { useSession } from '@/queries/useSession';
 import { hasMerchantRole } from '@/services/session';
 import type { ApiKey, ApiScope, McpTool } from '@/types/domain';
+import { cn } from '@/utils/cn';
 import { fieldErrorsOf } from '@/utils/errors';
 import { fmtCompact, fmtDate, fmtRelative, toTitle } from '@/utils/format';
 import { notify } from '@/utils/toast';
@@ -247,7 +248,10 @@ export default function DevelopersPage() {
                     <td className="font-mono text-xs">
                       {k.prefix}_••••
                       <span
-                        className={`badge badge-xs ml-2 ${k.env === 'live' ? 'badge-primary' : 'badge-ghost'}`}
+                        className={cn('badge badge-xs ml-2', {
+                          'badge-primary': k.env === 'live',
+                          'badge-ghost': k.env !== 'live',
+                        })}
                       >
                         {k.env}
                       </span>

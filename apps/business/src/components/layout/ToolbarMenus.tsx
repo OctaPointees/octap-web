@@ -142,7 +142,7 @@ export function OrganizationMenu({ label }: { label: string }) {
                       className={item}
                       onClick={() => !current && auth.choose(org.organizationId)}
                     >
-                      <Check size={16} className={current ? '' : 'invisible'} />
+                      <Check size={16} className={cn(!current && 'invisible')} />
                       <span className="min-w-0 flex-1 truncate">{org.name}</span>
                       <span className={tag}>
                         {org.persona === 'BUSINESS_OWNER' ? 'Owner' : 'Developer'}
@@ -221,7 +221,7 @@ export function PanelMenu() {
                 className={item}
                 onClick={() => panel !== current && navigate(panel.path)}
               >
-                <Check size={16} className={panel === current ? '' : 'invisible'} />
+                <Check size={16} className={cn(panel !== current && 'invisible')} />
                 <panel.icon size={18} className="shrink-0 opacity-70" />
                 <span className="min-w-0">
                   <span className="block">{panel.label}</span>
@@ -275,7 +275,7 @@ export function PageMenu({ pages }: { pages: NavOption[] }) {
                 className={item}
                 onClick={() => page !== current && navigate(page.path)}
               >
-                <Check size={16} className={page === current ? '' : 'invisible'} />
+                <Check size={16} className={cn(page !== current && 'invisible')} />
                 <page.icon size={18} className="shrink-0 opacity-70" />
                 <span className="min-w-0 flex-1 truncate">{page.label}</span>
                 {!!page.badge && <span className="badge badge-primary badge-xs">{page.badge}</span>}
