@@ -2,6 +2,7 @@ import { Menu } from '@base-ui/react/menu';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ArrowSquareOut, Buildings, Copy, DotsThreeCircle } from 'phosphor-react';
 import { useEffect, useState } from 'react';
+import { cn } from '../utils';
 import { useConsoleAuth } from './console-session';
 import { useOrganizationRequests } from './organization-requests';
 import type { OrganizationApplication } from './portal-api';
@@ -95,7 +96,7 @@ function RequestRow({ request }: { request: OrganizationApplication }) {
             {request.name}
           </h3>
           <span
-            className={`badge badge-soft badge-xs shrink-0 ${status.badge}`}
+            className={cn('badge badge-soft badge-xs shrink-0', status.badge)}
             title={request.reason ? `Reason: ${request.reason}` : undefined}
           >
             {status.label}

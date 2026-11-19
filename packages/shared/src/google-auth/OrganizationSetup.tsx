@@ -2,6 +2,7 @@ import { Check } from 'phosphor-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
+import { cn } from '../utils';
 import { organizationRequestsKey } from './organization-requests';
 import { useConsoleAuth } from './console-session';
 import type { OrganizationType } from './portal-api';
@@ -318,7 +319,7 @@ function Step({
   const bodyId = `organization-step-${index}`;
   const heading = (
     <>
-      <span className={`block font-semibold ${state === 'upcoming' ? 'opacity-50' : ''}`}>
+      <span className={cn('block font-semibold', state === 'upcoming' && 'opacity-50')}>
         {title}
       </span>
       {state === 'done' && summary && (
@@ -332,25 +333,27 @@ function Step({
       {!last && (
         <span
           aria-hidden
-          className={`absolute top-9 bottom-1 left-4 w-0.5 -translate-x-1/2 rounded-full ${
-            state === 'done' ? 'bg-primary' : 'bg-base-300'
-          }`}
+          className={cn(
+            'absolute top-9 bottom-1 left-4 w-0.5 -translate-x-1/2 rounded-full bg-base-300',
+            state === 'done' && 'bg-primary',
+          )}
         />
       )}
       <span
         aria-hidden
-        className={`relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors ${
-          state === 'done'
-            ? 'border-primary bg-primary text-primary-content'
-            : state === 'current'
-              ? 'border-primary bg-base-100 text-primary'
-              : 'border-base-300 bg-base-100 text-base-content/50'
-        }`}
+        className={cn(
+          'relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors',
+          {
+            'border-primary bg-primary text-primary-content': state === 'done',
+            'border-primary bg-base-100 text-primary': state === 'current',
+            'border-base-300 bg-base-100 text-base-content/50': state === 'upcoming',
+          },
+        )}
       >
         {state === 'done' ? <Check size={16} weight="bold" /> : index + 1}
       </span>
 
-      <div className={`min-w-0 flex-1 ${last ? '' : 'pb-8'}`}>
+      <div className={cn('min-w-0 flex-1', !last && 'pb-8')}>
         <h3 className="min-h-8 pt-1">
           {state === 'done' && onReopen ? (
             <button
@@ -402,9 +405,10 @@ function TypeCard({
       type="button"
       aria-pressed={selected}
       onClick={onSelect}
-      className={`relative flex flex-col overflow-hidden rounded-box border-2 text-left transition-[border-color,box-shadow] outline-none hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-        selected ? 'border-primary shadow-md' : 'border-base-300'
-      }`}
+      className={cn(
+        'relative flex flex-col overflow-hidden rounded-box border-2 border-base-300 text-left transition-[border-color,box-shadow] outline-none hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        selected && 'border-primary shadow-md',
+      )}
     >
       <div className="bg-primary p-4 pr-12 text-primary-content">
         <span className="block text-base font-bold">{title}</span>
