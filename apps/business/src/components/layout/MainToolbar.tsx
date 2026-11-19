@@ -1,5 +1,5 @@
 import { Menu } from '@base-ui/react/menu';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useOrganization } from '@/app/organization/context';
 import { List, MagnifyingGlass } from 'phosphor-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
@@ -57,7 +57,7 @@ export default function MainToolbar({
   actions,
   subtitle,
 }: Props) {
-  const auth = useConsoleAuth();
+  const organization = useOrganization();
   const navigate = useNavigate();
   const input = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState('');
@@ -65,13 +65,11 @@ export default function MainToolbar({
   const [active, setActive] = useState(0);
   const debounced = useDebounced(q);
   const { data, isFetching } = useResults(debounced);
-  const home = auth
-    ? auth.selected
-      ? auth.owner
-        ? '/merchant'
-        : '/developer'
-      : '/organizations'
-    : '/';
+  const home = organization.selected
+    ? organization.owner
+      ? '/merchant'
+      : '/developer'
+    : '/organizations';
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

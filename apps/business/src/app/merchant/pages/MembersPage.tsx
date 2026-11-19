@@ -1,4 +1,4 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useOrganization } from '@/app/organization/context';
 import ConnectedMembers from '../../console/Members';
 import { Form } from '@base-ui/react/form';
 import { UsersThree } from 'phosphor-react';
@@ -215,8 +215,12 @@ function MemberModal({ id, onClose }: { id: string; onClose: () => void }) {
 }
 
 export default function MembersPage() {
-  const auth = useConsoleAuth();
-  return auth ? <ConnectedMembers key={auth.organizationId} /> : <DemoMembersPage />;
+  const { organizationId } = useOrganization();
+  return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
+    <DemoMembersPage />
+  ) : (
+    <ConnectedMembers key={organizationId} />
+  );
 }
 
 function DemoMembersPage() {

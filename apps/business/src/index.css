@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@source "../../../packages/shared/src/google-auth";
-@source "../../../packages/shared/src/toast";
+@source "../../../packages/shared/src/authentication";
+@source "../../../packages/shared/src/components";
 @plugin "daisyui";
 
 :root {

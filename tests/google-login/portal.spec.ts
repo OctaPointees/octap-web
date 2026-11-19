@@ -428,18 +428,6 @@ test('System Admin business portal link requires an explicit tenant membership',
   );
 });
 
-test('original password demo and dashboard remain available only in explicit demo mode', async ({
-  page,
-}) => {
-  await page.goto('http://localhost:5182');
-  await page.getByPlaceholder('you@company.vn').fill('owner@lotusmart.vn');
-  await page.locator('input[type=password]').fill('octap123');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page).toHaveURL(/\/merchant$/);
-  await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Continue with Google' })).toHaveCount(0);
-});
-
 test('organization setup offers both types and company registration is required before review', async ({
   page,
 }) => {

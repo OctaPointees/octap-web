@@ -14,16 +14,17 @@ import {
   type Icon,
 } from 'phosphor-react';
 import { useEffect, useState } from 'react';
-import { cn } from '../utils';
+import { cn } from '@/utils/cn';
 import { Link, useNavigate } from 'react-router';
-import { useConsoleAuth } from './console-session';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from './context';
 import { useOrganizationRequests } from './organization-requests';
 import type {
   ConsoleIdentity,
   OrganizationApplication,
   OrganizationPersona,
   OrganizationType,
-} from './portal-api';
+} from '@octap/shared/console-api';
 
 type Status = 'ACTIVE' | 'PENDING_REVIEW' | 'SUSPENDED' | 'ARCHIVED';
 
@@ -92,11 +93,11 @@ function entries(identity: ConsoleIdentity, applications: OrganizationApplicatio
 
 /** The organization list: every organization you belong to or asked to create. */
 export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string }) {
-  const auth = useConsoleAuth();
+  const { identity } = useAuth();
+  const { organizationId, choose, busy } = useOrganization();
   const navigate = useNavigate();
   const requests = useOrganizationRequests();
-  if (!auth?.identity) return null;
-  const { identity, organizationId, choose, busy } = auth;
+  if (!identity) return null;
   const list = entries(identity, requests.data);
   const active = list.filter((entry) => entry.status === 'ACTIVE').length;
   const pending = list.filter((entry) => entry.status === 'PENDING_REVIEW').length;

@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router';
-import { ConsoleScreen } from '@octap/shared/google-auth';
+import { OrganizationScreen } from '@/app/organization/OrganizationScreen';
 import { PageHeader } from '@/components/shared/Display';
 export default function ConnectedSettings() {
   const location = useLocation();
@@ -11,7 +11,7 @@ export default function ConnectedSettings() {
         }
         description="Manage your organization with your persisted Business Owner permissions."
       />
-      <ConsoleScreen />
+      <OrganizationScreen />
     </>
   );
 }

@@ -1,8 +1,9 @@
 import type { ConsoleVoucher, ConsoleVoucherInput, ConsoleVoucherPatch } from './types';
 
 /**
- * Sends one request to Core and returns its JSON body, or throws on a non-2xx answer. The console
- * client from `@octap/shared/google-auth` provides one that carries the Google ID token.
+ * Sends one request to Core and returns its JSON body, or throws on a non-2xx answer.
+ * `useAuth().client().request` from `@octap/shared/authentication` provides one that carries the
+ * Google ID token.
  */
 export type CoreRequest = <T>(
   path: string,

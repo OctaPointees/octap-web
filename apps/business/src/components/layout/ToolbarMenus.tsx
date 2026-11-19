@@ -1,5 +1,5 @@
 import { Menu } from '@base-ui/react/menu';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
 import {
   ArrowClockwise,
   Buildings,
@@ -12,10 +12,9 @@ import {
   Storefront,
 } from 'phosphor-react';
 import { useLocation, useNavigate } from 'react-router';
+import { useOrganization } from '@/app/organization/context';
 import { useSession } from '../../queries/useSession';
-import { authService } from '../../services/auth.service';
 import { cn } from '../../utils/cn';
-import { toTitle } from '../../utils/format';
 import type { NavOption } from './SidePanel';
 
 const popup = 'min-w-60 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg outline-none';
@@ -30,24 +29,15 @@ const tag =
 
 /** The signed-in person: who they are, plus refresh and sign-out. The only sign-out in the shell. */
 export function AccountMenu() {
-  const auth = useConsoleAuth();
-  const session = useSession();
-  const navigate = useNavigate();
-  const user = session?.user;
+  const auth = useAuth();
+  const organization = useOrganization();
+  const user = useSession()?.user;
   if (!user) return null;
 
-  const access = (
-    auth
-      ? [
-          auth.selected ? (auth.owner ? 'Business Owner' : 'Business Developer') : null,
-          auth.identity?.user.systemRole === 'SYSTEM_ADMIN' ? 'System Admin' : null,
-        ]
-      : [user.merchantRole ? `Business ${toTitle(user.merchantRole)}` : null]
-  ).filter((role): role is string => !!role);
-  const signOut = () =>
-    auth
-      ? auth.signOut()
-      : void authService.logout().then(() => navigate('/login', { replace: true }));
+  const access = [
+    organization.selected ? (organization.owner ? 'Business Owner' : 'Business Developer') : null,
+    auth.identity?.user.systemRole === 'SYSTEM_ADMIN' ? 'System Admin' : null,
+  ].filter((role): role is string => !!role);
 
   return (
     <Menu.Root>
@@ -86,16 +76,18 @@ export function AccountMenu() {
               </div>
             </div>
             <div className={separator} />
-            {auth && (
-              <Menu.Item
-                className={item}
-                disabled={auth.busy}
-                onClick={() => void auth.perform(async () => {}, 'Access refreshed')}
-              >
-                <ArrowClockwise size={16} /> Refresh access
-              </Menu.Item>
-            )}
-            <Menu.Item className={cn(item, 'text-error')} disabled={auth?.busy} onClick={signOut}>
+            <Menu.Item
+              className={item}
+              disabled={organization.busy}
+              onClick={() => void organization.perform(async () => {}, 'Access refreshed')}
+            >
+              <ArrowClockwise size={16} /> Refresh access
+            </Menu.Item>
+            <Menu.Item
+              className={cn(item, 'text-error')}
+              disabled={organization.busy}
+              onClick={auth.signOut}
+            >
               <SignOut size={16} /> Sign out
             </Menu.Item>
           </Menu.Popup>
@@ -107,10 +99,11 @@ export function AccountMenu() {
 
 /** The organization segment: name, your role, and a switcher when signed in with Google. */
 export function OrganizationMenu({ label }: { label: string }) {
-  const auth = useConsoleAuth();
+  const { identity } = useAuth();
+  const organization = useOrganization();
   const navigate = useNavigate();
-  const name = auth?.selected?.name ?? label;
-  const role = auth?.selected ? (auth.owner ? 'Owner' : 'Developer') : null;
+  const name = organization.selected?.name ?? label;
+  const role = organization.selected ? (organization.owner ? 'Owner' : 'Developer') : null;
   const content = (
     <>
       <Buildings size={16} className="shrink-0 opacity-70" />
@@ -119,8 +112,7 @@ export function OrganizationMenu({ label }: { label: string }) {
     </>
   );
 
-  if (!auth?.identity)
-    return <span className={cn(segment, 'hover:bg-transparent')}>{content}</span>;
+  if (!identity) return <span className={cn(segment, 'hover:bg-transparent')}>{content}</span>;
 
   return (
     <Menu.Root>
@@ -131,16 +123,16 @@ export function OrganizationMenu({ label }: { label: string }) {
       <Menu.Portal>
         <Menu.Positioner sideOffset={6} align="start" className="z-50">
           <Menu.Popup className={popup}>
-            {auth.identity.organizations.length > 0 && (
+            {identity.organizations.length > 0 && (
               <>
                 <div className="px-3 pt-1 pb-1 text-xs font-medium opacity-60">Organizations</div>
-                {auth.identity.organizations.map((org) => {
-                  const current = org.organizationId === auth.organizationId;
+                {identity.organizations.map((org) => {
+                  const current = org.organizationId === organization.organizationId;
                   return (
                     <Menu.Item
                       key={org.organizationId}
                       className={item}
-                      onClick={() => !current && auth.choose(org.organizationId)}
+                      onClick={() => !current && organization.choose(org.organizationId)}
                     >
                       <Check size={16} className={cn(!current && 'invisible')} />
                       <span className="min-w-0 flex-1 truncate">{org.name}</span>
@@ -187,13 +179,11 @@ const PANELS = [
  * pages outside a panel, such as the organization picker.
  */
 export function PanelMenu() {
-  const auth = useConsoleAuth();
-  const session = useSession();
+  const { owner } = useOrganization();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const current = PANELS.find((panel) => pathname.startsWith(panel.path));
   if (!current) return null;
-  const owner = auth ? auth.owner : session?.user.merchantRole === 'owner';
   const available = owner ? PANELS : PANELS.filter((panel) => panel.path === '/developer');
   const content = (
     <>

@@ -22,10 +22,5 @@ export default defineConfig({
         VITE_ENABLE_DEMO_AUTH: 'false',
       },
     },
-    {
-      command: 'npm run dev -w @octap/business -- --host localhost --port 5182 --strictPort',
-      url: 'http://localhost:5182',
-      env: { VITE_ENABLE_DEMO_AUTH: 'true' },
-    },
   ],
 });

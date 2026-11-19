@@ -1,6 +1,7 @@
 import ConsoleAccessLayout from './console/AccessLayout';
-import { ConsoleRoot, ConsoleSignedIn, ConsoleScreen } from '@octap/shared/google-auth';
-import { queryClient } from '../queries/client';
+import { RequireSignIn } from '@octap/shared/authentication';
+import { OrganizationScreen } from '@/app/organization/OrganizationScreen';
+import BusinessRoot from './Root';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireRoles } from './guards';
 import { ADMIN_PORTAL_URL } from '@/components/layout/nav';
@@ -21,7 +22,6 @@ import SettingsPage from './merchant/pages/SettingsPage';
 import TransactionsPage from './merchant/pages/TransactionsPage';
 
 import NotFoundPage from './NotFoundPage';
-import WalletApp from './wallet';
 
 const portalRoutes: RouteObject[] = [
   {
@@ -69,39 +69,24 @@ const portalRoutes: RouteObject[] = [
   { path: '*', element: <NotFoundPage /> },
 ];
 
-const liveRoutes: RouteObject[] = [
-  ...portalRoutes,
+const accountRoutes: RouteObject[] = [
   {
-    element: <ConsoleSignedIn />,
+    element: <RequireSignIn />,
     children: [
       {
         element: <ConsoleAccessLayout />,
         children: [
-          { path: '/onboarding', element: <ConsoleScreen /> },
+          { path: '/onboarding', element: <OrganizationScreen /> },
           {
             path: '/organizations',
-            element: <ConsoleScreen adminPortalUrl={ADMIN_PORTAL_URL} />,
+            element: <OrganizationScreen adminPortalUrl={ADMIN_PORTAL_URL} />,
           },
-          { path: '/admin', element: <ConsoleScreen /> },
         ],
       },
     ],
   },
 ];
-export const router = createBrowserRouter(
-  import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'
-    ? [{ path: '/wallet', element: <WalletApp /> }, ...portalRoutes]
-    : [
-        {
-          element: (
-            <ConsoleRoot
-              portal="business"
-              clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}
-              apiBaseUrl={import.meta.env.VITE_CORE_API_URL ?? ''}
-              onReset={() => queryClient.clear()}
-            />
-          ),
-          children: liveRoutes,
-        },
-      ],
-);
+
+export const router = createBrowserRouter([
+  { element: <BusinessRoot />, children: [...portalRoutes, ...accountRoutes] },
+]);

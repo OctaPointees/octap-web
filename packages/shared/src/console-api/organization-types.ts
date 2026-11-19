@@ -1,4 +1,4 @@
-import type { OrganizationType } from './portal-api';
+import type { OrganizationType } from './client';
 export const organizationTypeLabel = (type?: OrganizationType | null) =>
   type === 'COMPANY'
     ? 'Company (registered legal entity)'

@@ -1,8 +1,6 @@
-import { ConsoleAccountControls, useConsoleAuth } from '@octap/shared/google-auth';
+import { AccountControls } from '@octap/shared/authentication';
 import type { ReactNode } from 'react';
-import { Outlet, useNavigate } from 'react-router';
-import { authService } from '../../services';
-import MockApiConsole from '../dev/MockApiConsole';
+import { Outlet } from 'react-router';
 import MainToolbar, { type SearchResult } from './MainToolbar';
 import SidePanel, { type NavOption } from './SidePanel';
 
@@ -23,8 +21,6 @@ export default function PortalLayout({
   searchPlaceholder,
   sideFooter,
 }: Props) {
-  const auth = useConsoleAuth();
-  const navigate = useNavigate();
   return (
     <div className="app-wrapper flex gap-2 p-4">
       <SidePanel subtitle={subtitle} options={nav} roleLabel={roleLabel} footer={sideFooter} />
@@ -33,22 +29,7 @@ export default function PortalLayout({
           nav={nav}
           useResults={useSearch}
           placeholder={searchPlaceholder}
-          actions={
-            <>
-              {auth ? <ConsoleAccountControls /> : <MockApiConsole />}
-              {!auth && (
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm lg:hidden"
-                  onClick={() =>
-                    authService.logout().then(() => navigate('/login', { replace: true }))
-                  }
-                >
-                  Log out
-                </button>
-              )}
-            </>
-          }
+          actions={<AccountControls />}
         />
         <main className="min-h-0 w-full flex-1 overflow-y-auto rounded-box bg-base-200 p-4 md:p-6">
           <div className="mx-auto flex max-w-[1920px] flex-col gap-6">

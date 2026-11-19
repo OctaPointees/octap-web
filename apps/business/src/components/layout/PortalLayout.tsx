@@ -1,7 +1,5 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
 import type { ReactNode } from 'react';
 import { Outlet } from 'react-router';
-import MockApiConsole from '../dev/MockApiConsole';
 import MainToolbar, { type SearchResult } from './MainToolbar';
 import SidePanel, { type NavOption } from './SidePanel';
 import { AccountMenu } from './ToolbarMenus';
@@ -29,8 +27,6 @@ export default function PortalLayout({
   sideFooter,
   hideSidebar = false,
 }: Props) {
-  const auth = useConsoleAuth();
-
   return (
     <div className="flex min-h-dvh flex-col bg-base-100 [--toolbar:3.5rem]">
       <header className="sticky top-0 z-30 select-none">
@@ -39,12 +35,7 @@ export default function PortalLayout({
           useResults={useSearch}
           subtitle={subtitle}
           placeholder={searchPlaceholder}
-          actions={
-            <>
-              {!auth && <MockApiConsole />}
-              <AccountMenu />
-            </>
-          }
+          actions={<AccountMenu />}
         />
       </header>
 

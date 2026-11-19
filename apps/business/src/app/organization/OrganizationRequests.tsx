@@ -2,10 +2,11 @@ import { Menu } from '@base-ui/react/menu';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ArrowSquareOut, Buildings, Copy, DotsThreeCircle } from 'phosphor-react';
 import { useEffect, useState } from 'react';
-import { cn } from '../utils';
-import { useConsoleAuth } from './console-session';
+import { cn } from '@/utils/cn';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from './context';
 import { useOrganizationRequests } from './organization-requests';
-import type { OrganizationApplication } from './portal-api';
+import type { OrganizationApplication } from '@octap/shared/console-api';
 
 const STATUS: Record<OrganizationApplication['status'], { label: string; badge: string }> = {
   PENDING: { label: 'Pending review', badge: 'badge-warning' },
@@ -67,7 +68,8 @@ export function OrganizationRequestList() {
 
 /** One request: building mark, name and status, how long ago, and a menu. */
 function RequestRow({ request }: { request: OrganizationApplication }) {
-  const auth = useConsoleAuth();
+  const { identity } = useAuth();
+  const { choose } = useOrganization();
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     if (!copied) return;
@@ -78,7 +80,7 @@ function RequestRow({ request }: { request: OrganizationApplication }) {
   const parsed = request.createdAt ? new Date(request.createdAt) : null;
   const created = parsed && !Number.isNaN(parsed.getTime()) ? parsed : null;
   // Approved requests you are a member of can be opened from here.
-  const openable = auth?.identity?.organizations.some(
+  const openable = identity?.organizations.some(
     (org) => org.organizationId === request.organizationId,
   );
 
@@ -132,10 +134,7 @@ function RequestRow({ request }: { request: OrganizationApplication }) {
                   <p className="px-3 pt-2 pb-1 text-xs opacity-70">Reason: {request.reason}</p>
                 )}
                 {openable && (
-                  <Menu.Item
-                    className={menuItem}
-                    onClick={() => auth?.choose(request.organizationId)}
-                  >
+                  <Menu.Item className={menuItem} onClick={() => choose(request.organizationId)}>
                     <ArrowSquareOut size={16} className="opacity-70" /> Open organization
                   </Menu.Item>
                 )}

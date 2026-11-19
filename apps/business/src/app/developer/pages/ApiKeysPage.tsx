@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiCredentialsApi, type ConsoleCredential } from '@octap/services';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/context';
 import { useState } from 'react';
 import { Key, PencilSimple, Plus, Warning } from 'phosphor-react';
 import { Button } from '@/components/shared/Button';
@@ -283,8 +284,9 @@ export default function DeveloperApiKeysPage() {
 }
 
 function ConnectedApiKeysPage() {
-  const auth = useConsoleAuth()!;
-  const orgId = auth.organizationId;
+  const auth = useAuth();
+  const organization = useOrganization();
+  const orgId = organization.organizationId;
   const cache = useQueryClient();
   const queryKey = ['console-api-credentials', orgId];
   const api = createApiCredentialsApi(auth.client().request);
@@ -369,7 +371,7 @@ function ConnectedApiKeysPage() {
             <tbody>
               {keys.data.map((key) => {
                 const active = key.status.toLowerCase() === 'active';
-                const canManage = auth.owner || !key.scopes.includes('write');
+                const canManage = organization.owner || !key.scopes.includes('write');
                 return (
                   <tr key={key.id}>
                     <td className="font-medium">{key.name}</td>
@@ -461,10 +463,10 @@ function ConnectedApiKeysPage() {
                 onChange={(event) => setScope(event.target.value as 'read' | 'write')}
               >
                 <option value="read">Read only</option>
-                {auth.owner && <option value="write">Read and write</option>}
+                {organization.owner && <option value="write">Read and write</option>}
               </select>
             </label>
-            {!auth.owner && (
+            {!organization.owner && (
               <p className="text-xs opacity-60">
                 Only an owner can create a key with write access.
               </p>

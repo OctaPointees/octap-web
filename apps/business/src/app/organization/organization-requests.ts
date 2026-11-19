@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useConsoleAuth } from './console-session';
+import { useAuth } from '@octap/shared/authentication';
 
 /** Prefix of the organization-requests query key: invalidate it after submitting a request. */
 export const organizationRequestsKey = ['console', 'organization-requests'] as const;
@@ -9,11 +9,11 @@ export const organizationRequestsKey = ['console', 'organization-requests'] as c
  * organization list and the create page. Keyed per user; signing out clears the cache.
  */
 export function useOrganizationRequests() {
-  const auth = useConsoleAuth();
-  const userId = auth?.identity?.user.id;
+  const { identity, client } = useAuth();
+  const userId = identity?.user.id;
   return useQuery({
     queryKey: [...organizationRequestsKey, userId],
-    queryFn: ({ signal }) => auth!.client().listConsoleOrganizationRequests(signal),
+    queryFn: ({ signal }) => client().listConsoleOrganizationRequests(signal),
     enabled: !!userId,
   });
 }

@@ -1,4 +1,4 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
 import {
   Gear,
   Layout,
@@ -11,31 +11,16 @@ import {
 } from 'phosphor-react';
 
 import PortalLayout from '@/components/layout/PortalLayout';
-import type { SearchResult } from '@/components/layout/MainToolbar';
 import type { NavOption } from '@/components/layout/SidePanel';
 import { platformAdminLinks } from '@/components/layout/nav';
-import { useMembers, useMerchantTenant } from '@/queries/merchant';
-import { toTitle } from '@/utils/format';
+import { useOrganization } from '@/app/organization/context';
 
-function useMerchantSearch(q: string) {
-  const auth = useConsoleAuth();
-  const active = !auth && q.trim().length >= 2;
-  const members = useMembers(q, active);
-  const data: SearchResult[] | undefined = active
-    ? members.data?.slice(0, 8).map((m) => ({
-        id: m.id,
-        type: 'member',
-        title: m.displayName,
-        subtitle: `${m.phone} · ${toTitle(m.tier)} · ${m.balance.toLocaleString()} pts`,
-        to: `/merchant/members?member=${m.id}`,
-      }))
-    : [];
-  return { data, isFetching: active && members.isFetching };
-}
+// Core has no member search yet.
+const noSearch = () => ({ data: [], isFetching: false });
 
 export default function MerchantLayout() {
-  const auth = useConsoleAuth();
-  const tenant = useMerchantTenant(!auth).data;
+  const { identity } = useAuth();
+  const { selected } = useOrganization();
 
   const nav: NavOption[] = [
     { label: 'Dashboard', path: '/merchant', icon: Layout, end: true },
@@ -45,14 +30,14 @@ export default function MerchantLayout() {
     { label: 'Members', path: '/merchant/members', icon: UsersThree },
     { label: 'Transactions', path: '/merchant/transactions', icon: Receipt },
     { label: 'Settings', path: '/merchant/settings', icon: Gear },
-    ...(auth ? [{ label: 'Team and invitations', path: '/merchant/team', icon: UsersFour }] : []),
+    { label: 'Team and invitations', path: '/merchant/team', icon: UsersFour },
   ];
 
   return (
     <PortalLayout
-      subtitle={auth?.selected?.name ?? tenant?.name ?? 'Business'}
-      nav={[...nav, ...platformAdminLinks(auth)]}
-      useSearch={useMerchantSearch}
+      subtitle={selected?.name ?? 'Business'}
+      nav={[...nav, ...platformAdminLinks(identity)]}
+      useSearch={noSearch}
       searchPlaceholder="Search members…"
     />
   );

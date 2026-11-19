@@ -118,8 +118,8 @@ access. Developer accounts cannot update organization profiles or manage invitat
 The original dashboard components remain available in both modes. Real mode uses
 persisted Core organization/access data and clearly marks analytics or other modules
 that do not have live adapters yet. Mock services cannot serve or mutate data in real
-mode. The original sample charts, analytics and password-demo flow remain available
-only with `VITE_ENABLE_DEMO_AUTH=true`. Campaigns, points, rewards, customer member
+mode. Password demo sign-in has been removed; `VITE_ENABLE_DEMO_AUTH=true` only switches a
+few pages to their old sample charts and analytics. Campaigns, points, rewards, customer member
 directory, full governance, credential issuance and chain program provisioning remain
 separate features; approval here establishes portal access, not a provisioned Sui program.
 Lists currently return at most 100 records. Provider credentials are never persisted in

@@ -1,13 +1,15 @@
-import { ConsoleScreen, useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { usePlatformOrganizationRequests } from '../../../queries/organizationRequests';
+import { OrganizationRequestReview } from '../OrganizationRequestReview';
 import { Buildings, ShieldCheck, UsersThree } from 'phosphor-react';
 import { PageHeader, StatCard } from '../../../components/shared/Display';
 export default function CoreDashboard() {
-  const auth = useConsoleAuth();
-  const requests = auth?.data.applications;
+  const { identity } = useAuth();
+  const requests = usePlatformOrganizationRequests().data;
   return (
     <>
       <PageHeader
-        title={`Good ${new Date().getHours() < 12 ? 'morning' : 'afternoon'}, ${auth?.identity?.user.fullName ?? ''}`}
+        title={`Good ${new Date().getHours() < 12 ? 'morning' : 'afternoon'}, ${identity?.user.fullName ?? ''}`}
         description="Platform organization onboarding and review."
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -25,7 +27,7 @@ export default function CoreDashboard() {
         />
         <StatCard label="Your access" value="System Admin" icon={UsersThree} />
       </div>
-      <ConsoleScreen />
+      <OrganizationRequestReview />
     </>
   );
 }
