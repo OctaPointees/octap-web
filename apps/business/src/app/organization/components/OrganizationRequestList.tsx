@@ -26,7 +26,8 @@ export function OrganizationRequestList() {
   return (
     <section
       aria-labelledby="organization-requests"
-      className="flex min-w-0 flex-col gap-3 border-l border-base-300 pl-8"
+      // Beside the form on xl, a divider on its left; stacked below it, a divider on top.
+      className="flex min-w-0 flex-col gap-3 border-t border-base-300 pt-8 xl:border-t-0 xl:border-l xl:pt-0 xl:pl-8"
     >
       <h2 id="organization-requests" className="flex items-center gap-2 font-semibold">
         Your requests

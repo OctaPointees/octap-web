@@ -360,6 +360,7 @@ function Step({
               type="button"
               className="group w-full rounded-field text-left outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-expanded={false}
+              aria-controls={bodyId}
               onClick={onReopen}
             >
               {heading}
@@ -371,17 +372,19 @@ function Step({
             heading
           )}
         </h3>
-        {/* Closed steps render nothing (their values live in state); opening animates in. */}
-        {open && (
-          <div
-            id={bodyId}
-            className="grid grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity] duration-300 ease-out starting:grid-rows-[0fr] starting:opacity-0"
-          >
+        {/* The body is always in the page, so the header's aria-controls always points at it.
+            Closed, it is hidden and empty (the step's values live in state); opening animates in. */}
+        <div
+          id={bodyId}
+          hidden={!open}
+          className="grid grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity] duration-300 ease-out starting:grid-rows-[0fr] starting:opacity-0"
+        >
+          {open && (
             <div className="min-h-0 overflow-hidden">
               <div className="pt-4">{children}</div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </li>
   );
