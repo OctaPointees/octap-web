@@ -171,10 +171,11 @@ const menuItem =
 const chip =
   'inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-field border border-base-300 px-2 py-0.5 text-xs';
 
-const STATUS: Record<Exclude<Status, 'ACTIVE'>, { label: string; icon: Icon; badge: string }> = {
-  PENDING_REVIEW: { label: 'Pending review', icon: Hourglass, badge: 'badge-warning hidden' },
-  SUSPENDED: { label: 'Suspended', icon: Pause, badge: 'badge-error' },
-  ARCHIVED: { label: 'Archived', icon: Archive, badge: 'badge-neutral' },
+/** States other than active. The state line at the bottom of the card names them. */
+const STATUS: Record<Exclude<Status, 'ACTIVE'>, { label: string; icon: Icon; card?: string }> = {
+  PENDING_REVIEW: { label: 'Pending review', icon: Hourglass },
+  SUSPENDED: { label: 'Suspended', icon: Pause, card: 'border-warning/40 bg-warning/10' },
+  ARCHIVED: { label: 'Archived', icon: Archive },
 };
 const ownerTip = 'Owners manage organization settings, the team, rewards and API keys.';
 const developerTip = 'Developers manage API keys, webhooks and integrations for this organization.';
@@ -207,6 +208,9 @@ function OrganizationCard({
   const StateIcon = status ? status.icon : owner ? ShieldCheck : Code;
   const stateLabel = status ? status.label : owner ? 'Owner access' : 'Developer access';
   const tip = status ? entry.note : owner ? ownerTip : developerTip;
+  // Core does not return the profile for organizations you belong to yet, so an active card
+  // without it shows no profile chips rather than a misleading "Profile not set".
+  const profileUnknown = entry.status === 'ACTIVE' && !type && !representative;
 
   const copyId = () =>
     void navigator.clipboard
@@ -221,6 +225,7 @@ function OrganizationCard({
         'relative flex h-full min-h-48 flex-col rounded-box border border-base-300 bg-base-200/40 p-5',
         onOpen &&
           'bg-base-100 transition-[border-color,box-shadow] hover:border-base-content/25 hover:shadow-sm has-[button[data-open]:focus-visible]:outline-2 has-[button[data-open]:focus-visible]:outline-offset-2 has-[button[data-open]:focus-visible]:outline-primary',
+        status?.card,
       )}
     >
       {onOpen && (
@@ -238,34 +243,31 @@ function OrganizationCard({
           <h2 className={cn('truncate font-semibold', status && 'opacity-75')} title={entry.name}>
             {entry.name}
           </h2>
-          {status && (
-            <span className={cn('badge badge-soft badge-xs shrink-0', status.badge)}>
-              {status.label}
-            </span>
-          )}
         </div>
         {entry.slug && <p className="mt-0.5 truncate text-sm opacity-60">{entry.slug}</p>}
 
-        <div className="mt-4 flex min-w-0 flex-wrap gap-2">
-          {type || representative ? (
-            <>
-              {type && (
-                <span className={chip}>
-                  <Buildings size={14} className="shrink-0 opacity-70" />
-                  <span className="truncate">{type}</span>
-                </span>
-              )}
-              {representative && (
-                <span className={chip} title={`Representative: ${representative}`}>
-                  <User size={14} className="shrink-0 opacity-70" />
-                  <span className="truncate">{representative}</span>
-                </span>
-              )}
-            </>
-          ) : (
-            <span className={cn(chip, 'opacity-60')}>Profile not set</span>
-          )}
-        </div>
+        {!profileUnknown && (
+          <div className="mt-4 flex min-w-0 flex-wrap gap-2">
+            {type || representative ? (
+              <>
+                {type && (
+                  <span className={chip}>
+                    <Buildings size={14} className="shrink-0 opacity-70" />
+                    <span className="truncate">{type}</span>
+                  </span>
+                )}
+                {representative && (
+                  <span className={chip} title={`Representative: ${representative}`}>
+                    <User size={14} className="shrink-0 opacity-70" />
+                    <span className="truncate">{representative}</span>
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className={cn(chip, 'opacity-60')}>Profile not set</span>
+            )}
+          </div>
+        )}
 
         <div className="mt-auto flex items-center gap-2 pt-6 text-sm">
           <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-base-300">
