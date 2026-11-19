@@ -57,12 +57,6 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
                 <Link className="link" to="/developer/api-keys">
                   API credentials
                 </Link>
-                <Link className="link" to="/developer/webhooks">
-                  Webhooks
-                </Link>
-                <Link className="link" to="/developer/mcp">
-                  MCP tools
-                </Link>
               </>
             ) : (
               <>

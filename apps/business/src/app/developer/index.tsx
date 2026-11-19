@@ -1,6 +1,6 @@
 import { useAuth } from '@octap/shared/authentication';
 import { useMemo } from 'react';
-import { House, Key, PlugsConnected, ShareNetwork, Ticket, UsersThree } from 'phosphor-react';
+import { House, Key, Ticket, UsersThree } from 'phosphor-react';
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
 import { platformAdminLinks } from '@/components/layout/nav';
@@ -16,8 +16,6 @@ export default function DeveloperLayout() {
       { label: 'Members', path: '/developer/members', icon: UsersThree },
       { label: 'Rewards', path: '/developer/rewards', icon: Ticket },
       { label: 'API keys', path: '/developer/api-keys', icon: Key },
-      { label: 'Webhooks', path: '/developer/webhooks', icon: ShareNetwork },
-      { label: 'MCP tools', path: '/developer/mcp', icon: PlugsConnected },
     ],
     [],
   );
