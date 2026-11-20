@@ -1,11 +1,8 @@
 import { ConsoleApi } from './generated/console.js';
-import { CreditsApi } from './generated/credits.js';
 import { HealthApi } from './generated/health.js';
 import { IdentityApi } from './generated/identity.js';
 import { OrganizationsApi } from './generated/organizations.js';
 import { PlatformApi } from './generated/platform.js';
-import { RewardsApi } from './generated/rewards.js';
-import { WebhooksApi } from './generated/webhooks.js';
 import type * as OpenApi from './generated/openapi.js';
 import { AuthStateNotifier } from './lib/auth-state.js';
 import type { AuthStateChangeCallback, AuthStateSubscriptionResult } from './lib/auth-state.js';
@@ -65,7 +62,7 @@ class OctapAuthApi {
     if (session.error !== null) {
       return session;
     }
-    return { data: session.data.user as ConsoleUser, error: null };
+    return { data: session.data.user, error: null };
   };
 
   /** Clears the session and the signed-in flag. */
@@ -133,61 +130,15 @@ class OctapConsoleApi extends ConsoleApi {
       return result;
     }
 
-    this.store.setSession({ accessToken: input.idToken, expiresAt: null, user: null });
-    const profileResult = await super.me();
-    if (profileResult.error !== null) {
-      this.store.removeSession();
-      this.authState.emit('SIGNED_OUT', null);
-      return profileResult;
-    }
-
+    // The login response already carries the same `{ user, organizations, expiresAt }` as `/me`.
     const session: OctapSession = {
       accessToken: input.idToken,
-      expiresAt: parseExpiration(profileResult.data.expiresAt),
-      user: profileResult.data.user,
+      expiresAt: parseExpiration(result.data.expiresAt),
+      user: result.data.user,
     };
     this.store.setSession(session);
     this.authState.emit('SIGNED_IN', session);
     return result;
-  }
-}
-
-/** Convenience aliases for the voucher endpoints under `client.rewards`. */
-export class VouchersApi {
-  constructor(private readonly rewards: RewardsApi) {}
-
-  /** Lists vouchers. */
-  list(input: Parameters<RewardsApi['listVouchers']>[0]): ReturnType<RewardsApi['listVouchers']> {
-    return this.rewards.listVouchers(input);
-  }
-
-  /** Fetches a voucher by ID. */
-  get(input: Parameters<RewardsApi['getVoucher']>[0]): ReturnType<RewardsApi['getVoucher']> {
-    return this.rewards.getVoucher(input);
-  }
-
-  /** Creates a voucher. */
-  create(
-    input: Parameters<RewardsApi['createVoucher']>[0],
-  ): ReturnType<RewardsApi['createVoucher']> {
-    return this.rewards.createVoucher(input);
-  }
-
-  /** Updates a voucher. */
-  update(
-    input: Parameters<RewardsApi['updateVoucher']>[0],
-  ): ReturnType<RewardsApi['updateVoucher']> {
-    return this.rewards.updateVoucher(input);
-  }
-
-  /** Claims a voucher. */
-  claim(input: Parameters<RewardsApi['claimVoucher']>[0]): ReturnType<RewardsApi['claimVoucher']> {
-    return this.rewards.claimVoucher(input);
-  }
-
-  /** Grants a voucher. */
-  grant(input: Parameters<RewardsApi['grantVoucher']>[0]): ReturnType<RewardsApi['grantVoucher']> {
-    return this.rewards.grantVoucher(input);
   }
 }
 
@@ -203,14 +154,10 @@ export class VouchersApi {
 export class OctapClient {
   readonly auth: OctapAuthApi;
   readonly console: OctapConsoleApi;
-  readonly credits: CreditsApi;
   readonly health: HealthApi;
   readonly identity: IdentityApi;
   readonly organizations: OrganizationsApi;
   readonly platform: PlatformApi;
-  readonly rewards: RewardsApi;
-  readonly vouchers: VouchersApi;
-  readonly webhooks: WebhooksApi;
 
   /** Creates a client for the supplied API origin. */
   constructor(props: ClientProps) {
@@ -228,13 +175,9 @@ export class OctapClient {
     const http = new HttpClient(props.api_url, () => store.getSession()?.accessToken ?? null);
     this.console = new OctapConsoleApi(http, store, authState);
     this.auth = new OctapAuthApi(this.console, store, authState);
-    this.credits = new CreditsApi(http);
     this.health = new HealthApi(http);
     this.identity = new IdentityApi(http);
     this.organizations = new OrganizationsApi(http);
     this.platform = new PlatformApi(http);
-    this.rewards = new RewardsApi(http);
-    this.vouchers = new VouchersApi(this.rewards);
-    this.webhooks = new WebhooksApi(http);
   }
 }

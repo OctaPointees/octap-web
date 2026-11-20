@@ -1,6 +1,7 @@
 {
   "name": "@octap/internal-sdk",
   "version": "0.1.0",
+  "private": true,
   "description": "Browser SDK for the OctaP API",
   "license": "UNLICENSED",
   "type": "module",

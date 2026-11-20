@@ -118,16 +118,30 @@ const groupRules = [
   [/^Console/, 'console'],
   [/^Platform/, 'platform'],
   [/^MembersController/, 'console'],
-  [/^Credits/, 'credits'],
-  [/^Rewards/, 'rewards'],
-  [/^Webhooks/, 'webhooks'],
+  // Merchant routes, server-side with an API key: they belong to `@octap/sdk`, not this browser
+  // client. This also skips their two public POS finalize routes, which are part of the same flow.
+  [/^(Credits|Rewards|Webhooks)/, null],
   [/^Health/, 'health'],
   [/^OrganizationResolution/, 'organizations'],
   [/^(IdentityController|CustomerVerificationController)/, 'identity'],
 ];
 
+/** The operation's group, or `null` when this client doesn't cover it. */
 function getOperationGroup(operationId) {
-  return groupRules.find(([pattern]) => pattern.test(operationId))?.[1] ?? 'auth';
+  const rule = groupRules.find(([pattern]) => pattern.test(operationId));
+  return rule === undefined ? 'auth' : rule[1];
+}
+
+/**
+ * Whether every way to call the operation needs a merchant API key. This client only sends the
+ * console user's Google ID token, so from a browser such a call is always a 401.
+ */
+function requiresApiKey(operation) {
+  const requirements = operation.security ?? spec.security ?? [];
+  return (
+    requirements.length > 0 &&
+    requirements.every((requirement) => Object.keys(requirement).includes('apiKey'))
+  );
 }
 
 const resourceActions = new Set(['list', 'detail', 'create', 'read', 'update', 'provision']);
@@ -171,8 +185,9 @@ const groups = new Map();
 
 for (const [rawPath, pathItem] of Object.entries(spec.paths ?? {})) {
   for (const [httpMethod, operation] of Object.entries(pathItem)) {
-    if (!httpMethods.has(httpMethod)) continue;
+    if (!httpMethods.has(httpMethod) || requiresApiKey(operation)) continue;
     const group = getOperationGroup(operation.operationId);
+    if (group === null) continue;
     if (!groups.has(group)) groups.set(group, []);
     const methods = groups.get(group);
 

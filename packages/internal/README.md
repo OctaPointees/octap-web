@@ -2,7 +2,7 @@
 
 Browser TypeScript client for the OctaP Core API. Endpoint methods and DTO types are generated from `docs/openapi.json`, which is a copy of `docs/openapi.json` in `octap-core`.
 
-It covers every Core operation with typed inputs and results. `packages/services` holds hand-written API modules for the features the portals use today (rewards, API credentials) on top of the `@octap/shared` transport. Those modules can move onto this SDK one at a time.
+It covers the Core routes a signed-in console user can call from the browser (63 of Core's 85 operations). Merchant routes that need an API key (credits, rewards, webhooks, customer verification) are left out; they belong to `@octap/sdk`, which runs server-side with credentials. `packages/services` holds hand-written API modules for the features the portals use today (rewards, API credentials) on top of the `@octap/shared` transport. Those modules can move onto this SDK one at a time.
 
 ## Installation
 
@@ -32,7 +32,7 @@ if (error !== null) {
   console.log(data);
 }
 
-const vouchers = await client.vouchers.list({ organizationId: 'org-id' });
+const members = await client.console.listMembers({ organizationId: 'org-id' });
 const { data: user } = await client.auth.getUser();
 
 const { data: authListener } = client.auth.onAuthStateChange((event, session) => {
@@ -47,7 +47,7 @@ Every method returns `{ data, error }`. On success `data` is the response body a
 
 ## Authentication
 
-`client.auth.signInWithGoogleIDToken()` signs in through the Console Identity endpoint, then checks the token by fetching `/v1/console/me`. Later requests send the Google ID token as a bearer token.
+`client.auth.signInWithGoogleIDToken()` signs in through the Console Identity endpoint and builds the session from its response. Later requests send the Google ID token as a bearer token.
 
 The token is kept **in memory only**, never in browser storage, so XSS cannot read it from there. This matches `@octap/shared` authentication. The SDK writes only a non-secret flag (`octap.sdk.signedIn = '1'`) to localStorage:
 

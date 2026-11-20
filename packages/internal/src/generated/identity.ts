@@ -49,20 +49,4 @@ export class IdentityApi extends ApiGroup {
       data: input,
     });
   }
-  /** Sends a POST request to /v1/identity/verify. */
-  verify(input: {
-    organizationId?: string;
-    body: OpenApi.CustomerVerificationVerifyInput;
-  }): Promise<OctapResponse<OpenApi.CustomerVerificationVerifyResponse>> {
-    return this.request<OpenApi.CustomerVerificationVerifyResponse>({
-      method: 'post',
-      url: `/v1/identity/verify`,
-      headers: {
-        ...(input.organizationId !== undefined
-          ? { 'X-Organization-Id': input.organizationId }
-          : {}),
-      },
-      data: input.body,
-    });
-  }
 }
