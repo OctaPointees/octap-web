@@ -1,66 +1,63 @@
 import type { OctapSession } from '../types.js';
 
-export const OCTAP_SESSION_KEY = 'octap.session';
+/** localStorage key of the non-secret "signed in here before" flag. Its value is only ever `'1'`. */
+export const OCTAP_SIGNED_IN_FLAG_KEY = 'octap.sdk.signedIn';
 
-/** Browser storage adapter for the current access token. */
-export class SessionStorage {
-  /** Reads the persisted session when browser storage is available. */
+/**
+ * Holds the session in memory only, the same way `@octap/shared` authentication does.
+ *
+ * The Google ID token is a live bearer token for Core, so it never goes into browser storage,
+ * where any XSS could read it. A reload drops it; the non-secret flag in localStorage tells the
+ * app this browser was signed in, so it can ask Google for a fresh ID token and sign in again.
+ */
+export class SessionStore {
+  private session: OctapSession | null = null;
+
+  constructor(
+    /** Called when a stored session is dropped because its token expired. */
+    private readonly onExpired: () => void = () => {},
+  ) {}
+
+  /** Returns the current session, dropping it first if its token has expired. */
   getSession(): OctapSession | null {
-    const storage = this.getStorage();
-    if (storage === null) {
-      return null;
+    if (this.session?.expiresAt != null && this.session.expiresAt <= Date.now()) {
+      // Keep the flag: an expired Google token is exactly when the app should resume.
+      this.session = null;
+      this.onExpired();
     }
-
-    let rawSession: string | null;
-    try {
-      rawSession = storage.getItem(OCTAP_SESSION_KEY);
-    } catch {
-      return null;
-    }
-    if (rawSession === null) {
-      return null;
-    }
-
-    try {
-      const parsed = JSON.parse(rawSession) as Partial<OctapSession>;
-      if (typeof parsed.accessToken !== 'string') {
-        storage.removeItem(OCTAP_SESSION_KEY);
-        return null;
-      }
-      return {
-        accessToken: parsed.accessToken,
-        expiresAt: typeof parsed.expiresAt === 'number' ? parsed.expiresAt : null,
-        user: parsed.user ?? null,
-      };
-    } catch {
-      storage.removeItem(OCTAP_SESSION_KEY);
-      return null;
-    }
+    return this.session;
   }
 
-  /** Persists the session in localStorage. */
+  /** Stores the session in memory and sets the signed-in flag. */
   setSession(session: OctapSession): void {
-    const storage = this.getStorage();
-    if (storage === null) {
-      throw new Error('localStorage is unavailable; the session cannot be persisted.');
-    }
-    storage.setItem(OCTAP_SESSION_KEY, JSON.stringify(session));
+    this.session = session;
+    writeFlag(true);
   }
 
-  /** Removes the persisted session. */
+  /** Clears the session and the signed-in flag (sign-out, or Core rejected the token). */
   removeSession(): void {
-    try {
-      this.getStorage()?.removeItem(OCTAP_SESSION_KEY);
-    } catch {
-      // Storage can be disabled by browser privacy settings.
-    }
+    this.session = null;
+    writeFlag(false);
   }
 
-  private getStorage(): Storage | null {
+  /** Whether this browser was signed in before, so a fresh Google ID token is worth requesting. */
+  wasSignedIn(): boolean {
     try {
-      return typeof globalThis.localStorage === 'undefined' ? null : globalThis.localStorage;
+      return globalThis.localStorage?.getItem(OCTAP_SIGNED_IN_FLAG_KEY) === '1';
     } catch {
-      return null;
+      return false;
     }
+  }
+}
+
+function writeFlag(signedIn: boolean): void {
+  try {
+    if (signedIn) {
+      globalThis.localStorage?.setItem(OCTAP_SIGNED_IN_FLAG_KEY, '1');
+    } else {
+      globalThis.localStorage?.removeItem(OCTAP_SIGNED_IN_FLAG_KEY);
+    }
+  } catch {
+    // Storage can be unavailable (private mode, blocked site data): resume just won't happen.
   }
 }

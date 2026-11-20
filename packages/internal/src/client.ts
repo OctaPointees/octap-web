@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import { ConsoleApi } from './generated/console.js';
 import { CreditsApi } from './generated/credits.js';
 import { HealthApi } from './generated/health.js';
@@ -8,11 +7,14 @@ import { PlatformApi } from './generated/platform.js';
 import { RewardsApi } from './generated/rewards.js';
 import { WebhooksApi } from './generated/webhooks.js';
 import type * as OpenApi from './generated/openapi.js';
-import { HttpClient } from './lib/http.js';
-import { SessionStorage } from './lib/storage.js';
 import { AuthStateNotifier } from './lib/auth-state.js';
 import type { AuthStateChangeCallback, AuthStateSubscriptionResult } from './lib/auth-state.js';
-import type { ClientProps, OctapError, OctapResponse, OctapSession } from './types.js';
+import { OctapError } from './lib/errors.js';
+import { HttpClient } from './lib/http.js';
+import { SessionStore } from './lib/storage.js';
+import type { ClientProps, OctapResponse, OctapSession } from './types.js';
+
+type ConsoleUser = OpenApi.ConsoleIdentityMeResponse['user'];
 
 function parseExpiration(value: string): number | null {
   const expiration = Date.parse(value);
@@ -22,7 +24,7 @@ function parseExpiration(value: string): number | null {
 class OctapAuthApi {
   constructor(
     private readonly consoleApi: OctapConsoleApi,
-    private readonly storage: SessionStorage,
+    private readonly store: SessionStore,
     private readonly authState: AuthStateNotifier,
   ) {
     this.authState.setSessionResolver(() => this.verifySession());
@@ -33,117 +35,91 @@ class OctapAuthApi {
     return this.authState.onAuthStateChange(callback);
   };
 
-  /** Signs in with a Google ID token and persists the session in localStorage. */
+  /** Signs in with a Google ID token and keeps the session in memory. */
   signInWithGoogleIDToken = (
     token: string,
   ): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> => {
     return this.consoleApi.login({ idToken: token });
   };
 
-  /** Returns the current persisted browser session, if one exists. */
+  /** Returns the current in-memory session, or `null` when signed out or expired. */
   getSession = (): OctapSession | null => {
-    return this.storage.getSession();
+    return this.store.getSession();
+  };
+
+  /**
+   * Whether this browser was signed in before (a non-secret flag, not a credential). After a
+   * reload there is no session; when this is `true`, ask Google for a fresh ID token and call
+   * `signInWithGoogleIDToken` again.
+   */
+  wasSignedIn = (): boolean => {
+    return this.store.wasSignedIn();
   };
 
   /** Fetches and verifies the current console user profile. */
-  getUser = async (): Promise<OctapResponse<OpenApi.ConsoleIdentityMeResponse['user']>> => {
-    const session = this.storage.getSession();
-    if (session === null) {
-      return {
-        data: null,
-        error: new AxiosError('No active session.', 'ERR_BAD_REQUEST') as OctapError<
-          OpenApi.ConsoleIdentityMeResponse['user']
-        >,
-      };
+  getUser = async (): Promise<OctapResponse<ConsoleUser>> => {
+    if (this.store.getSession() === null) {
+      return { data: null, error: new OctapError('No active session.', 'NO_SESSION') };
     }
+    const session = await this.refreshProfile();
+    if (session.error !== null) {
+      return session;
+    }
+    return { data: session.data.user as ConsoleUser, error: null };
+  };
 
-    const result = await this.consoleApi.me();
-    if (result.data === null) {
-      if (result.error?.response?.status === 401) {
-        this.storage.removeSession();
-        this.authState.emit('SIGNED_OUT', null);
-      }
-      return {
-        data: null,
-        error: result.error as unknown as OctapError<OpenApi.ConsoleIdentityMeResponse['user']>,
-      };
-    }
-
-    const profile = result.data;
-    if (this.storage.getSession()?.accessToken !== session.accessToken) {
-      return {
-        data: null,
-        error: new AxiosError(
-          'The session changed while the profile was loading.',
-          'ERR_CANCELED',
-        ) as OctapError<OpenApi.ConsoleIdentityMeResponse['user']>,
-      };
-    }
-    const updatedSession: OctapSession = {
-      ...session,
-      expiresAt: parseExpiration(profile.expiresAt),
-      user: profile.user,
-    };
-    try {
-      this.storage.setSession(updatedSession);
-    } catch (error: unknown) {
-      return {
-        data: null,
-        error: new AxiosError(
-          error instanceof Error ? error.message : String(error),
-          'ERR_STORAGE_UNAVAILABLE',
-        ) as OctapError<OpenApi.ConsoleIdentityMeResponse['user']>,
-      };
-    }
-
-    return {
-      data: profile.user,
-      error: null,
-    };
+  /** Clears the session and the signed-in flag. */
+  signOut = (): void => {
+    this.store.removeSession();
+    this.authState.emit('SIGNED_OUT', null);
   };
 
   private async verifySession(): Promise<OctapSession | null> {
-    const session = this.storage.getSession();
-    if (session === null) {
+    if (this.store.getSession() === null) {
       return null;
+    }
+    const result = await this.refreshProfile();
+    return result.data;
+  }
+
+  /** Re-reads the profile for the current session and stores the fresh user and expiry. */
+  private async refreshProfile(): Promise<OctapResponse<OctapSession>> {
+    const session = this.store.getSession();
+    if (session === null) {
+      return { data: null, error: new OctapError('No active session.', 'NO_SESSION') };
     }
 
     const result = await this.consoleApi.me();
-    if (result.data === null) {
-      if (result.error?.response?.status === 401) {
-        this.storage.removeSession();
+    if (result.error !== null) {
+      if (result.error.status === 401 && this.store.getSession() === session) {
+        this.signOut();
       }
-      return null;
+      return result;
     }
 
-    const profile = result.data;
-    if (this.storage.getSession()?.accessToken !== session.accessToken) {
-      return null;
+    if (this.store.getSession() !== session) {
+      return {
+        data: null,
+        error: new OctapError(
+          'The session changed while the profile was loading.',
+          'SESSION_CHANGED',
+        ),
+      };
     }
-    const verifiedSession: OctapSession = {
+    const updated: OctapSession = {
       ...session,
-      expiresAt: parseExpiration(profile.expiresAt),
-      user: profile.user,
+      expiresAt: parseExpiration(result.data.expiresAt),
+      user: result.data.user,
     };
-    try {
-      this.storage.setSession(verifiedSession);
-      return verifiedSession;
-    } catch {
-      return null;
-    }
+    this.store.setSession(updated);
+    return { data: updated, error: null };
   }
-
-  /** Clears the local browser session. */
-  signOut = (): void => {
-    this.storage.removeSession();
-    this.authState.emit('SIGNED_OUT', null);
-  };
 }
 
 class OctapConsoleApi extends ConsoleApi {
   constructor(
     http: HttpClient,
-    private readonly storage: SessionStorage,
+    private readonly store: SessionStore,
     private readonly authState: AuthStateNotifier,
   ) {
     super(http);
@@ -157,48 +133,21 @@ class OctapConsoleApi extends ConsoleApi {
       return result;
     }
 
-    try {
-      this.storage.setSession({ accessToken: input.idToken, expiresAt: null, user: null });
-    } catch (error: unknown) {
-      return {
-        data: null,
-        error: new AxiosError(
-          error instanceof Error ? error.message : String(error),
-          'ERR_STORAGE_UNAVAILABLE',
-        ) as OctapError<OpenApi.ConsoleIdentityLoginResponse>,
-      };
-    }
-
+    this.store.setSession({ accessToken: input.idToken, expiresAt: null, user: null });
     const profileResult = await super.me();
-    if (profileResult.data === null) {
-      this.storage.removeSession();
+    if (profileResult.error !== null) {
+      this.store.removeSession();
       this.authState.emit('SIGNED_OUT', null);
-      return {
-        data: null,
-        error: profileResult.error as OctapError<OpenApi.ConsoleIdentityLoginResponse>,
-      };
+      return profileResult;
     }
 
-    const profile = profileResult.data;
-    try {
-      this.storage.setSession({
-        accessToken: input.idToken,
-        expiresAt: parseExpiration(profile.expiresAt),
-        user: profile.user,
-      });
-    } catch (error: unknown) {
-      this.storage.removeSession();
-      this.authState.emit('SIGNED_OUT', null);
-      return {
-        data: null,
-        error: new AxiosError(
-          error instanceof Error ? error.message : String(error),
-          'ERR_STORAGE_UNAVAILABLE',
-        ) as OctapError<OpenApi.ConsoleIdentityLoginResponse>,
-      };
-    }
-
-    this.authState.emit('SIGNED_IN', this.storage.getSession());
+    const session: OctapSession = {
+      accessToken: input.idToken,
+      expiresAt: parseExpiration(profileResult.data.expiresAt),
+      user: profileResult.data.user,
+    };
+    this.store.setSession(session);
+    this.authState.emit('SIGNED_IN', session);
     return result;
   }
 }
@@ -268,11 +217,17 @@ export class OctapClient {
     if (props.api_url.trim().length === 0) {
       throw new TypeError('api_url must be a non-empty URL.');
     }
-    const sessionStorage = new SessionStorage();
-    const authState = new AuthStateNotifier(sessionStorage);
-    const http = new HttpClient(props.api_url, sessionStorage);
-    this.console = new OctapConsoleApi(http, sessionStorage, authState);
-    this.auth = new OctapAuthApi(this.console, sessionStorage, authState);
+    const authState = new AuthStateNotifier();
+    const store = new SessionStore(() => authState.emit('SIGNED_OUT', null));
+    authState.setRemoteSignOutHandler(() => {
+      if (store.getSession() !== null) {
+        store.removeSession();
+        authState.emit('SIGNED_OUT', null);
+      }
+    });
+    const http = new HttpClient(props.api_url, () => store.getSession()?.accessToken ?? null);
+    this.console = new OctapConsoleApi(http, store, authState);
+    this.auth = new OctapAuthApi(this.console, store, authState);
     this.credits = new CreditsApi(http);
     this.health = new HealthApi(http);
     this.identity = new IdentityApi(http);

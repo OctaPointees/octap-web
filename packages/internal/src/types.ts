@@ -1,5 +1,5 @@
-import type { AxiosError, AxiosResponse } from 'axios';
 import type * as OpenApi from './generated/openapi.js';
+import type { OctapError } from './lib/errors.js';
 
 /** Client construction options. */
 export interface ClientProps {
@@ -7,21 +7,13 @@ export interface ClientProps {
   api_url: string;
 }
 
-/**
- * Deprecated Axios response type retained for compatibility.
- * @deprecated Successful SDK results now expose the response body as `T`.
- */
-export interface OctapData<T> extends AxiosResponse<T> {}
-
-/** Axios error returned by an OctaP SDK method. */
-export interface OctapError<T = unknown> extends AxiosError<T> {}
-
 /** Standard result returned by all asynchronous API methods. */
-export type OctapResponse<T> = { data: T; error: null } | { data: null; error: OctapError<T> };
+export type OctapResponse<T> = { data: T; error: null } | { data: null; error: OctapError };
 
-/** Stored browser authentication session. */
+/** In-memory browser authentication session. */
 export interface OctapSession {
   accessToken: string;
+  /** When the token expires (epoch ms), or `null` until Core reports it. */
   expiresAt: number | null;
   user: OpenApi.ConsoleIdentityMeResponse['user'] | null;
 }
