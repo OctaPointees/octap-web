@@ -1,17 +1,19 @@
 import { ArrowLeft } from 'phosphor-react';
-import { Link, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { InvitationForm } from '../components/InvitationForm';
 import { OrganizationRequestList } from '../components/OrganizationRequestList';
 import { OrganizationSetup } from '../components/OrganizationSetup';
+import { useInvitationToken } from '../hooks/useInvitationToken';
 
 /**
- * `/onboarding`: create an organization, or accept the invitation in `?invitation=`. Sits on
+ * `/onboarding`: create an organization, or accept the invitation that the login page passed
+ * on in router state (an `?invitation=` here is moved out of the URL the same way). Sits on
  * the page background, capped at 1600px like the organization list.
  */
 export default function OnboardingPage() {
   const { identity } = useAuth();
-  const invitation = useSearchParams()[0].get('invitation') ?? '';
+  const invitation = useInvitationToken();
   if (!identity) return null;
 
   return (

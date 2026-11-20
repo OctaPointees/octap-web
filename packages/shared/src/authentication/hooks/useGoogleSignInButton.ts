@@ -5,7 +5,7 @@ import { verifyGoogleCredential } from '../lib/identity';
 import { useAuth } from './useAuth';
 
 /** Google renders its button between 200 and 400 pixels wide. */
-const buttonWidth = (available: number) => Math.round(Math.max(200, Math.min(1200, available)));
+const buttonWidth = (available: number) => Math.round(Math.max(200, Math.min(400, available)));
 
 /**
  * Renders Google's sign-in button into `ref` and signs the user in when it succeeds. Build a

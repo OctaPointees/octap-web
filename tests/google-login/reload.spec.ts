@@ -116,12 +116,12 @@ test('a reload signs in silently and stays on the same page and organization', a
   );
   expect(events).toEqual(['prompt auto_select=true']);
   expect(logins()).toBe(2);
-  // Only a flag and the organization id are stored: never the Google credential.
+  // Only the signed-in flag is stored, never the Google credential. The organization is in the
+  // URL (checked above), not in storage.
   const storage = await page.evaluate(() =>
     JSON.stringify([{ ...localStorage }, { ...sessionStorage }]),
   );
   expect(storage).not.toContain('signature');
-  expect(storage).toContain('org-2');
 });
 
 test('after signing out, a reload shows the login page and Google is told not to auto-select', async ({
