@@ -13,7 +13,7 @@ import {
   PageHeader,
   UsageBar,
 } from '@/components/shared/Display';
-import { ConfirmDialog, Modal } from '@/components/shared/Modal';
+import { ConfirmDialog, Modal } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { fmtNumber } from '@/utils/format';
 import { notify } from '@/utils/toast';

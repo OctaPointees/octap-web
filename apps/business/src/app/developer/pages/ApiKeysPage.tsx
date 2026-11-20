@@ -14,7 +14,7 @@ import {
   PageHeader,
   StatusBadge,
 } from '@/components/shared/Display';
-import { ConfirmDialog, Modal } from '@/components/shared/Modal';
+import { ConfirmDialog, Modal } from '@octap/shared/components';
 import { fmtDate, fmtRelative } from '@/utils/format';
 import { notify } from '@/utils/toast';
 

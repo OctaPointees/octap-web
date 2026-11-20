@@ -14,7 +14,7 @@ import {
   StatusBadge,
   UsageBar,
 } from '../../../components/shared/Display';
-import { Modal } from '../../../components/shared/Modal';
+import { Modal } from '@octap/shared/components';
 import { Select } from '../../../components/shared/Select';
 import { useCreateTenant, useTenants } from '../../../queries/admin';
 import type { CreateTenantInput, TenantRow } from '../../../services/admin.service';

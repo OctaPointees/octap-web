@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@octap/shared/authentication';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Button } from '@/components/shared/Button';
-import { Modal } from '@/components/shared/Modal';
+import { Modal } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { notify } from '@/utils/toast';
 import { rewardsApi } from './api';
