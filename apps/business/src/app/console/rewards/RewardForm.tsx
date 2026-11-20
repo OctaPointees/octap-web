@@ -7,7 +7,7 @@ import { useAuth } from '@octap/shared/authentication';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Button } from '@/components/shared/Button';
 import { FormField, TextInput } from '@/components/shared/Controls';
-import { ConfirmDialog, SidePanel } from '@/components/shared/Modal';
+import { ConfirmDialog, SidePanel } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { fmtNumber } from '@/utils/format';
 import { notify } from '@/utils/toast';

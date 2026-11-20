@@ -11,7 +11,7 @@ import {
   PageHeader,
   StatusBadge,
 } from '../../../components/shared/Display';
-import { Modal } from '../../../components/shared/Modal';
+import { Modal } from '@octap/shared/components';
 import { useAdminRewards, useReviewReward } from '../../../queries/admin';
 import type { RewardStatus } from '../../../types/domain';
 import { cn } from '../../../utils/cn';

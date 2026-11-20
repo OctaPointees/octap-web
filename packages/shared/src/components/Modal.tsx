@@ -1,9 +1,9 @@
 import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { X } from 'phosphor-react';
 import type { ReactNode } from 'react';
-import { cn } from '../../utils/cn';
-import { Button } from './Button';
+import { cn } from '../utils';
 
 const backdrop =
   'fixed inset-0 z-50 bg-black/40 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0';
@@ -22,6 +22,10 @@ type ModalProps = {
 
 const SIZES = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
 
+/**
+ * A centered dialog built on Base UI: it animates in and out, traps focus, closes on Escape and
+ * the backdrop, and has dialog semantics.
+ */
 export function Modal({
   open,
   onOpenChange,
@@ -120,6 +124,7 @@ type ConfirmProps = {
   children?: ReactNode;
 };
 
+/** An alert dialog that asks the user to confirm or cancel an action. */
 export function ConfirmDialog({
   open,
   onOpenChange,
@@ -144,9 +149,11 @@ export function ConfirmDialog({
           <div className="flex justify-end gap-2">
             <AlertDialog.Close className="btn btn-ghost">Cancel</AlertDialog.Close>
             <Button
-              className={cn(
-                tone === 'error' ? 'btn-error' : tone === 'warning' ? 'btn-warning' : 'btn-primary',
-              )}
+              className={cn('btn', {
+                'btn-primary': tone === 'primary',
+                'btn-error': tone === 'error',
+                'btn-warning': tone === 'warning',
+              })}
               disabled={loading}
               onClick={onConfirm}
             >

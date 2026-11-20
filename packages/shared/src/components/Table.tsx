@@ -10,7 +10,6 @@ import {
   type Column,
   type ColumnFiltersState,
   type ColumnDef,
-  type FilterFn,
   type Row,
   type RowData,
   type SortingState,
@@ -18,7 +17,7 @@ import {
 } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, DotsThree } from 'phosphor-react';
 import { Menu } from '@base-ui/react/menu';
-import { cn } from '@octap/shared/utils';
+import { cn } from '../utils';
 
 const CLSS = {
   wrapper: 'w-full overflow-x-auto rounded-box border border-base-300',
@@ -54,13 +53,20 @@ const CLSS = {
   emptyCell: 'py-8 text-center text-sm opacity-60',
 } as const;
 
-const multiValueFilter: FilterFn<any> = (row, columnId, filterValue: unknown) => {
+/** Keeps a row when its value matches any of the selected filter values. */
+function multiValueFilter<TData extends RowData>(
+  row: Row<TData>,
+  columnId: string,
+  filterValue: unknown,
+): boolean {
   const selectedValues = Array.isArray(filterValue) ? filterValue : [filterValue];
   return selectedValues.some((value) => Object.is(value, row.getValue(columnId)));
-};
+}
 
 interface TableProps<TData extends RowData> {
   data: TData[];
+  // Each column has its own value type, and `unknown` would reject typed accessor columns.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   className?: string;
   /** Message shown when the current filters leave no rows to display. */

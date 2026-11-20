@@ -1,2 +1,3 @@
 export { notify, toastManager, ToasterProvider } from './toast';
-export * from './AnimatedModal';
+export { ConfirmDialog, Modal, SidePanel } from './Modal';
+export { Table } from './Table';
