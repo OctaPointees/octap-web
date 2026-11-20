@@ -512,11 +512,61 @@ test('only an Owner sees the approval switch, and it saves at once', async ({ pa
   await expect(page.getByRole('tab', { name: 'Pending approval (0)' })).toBeVisible();
 });
 
-test('a Business Developer has no approval switch', async ({ page }) => {
+test('a Developer sees Submit for approval once Core refuses an activation for it', async ({
+  page,
+}) => {
+  const org: OrgOptions = { voucherApprovalRequired: false };
+  const patches: unknown[] = [];
+  await openRewards(
+    page,
+    'BUSINESS_DEVELOPER',
+    (route) => {
+      if (route.request().method() === 'PATCH') {
+        patches.push(route.request().postDataJSON());
+        return route.fulfill({
+          status: 403,
+          json: {
+            statusCode: 403,
+            message:
+              'This organization requires approval: submit the voucher for approval instead of activating it',
+          },
+        });
+      }
+      return route.fulfill({ json: [voucher()] });
+    },
+    org,
+  );
+  const card = page.getByRole('article', { name: 'A free latte' });
+  await expect(card.getByRole('button', { name: 'Activate' })).toBeVisible();
+  // An Owner turns approval on while this page is open.
+  org.voucherApprovalRequired = true;
+  await card.getByRole('button', { name: 'Activate' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Activate' }).click();
+  await expect(
+    page
+      .getByRole('region', { name: 'Notifications' })
+      .getByText(/submit the voucher for approval/),
+  ).toBeVisible();
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
+  await expect(card.getByRole('button', { name: 'Submit for approval' })).toBeVisible();
+  await expect(card.getByRole('button', { name: 'Activate' })).toHaveCount(0);
+  expect(patches).toEqual([{ status: 'ACTIVE' }]);
+});
+
+test('a Developer sent to the settings page lands on their own dashboard, without the switch', async ({
+  page,
+}) => {
   await openRewards(page, 'BUSINESS_DEVELOPER', (route) => route.fulfill({ json: [] }), {
     voucherApprovalRequired: true,
   });
-  await page.goto('/merchant/settings');
+  // In-app navigation: a reload would sign out, since the Google token is kept in memory only.
+  await page.evaluate(() => {
+    history.pushState({}, '', '/merchant/settings');
+    dispatchEvent(new PopStateEvent('popstate'));
+  });
+  // The console sends a Developer away from every /merchant page, settings included.
+  await expect(page).toHaveURL(/\/developer$/);
+  await expect(page.getByRole('link', { name: 'Settings', exact: true })).toHaveCount(0);
   await expect(page.getByRole('switch', { name: /Require approval/ })).toHaveCount(0);
 });
 

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Copy, FileArrowUp, PencilSimple, Plus, Ticket, Warning } from 'phosphor-react';
 import { useState } from 'react';
 import type { ConsoleVoucher } from '@octap/services';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { ConsoleApiError, useConsoleAuth } from '@octap/shared/google-auth';
 import { Button } from '@/components/shared/Button';
 import { FormField, Segmented, TextInput } from '@/components/shared/Controls';
 import {
@@ -89,8 +89,22 @@ export default function ConnectedRewards() {
   const auth = useConsoleAuth()!;
   const orgId = auth.organizationId;
   const owner = auth.owner;
+  // Read here, not only at sign-in: an Owner may turn approval on while a Developer has this open.
+  const organization = useQuery({
+    queryKey: ['console-organization', orgId],
+    queryFn: ({ signal }) => auth.client().getConsoleOrganization(orgId, signal),
+    initialData: auth.data.organization?.id === orgId ? auth.data.organization : undefined,
+    // Unlike the app's 30 s default: read again on every visit and when the tab is back in focus.
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+  /** A 403 or 409 may mean the approval setting changed: read it again so the buttons follow. */
+  const recheck = (error: unknown) => {
+    if (error instanceof ConsoleApiError && (error.status === 403 || error.status === 409))
+      void organization.refetch();
+  };
   // Owners never need approval. A Business Developer does when the organization asks for it.
-  const approvalRequired = auth.data.organization?.voucherApprovalRequired ?? false;
+  const approvalRequired = organization.data?.voucherApprovalRequired ?? false;
   const publishesDirectly = owner || !approvalRequired;
   const cache = useQueryClient();
   const key = ['console-rewards', orgId];
@@ -128,11 +142,15 @@ export default function ConnectedRewards() {
       setActivating(null);
       setPausing(null);
     },
-    onError: (error) =>
+    onError: (error) => {
+      recheck(error);
+      // Refused for approval: close it, so the card can offer Submit for approval instead.
+      if (error instanceof ConsoleApiError && error.status === 403) setActivating(null);
       notify.error(
         new Error(Object.values(coreErrors(error))[0] ?? String(error)),
         'Could not update the reward',
-      ),
+      );
+    },
   });
 
   const decide = useMutation({
@@ -148,11 +166,13 @@ export default function ConnectedRewards() {
       setSubmitting(null);
       setReviewing(null);
     },
-    onError: (error) =>
+    onError: (error) => {
+      recheck(error);
       notify.error(
         new Error(Object.values(coreErrors(error))[0] ?? String(error)),
         'Could not update the reward',
-      ),
+      );
+    },
   });
   // Only an Owner may list the team, so a Business Developer reads "an Owner" instead of a name.
   const staff = useQuery({
@@ -587,7 +607,11 @@ function ReviewDialog({
             <Button className="btn-ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button className="btn-outline btn-error" onClick={() => setRejecting(true)}>
+            <Button
+              className="btn-outline btn-error"
+              disabled={busy}
+              onClick={() => setRejecting(true)}
+            >
               Reject
             </Button>
             <Button className="btn-primary" disabled={busy} onClick={onApprove}>
