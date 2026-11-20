@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [admin, business, landing]
+        app: [admin, business, landing, internal-sdk]
 
     steps:
       - name: Checkout
@@ -45,6 +45,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Fails when src/generated is out of date with the committed docs/openapi.json
+      - name: Generated code matches spec
+        if: matrix.app == 'internal-sdk'
+        run: |
+          npm run generate -w @octap/internal-sdk
+          git status --porcelain -- packages/internal/src/generated
+          test -z "$(git status --porcelain -- packages/internal/src/generated)"
 
       - name: Lint
         run: npm run lint -w @octap/${{ matrix.app }} --if-present

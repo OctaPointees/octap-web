@@ -1,41 +1,91 @@
-import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import type { OctapError, OctapResponse } from '../types.js';
-import type { SessionStorage } from './storage.js';
+import type { OctapResponse } from '../types.js';
+import { OctapError } from './errors.js';
 
-/** Shared Axios transport and response normalization. */
+type QueryValue = string | number | boolean | null | undefined;
+
+/** One request as the generated endpoint classes describe it. */
+export interface RequestConfig {
+  method: 'get' | 'post' | 'put' | 'patch' | 'delete';
+  /** Path relative to the API origin, already URL-encoded. */
+  url: string;
+  /** Query parameters; `undefined` and `null` values are left out. */
+  params?: Record<string, QueryValue | readonly QueryValue[]>;
+  headers?: Record<string, string>;
+  /** JSON request body. */
+  data?: unknown;
+}
+
+const REQUEST_TIMEOUT_MS = 30_000;
+
+/** Shared `fetch` transport and response normalization. */
 export class HttpClient {
-  private readonly axios: AxiosInstance;
+  private readonly baseUrl: string;
 
   constructor(
     apiUrl: string,
-    private readonly sessionStorage: SessionStorage,
+    /** Returns the current bearer token, or `null` when signed out. */
+    private readonly getAccessToken: () => string | null,
   ) {
-    this.axios = axios.create({
-      baseURL: apiUrl.replace(/\/+$/, ''),
-      headers: { Accept: 'application/json' },
-    });
-
-    this.axios.interceptors.request.use((config) => {
-      const token = this.sessionStorage.getSession()?.accessToken;
-      if (token !== undefined) {
-        config.headers.set('Authorization', `Bearer ${token}`);
-      }
-      return config;
-    });
+    this.baseUrl = apiUrl.replace(/\/+$/, '');
   }
 
   /** Sends a request and converts success or failure to the common result shape. */
-  async request<T>(config: AxiosRequestConfig): Promise<OctapResponse<T>> {
+  async request<T>(config: RequestConfig): Promise<OctapResponse<T>> {
+    const token = this.getAccessToken();
+    let response: Response;
     try {
-      const response = await this.axios.request<T>(config);
-      return { data: response.data, error: null };
+      response = await fetch(this.buildUrl(config), {
+        method: config.method.toUpperCase(),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        headers: {
+          Accept: 'application/json',
+          ...(config.data !== undefined ? { 'Content-Type': 'application/json' } : {}),
+          ...config.headers,
+          ...(token !== null ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        ...(config.data !== undefined ? { body: JSON.stringify(config.data) } : {}),
+      });
     } catch (error: unknown) {
       return {
         data: null,
-        error: (axios.isAxiosError(error)
-          ? error
-          : new AxiosError(String(error), 'ERR_UNKNOWN')) as OctapError<T>,
+        error: new OctapError(
+          error instanceof Error ? error.message : String(error),
+          'NETWORK_ERROR',
+        ),
       };
     }
+
+    const body = await readBody(response);
+    if (!response.ok) {
+      const message =
+        typeof body === 'object' && body !== null && 'message' in body
+          ? String(body.message)
+          : `Core request failed (${response.status}).`;
+      return { data: null, error: new OctapError(message, 'HTTP_ERROR', response.status, body) };
+    }
+    return { data: body as T, error: null };
+  }
+
+  private buildUrl({ url, params }: RequestConfig): string {
+    const query = new URLSearchParams();
+    for (const [name, value] of Object.entries(params ?? {})) {
+      for (const item of Array.isArray(value) ? value : [value]) {
+        if (item !== undefined && item !== null) query.append(name, String(item));
+      }
+    }
+    const search = query.toString();
+    return `${this.baseUrl}${url}${search === '' ? '' : `?${search}`}`;
+  }
+}
+
+/** Parses JSON when possible, falls back to text, and returns `null` for an empty body. */
+async function readBody(response: Response): Promise<unknown> {
+  const text = await response.text().catch(() => '');
+  if (text === '') return null;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
   }
 }
