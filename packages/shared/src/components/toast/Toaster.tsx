@@ -30,7 +30,7 @@ function ToastList() {
           'rounded-box border border-base-300 bg-base-100 shadow-lg',
         )}
       >
-        <Toast.Content className="flex items-start gap-3 overflow-hidden p-3 transition-opacity duration-200 data-behind:opacity-0 data-expanded:opacity-100">
+        <Toast.Content className="flex items-center gap-3 overflow-hidden p-3 transition-opacity duration-200 data-behind:opacity-0 data-expanded:opacity-100">
           <tone.icon size={22} weight="fill" className={cn('mt-0.5 shrink-0', tone.className)} />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <Toast.Title className="text-sm font-bold" />
@@ -45,13 +45,16 @@ function ToastList() {
   });
 }
 
-/** Renders the shared toast queue in the top-right corner, newest on top. Wrap the app once. */
+/**
+ * Renders the shared toast queue at the top-right, newest on top, just below the app's main toolbar
+ * (`--size-main-toolbar`, or 1rem from the top in an app without one). Wrap the app once.
+ */
 export function ToasterProvider({ children }: { children: React.ReactNode }) {
   return (
     <Toast.Provider toastManager={toastManager} limit={4}>
       {children}
       <Toast.Portal>
-        <Toast.Viewport className="fixed top-4 right-4 z-[100] w-[calc(100vw-2rem)] sm:w-96">
+        <Toast.Viewport className="fixed top-[var(--size-main-toolbar,1rem)] right-4 z-[100] w-[calc(100vw-2rem)] sm:w-96">
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>

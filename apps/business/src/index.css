@@ -10,6 +10,9 @@
   --size-article: 1280px;
   /* Width of the side panel when it is retracted to an icon rail. */
   --size-sidebar-retract: 4.5rem;
+
+  /* Height of the main toolbar (top navigation bar). */
+  --size-main-toolbar: 3.67rem;
 }
 
 html,

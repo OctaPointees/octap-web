@@ -15,11 +15,6 @@ type Props = {
   hideSidebar?: boolean;
 };
 
-/**
- * The window scrolls: the full-width top bar sticks to the top, and the side panel sticks right
- * below it, flush with the window's left edge and bottom (`--toolbar` is the bar's height, its
- * bottom border included in `h-14`). Only the page content has padding.
- */
 export default function PortalLayout({
   subtitle,
   nav,
@@ -29,7 +24,7 @@ export default function PortalLayout({
   hideSidebar = false,
 }: Props) {
   return (
-    <div className="flex min-h-dvh flex-col bg-base-100 [--toolbar:3.5rem]">
+    <div className="flex flex-col bg-base-100">
       <header className="sticky top-0 z-30 select-none">
         <MainToolbar
           nav={nav}
@@ -40,12 +35,12 @@ export default function PortalLayout({
         />
       </header>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         {!hideSidebar && (
           <SidePanel
             options={nav}
             footer={sideFooter}
-            className="sticky top-(--toolbar) h-[calc(100dvh-var(--toolbar))]"
+            className="sticky top-(--size-main-toolbar) h-[calc(100dvh-var(--size-main-toolbar))]"
           />
         )}
 
