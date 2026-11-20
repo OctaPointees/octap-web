@@ -568,14 +568,8 @@ test('real Owner routes keep the shell mounted and report unconnected modules', 
   };
   await page.route('**/v1/console/auth/google', (route) => route.fulfill({ json: owner }));
   await page.route('**/v1/console/me', (route) => route.fulfill({ json: owner }));
-  let release: (() => void) | undefined;
-  let hold = false;
-  await page.route('**/v1/console/organizations/owner', async (route) => {
-    if (hold)
-      await new Promise<void>((resolve) => {
-        release = resolve;
-      });
-    await route.fulfill({
+  await page.route('**/v1/console/organizations/owner', (route) =>
+    route.fulfill({
       json: {
         id: 'owner',
         name: 'Owner business',
@@ -583,7 +577,16 @@ test('real Owner routes keep the shell mounted and report unconnected modules', 
         persona: 'BUSINESS_OWNER',
         status: 'ACTIVE',
       },
+    }),
+  );
+  // The organization itself is cached by TanStack Query, so hold a request the next page
+  // still sends: the member list.
+  let release: (() => void) | undefined;
+  await page.route('**/v1/console/organizations/owner/members?*', async (route) => {
+    await new Promise<void>((resolve) => {
+      release = resolve;
     });
+    await route.fulfill({ json: { items: [], nextCursor: null } });
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
@@ -591,25 +594,23 @@ test('real Owner routes keep the shell mounted and report unconnected modules', 
   await page
     .locator('aside')
     .evaluate((element) => element.setAttribute('data-shell-instance', 'retained'));
-  hold = true;
-  await page.getByRole('link', { name: 'Settings', exact: true }).click();
-  await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
+  await page.getByRole('link', { name: 'Members', exact: true }).click();
   await expect.poll(() => Boolean(release)).toBe(true);
-  hold = false;
+  await expect(page.getByText('Loading members…')).toBeVisible();
+  await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
   release!();
+  await expect(page.getByText('No enrolled members found.')).toBeVisible();
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Save profile' })).toBeVisible();
   await page.getByRole('button', { name: 'Account menu' }).click();
   await page.getByRole('menuitem', { name: 'Refresh access', exact: true }).click();
   await expect(page.getByText('Access refreshed')).toBeVisible();
   await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
-  // Rewards is connected since OCT-283 (tests/google-login/rewards.spec.ts); Campaigns is not yet.
-  for (const path of ['/merchant/campaigns']) {
-    await page.getByRole('link', { name: 'Campaigns', exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(path + '$'));
-    await expect(
-      page.getByText('This dashboard module is not connected to Core yet.'),
-    ).toBeVisible();
-  }
+  // Rewards and Members are connected; the dashboard's live analytics are not yet.
+  await page.getByRole('link', { name: 'Dashboard', exact: true }).click();
+  await expect(page.getByText('Live analytics are not connected yet.')).toBeVisible();
+  await expect(page.locator('aside')).toHaveAttribute('data-shell-instance', 'retained');
+  // Demo-mode pages are gone.
   await page.goto('/wallet');
   await expect(page.getByText('404', { exact: true })).toBeVisible();
 });

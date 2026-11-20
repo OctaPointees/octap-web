@@ -1,6 +1,10 @@
-import { Navigate, useSearchParams } from 'react-router';
+import { Navigate } from 'react-router';
 import { Fingerprint, ShieldCheck, Stack } from 'phosphor-react';
 import { GoogleSignInForm, useAuth } from '@octap/shared/authentication';
+import {
+  useInvitationToken,
+  type InvitationState,
+} from '@/app/organization/hooks/useInvitationToken';
 import { dashboardPath } from '@/app/organization/utils';
 
 const PILLARS = [
@@ -62,14 +66,16 @@ function AuthenticationBrandPanel() {
 /** The business login page: the brand panel and the shared Google sign-in form. */
 export default function AuthenticationEntryPoint() {
   const { identity } = useAuth();
-  const [params] = useSearchParams();
-  // Invitation links point here (`/?invitation=…`); the token goes on to onboarding.
-  const invitation = params.get('invitation');
+  // Invitation links point here (`/?invitation=…`); the token goes on to onboarding in router
+  // state, never in the URL.
+  const invitation = useInvitationToken({ redirecting: !!identity });
   if (identity) {
+    if (invitation) {
+      return <Navigate to="/onboarding" state={{ invitation } satisfies InvitationState} replace />;
+    }
     const organizations = identity.organizations;
-    const to = invitation
-      ? `/onboarding?` + new URLSearchParams({ invitation })
-      : organizations.length === 1
+    const to =
+      organizations.length === 1
         ? dashboardPath(organizations[0])
         : organizations.length
           ? '/organizations'

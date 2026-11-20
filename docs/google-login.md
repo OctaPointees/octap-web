@@ -109,7 +109,8 @@ recipient; no email is sent automatically. The recipient signs in using the addr
 Google email and explicitly accepts. Acceptance is one-time, requires an active inviter
 who is still an Owner, and rejects expired/revoked invitations. Tokens are stored hashed;
 the raw token is returned only when creating the invitation. Links are removed from the
-address bar when opened and kept in memory for the current sign-in attempt.
+address bar when opened. The token moves into router state (never the URL or browser storage)
+and goes with the sign-in to `/onboarding`.
 
 Every operation verifies the current Google credential and rechecks persisted roles,
 memberships and organization status. SYSTEM_ADMIN grants platform access, not tenant

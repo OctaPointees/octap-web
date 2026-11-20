@@ -39,8 +39,8 @@ export function GoogleSignInForm({
       )}
       {busy && (
         <p role="status" className="text-sm flex items-center gap-4">
-          <span className="loading loading-spin"></span>
-          Processing your request . . .
+          <span className="loading loading-spinner loading-sm"></span>
+          Signing you in…
         </p>
       )}
       {error && (
