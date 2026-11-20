@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import type { OrganizationType } from '@octap/internal-sdk';
 
 /** The two dashboards of an organization: Business (Owners) and Developer. */
 export type Panel = 'merchant' | 'developer';
@@ -28,3 +29,11 @@ export function formFields(event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   return new FormData(event.currentTarget);
 }
+
+/** A readable name for Core's organization type. */
+export const organizationTypeLabel = (type?: OrganizationType | null) =>
+  type === 'COMPANY'
+    ? 'Company (registered legal entity)'
+    : type === 'INDIVIDUAL_HOUSEHOLD'
+      ? 'Individual / Household business'
+      : 'Type not set';

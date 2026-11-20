@@ -1,6 +1,6 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query';
 
-/** HTTP status of a failed request, when the error carries one (Core's `ConsoleApiError`). */
+/** HTTP status of a failed request, when the error carries one (the SDK's `OctapError`). */
 const statusOf = (error: unknown) =>
   typeof error === 'object' && error && 'status' in error && typeof error.status === 'number'
     ? error.status

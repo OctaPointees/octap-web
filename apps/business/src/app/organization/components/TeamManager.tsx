@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@octap/shared/authentication';
+import { unwrap } from '@octap/shared/authentication';
 import { useOrganization } from '../hooks/useOrganization';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import { formFields, organizationKeys } from '../utils';
@@ -10,17 +11,17 @@ const personaLabel = (persona: string) =>
 
 /** The organization's staff and Developer invitations, for its Business Owner. */
 export function TeamManager() {
-  const { client } = useAuth();
+  const { api } = useAuth();
   const { organizationId } = useOrganization();
   const { run, busy } = useOrganizationAction();
   const [inviteLink, setInviteLink] = useState('');
   const staff = useQuery({
     queryKey: organizationKeys.staff(organizationId),
-    queryFn: ({ signal }) => client().listConsoleStaff(organizationId, signal),
+    queryFn: () => unwrap(api.console.staff({ organizationId })),
   });
   const invitations = useQuery({
     queryKey: organizationKeys.invitations(organizationId),
-    queryFn: ({ signal }) => client().listConsoleInvitations(organizationId, signal),
+    queryFn: () => unwrap(api.console.invitations({ organizationId })),
   });
   const error = staff.error ?? invitations.error;
 
@@ -48,10 +49,12 @@ export function TeamManager() {
               aria-label={`${person.status === 'ACTIVE' ? 'Suspend' : 'Restore'} ${person.email}`}
               onClick={() =>
                 run(async (api) => {
-                  await api.updateConsoleStaffAccess(
-                    organizationId,
-                    person.id,
-                    person.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE',
+                  await unwrap(
+                    api.console.staffAccess({
+                      organizationId,
+                      userId: person.id,
+                      body: { status: person.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE' },
+                    }),
                   );
                 }, 'Developer access updated')
               }
@@ -66,9 +69,11 @@ export function TeamManager() {
         onSubmit={(event) => {
           const form = formFields(event);
           run(async (api) => {
-            const result = await api.createConsoleInvitation(
-              organizationId,
-              String(form.get('email')),
+            const result = await unwrap(
+              api.console.invite({
+                organizationId,
+                body: { email: String(form.get('email')), persona: 'BUSINESS_DEVELOPER' },
+              }),
             );
             setInviteLink(`${window.location.origin}/?invitation=${result.token}`);
           }, 'Invitation created');
@@ -106,7 +111,7 @@ export function TeamManager() {
               disabled={busy}
               onClick={() =>
                 run(async (api) => {
-                  await api.revokeConsoleInvitation(organizationId, invite.id);
+                  await unwrap(api.console.revokeOrganizations({ organizationId, id: invite.id }));
                 }, 'Invitation revoked')
               }
             >

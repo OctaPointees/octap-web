@@ -24,7 +24,7 @@ export default function DeveloperApiKeysPage() {
   const orgId = organization.organizationId;
   const cache = useQueryClient();
   const queryKey = ['console-api-credentials', orgId];
-  const api = createApiCredentialsApi(auth.client().request);
+  const api = createApiCredentialsApi(auth.api);
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
   const [scope, setScope] = useState<'read' | 'write'>('read');
@@ -34,7 +34,7 @@ export default function DeveloperApiKeysPage() {
   const [revoking, setRevoking] = useState<ConsoleCredential | null>(null);
   const keys = useQuery({
     queryKey,
-    queryFn: ({ signal }) => api.list(orgId, signal),
+    queryFn: () => api.list(orgId),
   });
   const refresh = () => cache.invalidateQueries({ queryKey });
   const create = useMutation({

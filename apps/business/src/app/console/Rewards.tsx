@@ -86,7 +86,7 @@ export default function ConnectedRewards() {
 
   const list = useQuery({
     queryKey: key,
-    queryFn: ({ signal }) => rewardsApi(auth).list(orgId, signal),
+    queryFn: () => rewardsApi(auth).list(orgId),
     refetchInterval: (query) =>
       query.state.data?.some((v) => v.publishStatus === 'PUBLISHING') ? PUBLISH_POLL_MS : false,
   });
@@ -416,7 +416,7 @@ function AvailabilityDialog({
   const orgId = organization.organizationId;
   const current = useQuery({
     queryKey: ['console-reward', orgId, voucher.id],
-    queryFn: ({ signal }) => rewardsApi(auth).get(orgId, voucher.id, signal),
+    queryFn: () => rewardsApi(auth).get(orgId, voucher.id),
     staleTime: 0,
   });
   const fresh = current.data;

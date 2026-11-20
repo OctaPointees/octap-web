@@ -2,6 +2,7 @@ import { Fragment, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, Outlet, useParams } from 'react-router';
 import { AccountControls, useAuth } from '@octap/shared/authentication';
+import { unwrap } from '@octap/shared/authentication';
 import { organizationKeys } from '../utils';
 import { OrganizationContext, type CurrentOrganization } from './OrganizationContext';
 
@@ -11,11 +12,11 @@ import { OrganizationContext, type CurrentOrganization } from './OrganizationCon
  */
 export function OrganizationProvider() {
   const { organizationId = '' } = useParams();
-  const { identity, client } = useAuth();
+  const { identity, api } = useAuth();
   const membership = identity?.organizations.find((org) => org.organizationId === organizationId);
   const query = useQuery({
     queryKey: organizationKeys.detail(organizationId),
-    queryFn: ({ signal }) => client().getConsoleOrganization(organizationId, signal),
+    queryFn: () => unwrap(api.console.organization({ organizationId })),
     enabled: !!membership,
   });
 

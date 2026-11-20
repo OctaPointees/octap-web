@@ -1,4 +1,4 @@
-import type { ConsoleIdentity } from '@octap/shared/console-api';
+import type { ConsoleIdentity } from '@octap/shared/authentication';
 import { ShieldStar } from 'phosphor-react';
 import type { NavOption } from './SidePanel';
 

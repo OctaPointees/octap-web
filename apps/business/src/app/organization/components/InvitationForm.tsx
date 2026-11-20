@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { unwrap } from '@octap/shared/authentication';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import { dashboardPath, formFields } from '../utils';
 
@@ -16,8 +17,8 @@ export function InvitationForm({ token }: { token: string }) {
         formFields(event);
         let acceptedOrganizationId = '';
         run(
-          async (client) => {
-            const result = await client.acceptConsoleInvitation(invitation);
+          async (api) => {
+            const result = await unwrap(api.console.accept({ token: invitation }));
             acceptedOrganizationId = result.organizationId;
           },
           'Invitation accepted',

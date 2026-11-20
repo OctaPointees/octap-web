@@ -1,40 +1,36 @@
+import type { OctapClient } from '@octap/internal-sdk';
+import { unwrap } from '@octap/shared/authentication';
 import {
   normalizeCredential,
   type ConsoleCredential,
   type IssuedConsoleCredential,
   type RawConsoleCredential,
 } from './types';
-import type { CoreRequest } from '../rewards/api';
 
-/** Organization API credentials through Core's console routes. */
-export function createApiCredentialsApi(request: CoreRequest) {
-  const credentials = (organizationId: string) =>
-    `/v1/console/organizations/${encodeURIComponent(organizationId)}/api-credentials`;
-  const credential = (organizationId: string, id: string) =>
-    `${credentials(organizationId)}/${encodeURIComponent(id)}`;
-
+/** Organization API credentials through Core's console routes, on `useAuth().api`. */
+export function createApiCredentialsApi(api: OctapClient) {
   return {
-    list: async (organizationId: string, signal?: AbortSignal): Promise<ConsoleCredential[]> =>
+    list: async (organizationId: string): Promise<ConsoleCredential[]> =>
       (
-        await request<RawConsoleCredential[]>(credentials(organizationId), 'GET', undefined, signal)
+        (await unwrap(api.console.listApiCredentials({ organizationId }))) as RawConsoleCredential[]
       ).map(normalizeCredential),
     issue: async (
       organizationId: string,
       input: { name: string; scope?: 'read' | 'write' },
     ): Promise<IssuedConsoleCredential> => {
-      const issued = await request<RawConsoleCredential & { rawKey: string }>(
-        credentials(organizationId),
-        'POST',
-        input,
-      );
+      const issued = (await unwrap(
+        api.console.issue({ organizationId, body: input }),
+      )) as RawConsoleCredential & { rawKey: string };
       return { ...normalizeCredential(issued), rawKey: issued.rawKey };
     },
     rename: async (organizationId: string, id: string, name: string): Promise<ConsoleCredential> =>
       normalizeCredential(
-        await request<RawConsoleCredential>(credential(organizationId, id), 'PATCH', { name }),
+        (await unwrap(
+          api.console.rename({ organizationId, id, body: { name } }),
+        )) as RawConsoleCredential,
       ),
     revoke: (organizationId: string, id: string) =>
-      request<{ revoked: true }>(credential(organizationId, id), 'DELETE'),
+      unwrap(api.console.revoke({ organizationId, id })),
   };
 }
 

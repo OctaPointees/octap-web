@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@octap/shared/authentication';
+import { unwrap } from '@octap/shared/authentication';
 
 /** Prefix of the organization-requests query key: invalidate it after submitting a request. */
 export const organizationRequestsKey = ['console', 'organization-requests'] as const;
@@ -9,11 +10,11 @@ export const organizationRequestsKey = ['console', 'organization-requests'] as c
  * organization list and the create page. Keyed per user; signing out clears the cache.
  */
 export function useOrganizationRequests() {
-  const { identity, client } = useAuth();
+  const { identity, api } = useAuth();
   const userId = identity?.user.id;
   return useQuery({
     queryKey: [...organizationRequestsKey, userId],
-    queryFn: ({ signal }) => client().listConsoleOrganizationRequests(signal),
+    queryFn: () => unwrap(api.console.applications()),
     enabled: !!userId,
   });
 }

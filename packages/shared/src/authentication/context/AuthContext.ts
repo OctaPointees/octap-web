@@ -1,5 +1,6 @@
 import { createContext } from 'react';
-import type { ConsoleClient, ConsoleIdentity } from '../../console-api/client';
+import type { OctapClient } from '@octap/internal-sdk';
+import type { ConsoleIdentity } from '../lib/core';
 
 export type Portal = 'business' | 'admin';
 
@@ -21,9 +22,13 @@ export interface AuthSession {
   /** Gives up on the silent sign-in, so the login form shows instead. */
   cancelResume(): void;
   /** Reads the identity from Core again, for example after an action changed its access. */
-  refresh(signal?: AbortSignal): Promise<ConsoleIdentity>;
-  /** A Core client that sends the current token with every request. */
-  client(): ConsoleClient;
+  refresh(): Promise<ConsoleIdentity>;
+  /**
+   * The `@octap/internal-sdk` client. It sends the current Google ID token with every request,
+   * and a 401 from Core ends the session. Wrap calls in `unwrap` from `@octap/shared/authentication`
+   * to get the data or a thrown `OctapError`.
+   */
+  api: OctapClient;
 }
 
 export const AuthContext = createContext<AuthSession | null>(null);

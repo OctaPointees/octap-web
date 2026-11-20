@@ -19,12 +19,14 @@ import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
 import { organizationPath, panelFor } from '../utils';
+import type { ConsoleIdentity } from '@octap/shared/authentication';
 import type {
-  ConsoleIdentity,
-  OrganizationApplication,
+  ConsoleOrganizationsApplicationsResponse,
   OrganizationPersona,
   OrganizationType,
-} from '@octap/shared/console-api';
+} from '@octap/internal-sdk';
+
+type OrganizationApplication = ConsoleOrganizationsApplicationsResponse[number];
 
 type Status = 'ACTIVE' | 'PENDING_REVIEW' | 'SUSPENDED' | 'ARCHIVED';
 

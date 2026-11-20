@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@octap/shared/authentication';
+import type { MembersPatchInput } from '@octap/internal-sdk';
+import { unwrap, useAuth } from '@octap/shared/authentication';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { PageHeader } from '@/components/shared/Display';
 
@@ -16,20 +17,27 @@ export default function ConnectedMembers() {
   const prefix = ['console-members', orgId];
   const list = useQuery({
     queryKey: [...prefix, filters, cursors.at(-1)],
-    queryFn: ({ signal }) => {
-      const query = new URLSearchParams({ limit: '25' });
-      for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
-      if (cursors.at(-1)) query.set('cursor', cursors.at(-1)!);
-      return auth.client().listMembers(orgId, query, signal);
-    },
+    queryFn: () =>
+      unwrap(
+        auth.api.console.listMembers({
+          organizationId: orgId,
+          limit: 25,
+          q: filters.q || undefined,
+          status: (filters.status || undefined) as 'ACTIVE' | 'BLOCKED' | undefined,
+          externalMemberId: filters.externalMemberId || undefined,
+          cursor: cursors.at(-1) || undefined,
+        }),
+      ),
   });
   const detail = useQuery({
     queryKey: [...prefix, 'detail', selected],
-    queryFn: ({ signal }) => auth.client().getMember(orgId, selected, signal),
+    queryFn: () =>
+      unwrap(auth.api.console.detailMembers({ organizationId: orgId, memberId: selected })),
     enabled: Boolean(selected),
   });
   const update = useMutation({
-    mutationFn: (input: object) => auth.client().updateMember(orgId, selected, input),
+    mutationFn: (body: MembersPatchInput) =>
+      unwrap(auth.api.console.patch({ organizationId: orgId, memberId: selected, body })),
     onSuccess: () => {
       void cache.invalidateQueries({ queryKey: prefix });
     },
@@ -160,7 +168,7 @@ export default function ConnectedMembers() {
                 setFormError('');
                 try {
                   update.mutate({
-                    status: String(fields.get('status')),
+                    status: String(fields.get('status')) as MembersPatchInput['status'],
                     externalMemberId: String(fields.get('externalMemberId')).trim() || null,
                     metadata: JSON.parse(String(fields.get('metadata'))),
                   });

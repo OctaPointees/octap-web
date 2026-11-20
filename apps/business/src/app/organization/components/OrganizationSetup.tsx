@@ -6,7 +6,9 @@ import { cn } from '@/utils/cn';
 import { organizationRequestsKey } from '../hooks/useOrganizationRequests';
 import { useAuth } from '@octap/shared/authentication';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
-import { organizationTypeLabel, type OrganizationType } from '@octap/shared/console-api';
+import type { OrganizationType } from '@octap/internal-sdk';
+import { unwrap } from '@octap/shared/authentication';
+import { organizationTypeLabel } from '../utils';
 
 const initialDetails = (fullName: string) => ({
   name: '',
@@ -65,8 +67,8 @@ export function OrganizationSetup() {
           }),
     };
     run(
-      async (client) => {
-        await client.requestConsoleOrganization(input);
+      async (api) => {
+        await unwrap(api.console.apply(input));
       },
       'Organization request submitted for approval',
       // run() shows its success toast, which stays up across the redirect.

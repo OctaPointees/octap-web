@@ -13,10 +13,11 @@
     "dev": "concurrently -k -n landing,business -c magenta,cyan \"npm:dev:landing\" \"npm:dev:business\"",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present && eslint --config apps/business/eslint.config.js packages/shared/src/authentication packages/shared/src/components packages/shared/src/console-api packages/services/src playwright.config.ts tests/google-login",
+    "lint": "npm run lint --workspaces --if-present && eslint --config apps/business/eslint.config.js packages/shared/src/authentication packages/shared/src/components packages/services/src playwright.config.ts tests/google-login",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:google-login": "playwright test"
+    "test:google-login": "playwright test",
+    "postinstall": "npm run build -w @octap/internal-sdk"
   },
   "dependencies": {
     "@octap/shared": "*"
