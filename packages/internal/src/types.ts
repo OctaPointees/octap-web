@@ -13,9 +13,9 @@ export type OctapResponse<T> = { data: T; error: null } | { data: null; error: O
 /** In-memory browser authentication session. */
 export interface OctapSession {
   accessToken: string;
-  /** When the token expires (epoch ms), or `null` until Core reports it. */
+  /** When the token expires (epoch ms), or `null` if Core's value couldn't be parsed. */
   expiresAt: number | null;
-  user: OpenApi.ConsoleIdentityMeResponse['user'] | null;
+  user: OpenApi.ConsoleIdentityMeResponse['user'];
 }
 
 export type JsonObject = Record<string, unknown>;
