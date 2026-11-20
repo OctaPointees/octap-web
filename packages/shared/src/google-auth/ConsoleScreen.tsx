@@ -1,5 +1,6 @@
 import { OrganizationSetup } from './OrganizationSetup';
 import { OrganizationProfileForm } from './OrganizationProfileForm';
+import { VoucherApprovalSetting } from './VoucherApprovalSetting';
 import { organizationTypeLabel } from './organization-types';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useConsoleAuth } from './console-session';
@@ -229,10 +230,13 @@ export function ConsoleScreen() {
               · {data.organization.status} · {data.organization.slug}
             </p>
             {location.pathname === '/merchant/settings' && owner ? (
-              <OrganizationProfileForm
-                key={`${data.organization.id}-${revision}`}
-                organization={data.organization}
-              />
+              <>
+                <OrganizationProfileForm
+                  key={`${data.organization.id}-${revision}`}
+                  organization={data.organization}
+                />
+                <VoucherApprovalSetting organization={data.organization} />
+              </>
             ) : location.pathname === '/merchant/team' && owner ? (
               <>
                 <h2 className="font-semibold">Team and invitations</h2>

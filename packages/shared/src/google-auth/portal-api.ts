@@ -28,6 +28,8 @@ export interface ConsoleOrganization {
   taxId: string | null;
   status: string;
   persona: OrganizationPersona;
+  /** Rewards need an Owner's approval before they go live (OCT-59). Only an Owner changes it. */
+  voucherApprovalRequired?: boolean;
 }
 export interface ConsoleInvitation {
   id: string;
@@ -169,6 +171,8 @@ export function createConsoleClient({
       request<ConsoleOrganization>(organizationPath(id), 'GET', undefined, signal),
     updateConsoleOrganizationProfile: (id: string, input: ProfileInput) =>
       request<{ updated: boolean }>(`${organizationPath(id)}/profile`, 'PATCH', input),
+    updateConsoleOrganizationSettings: (id: string, input: { voucherApprovalRequired: boolean }) =>
+      request<{ updated: boolean }>(`${organizationPath(id)}/settings`, 'PATCH', input),
     listConsoleStaff: (id: string, signal?: AbortSignal) =>
       request<ConsoleStaff[]>(`${organizationPath(id)}/staff`, 'GET', undefined, signal),
     listMembers: (id: string, query: URLSearchParams, signal?: AbortSignal) =>

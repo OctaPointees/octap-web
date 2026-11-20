@@ -26,6 +26,18 @@ export function createRewardsApi(request: CoreRequest) {
       request<ConsoleVoucher>(vouchers(organizationId), 'POST', input),
     update: (organizationId: string, voucherId: string, patch: ConsoleVoucherPatch) =>
       request<ConsoleVoucher>(voucher(organizationId, voucherId), 'PATCH', patch),
+    /** A Business Developer's draft goes to an Owner (OCT-59). An Owner activates directly. */
+    submit: (organizationId: string, voucherId: string) =>
+      request<ConsoleVoucher>(`${voucher(organizationId, voucherId)}/submit`, 'POST'),
+    /** A reward waiting for approval back to DRAFT, so it can be edited. */
+    withdraw: (organizationId: string, voucherId: string) =>
+      request<ConsoleVoucher>(`${voucher(organizationId, voucherId)}/withdraw`, 'POST'),
+    /** Owner only: starts publishing, exactly as activating does. */
+    approve: (organizationId: string, voucherId: string) =>
+      request<ConsoleVoucher>(`${voucher(organizationId, voucherId)}/approve`, 'POST'),
+    /** Owner only: back to DRAFT with a reason (1–500 characters) the submitter sees. */
+    reject: (organizationId: string, voucherId: string, reason: string) =>
+      request<ConsoleVoucher>(`${voucher(organizationId, voucherId)}/reject`, 'POST', { reason }),
   };
 }
 

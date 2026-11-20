@@ -36,12 +36,19 @@ start Core with its migrations applied. See
 - Developers enter `/developer`; `/developer/api-keys` lists safe credential metadata.
   They cannot manage organization profiles or invitations.
 - Owners use `/merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `/developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
-- Owners manage the reward catalog at `/merchant/rewards`; Developers have read-only
-  `/developer/rewards`. A reward is saved as a draft, then activated as a separate, confirmed
-  step: Core publishes its terms on-chain through the worker (`Publishing…`, then `Live`, or
-  `Publish failed` with a retry), after which its title, type, points, conditions and dates
-  can never change; only the number available, pause and resume can. Owners can start from a
-  template, duplicate a reward, or import a CSV (template in the import dialog) of drafts.
+- Owners manage the reward catalog at `/merchant/rewards`, Developers at `/developer/rewards`.
+  A reward is saved as a draft, then activated as a separate, confirmed step: Core publishes its
+  terms on-chain through the worker (`Publishing…`, then `Live`, or `Publish failed` with a
+  retry), after which its title, type, points, conditions and dates can never change; only the
+  number available, pause and resume can, and only an Owner changes them. Owners and Developers
+  can start from a template, duplicate a reward, or import a CSV (template in the import dialog)
+  of drafts.
+- Approval (OCT-292, Core OCT-59): an Owner can turn on "Require approval before publishing" in
+  `/merchant/settings`. A Developer then submits a draft instead of activating it; it shows as
+  `Pending approval`, locked, until they withdraw it or an Owner reviews it. The Owner's
+  Rewards menu counts what waits; Review shows what approving freezes, then Approve and publish
+  or Reject with a reason, which the Developer reads on the draft. Owners always publish
+  directly. Rewards still waiting stay in the Pending approval tab after approval is turned off.
 - Reward kinds: percent off, amount off and free item map to Core's `discountType`; buy X get Y,
   free delivery, special price and custom rewards are described only by `terms`. Conditions
   (minimum order, maximum discount, applies to) also go in `terms`, shaped as
