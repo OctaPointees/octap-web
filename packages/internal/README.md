@@ -23,40 +23,31 @@ Then run `npm install` from the repo root.
 ```ts
 import { OctapClient } from '@octap/internal-sdk';
 
-const client = new OctapClient({ api_url: 'https://api.example.com' });
-const { data, error } = await client.auth.signInWithGoogleIDToken(googleIdToken);
+const client = new OctapClient({
+  apiBaseUrl: 'https://api.example.com',
+  getAccessToken: () => auth.accessToken(),
+  onUnauthorized: auth.signOut,
+});
+
+const { data, error } = await client.console.listMembers({ organizationId: 'org-id' });
 
 if (error !== null) {
   console.error(error.status, error.message);
 } else {
   console.log(data);
 }
-
-const members = await client.console.listMembers({ organizationId: 'org-id' });
-const { data: user } = await client.auth.getUser();
-
-const { data: authListener } = client.auth.onAuthStateChange((event, session) => {
-  console.log(event, session);
-});
-
-// Call when the listener is no longer needed.
-authListener.subscription.unsubscribe();
 ```
 
-Every method returns `{ data, error }`. On success `data` is the response body and `error` is `null`. On failure `data` is `null` and `error` is an `OctapError`: an `Error` with `code` (`HTTP_ERROR`, `NETWORK_ERROR`, `NO_SESSION` or `SESSION_CHANGED`), `status` (the HTTP status, or `null` when no response arrived) and the parsed response `body`. Requests use `fetch` and time out after 30 seconds.
+Every method returns `{ data, error }`. On success `data` is the response body and `error` is `null`. On failure `data` is `null` and `error` is an `OctapError`: an `Error` with `code` (`HTTP_ERROR` or `NETWORK_ERROR`), `status` (the HTTP status, or `null` when no response arrived) and the parsed response `body`. Requests use `fetch` and time out after 30 seconds.
 
 ## Authentication
 
-`client.auth.signInWithGoogleIDToken()` signs in through the Console Identity endpoint and builds the session from its response. Later requests send the Google ID token as a bearer token.
+The SDK has no sign-in or session of its own. The app's auth (`AuthProvider` in `@octap/shared`) owns the Google ID token, keeps it in memory, and handles sign-in, resume after reload, and sign-out. The client only:
 
-The token is kept **in memory only**, never in browser storage, so XSS cannot read it from there. This matches `@octap/shared` authentication. The SDK writes only a non-secret flag (`octap.sdk.signedIn = '1'`) to localStorage:
+- calls `getAccessToken()` before every request and sends the result as a bearer token (nothing when it returns `null`);
+- calls `onUnauthorized()` when Core answers 401 to a request that carried a token, so the app can sign out. A 401 to a request without a token doesn't trigger it.
 
-- After a reload there is no session. When `client.auth.wasSignedIn()` is `true`, ask Google for a fresh ID token (for example with One Tap auto-select) and sign in again.
-- The session is dropped, with a `SIGNED_OUT` event, once its `expiresAt` has passed, so an expired token is never sent.
-- `client.auth.signOut()` clears the session and the flag. Clearing the flag also signs out other open tabs.
-
-`client.auth.getUser()` fetches and refreshes the profile. `client.auth.getSession()` returns the in-memory session. Auth listeners receive `INITIAL_SESSION` (after the current session has been checked against `/v1/console/me`), then `SIGNED_IN` or `SIGNED_OUT`. The end-user Identity endpoints are under `client.identity`.
-
+The sign-in routes themselves (`client.console.login()`, `client.console.me()`) are plain endpoint methods like any other.
 ## Development
 
 From the repo root:
