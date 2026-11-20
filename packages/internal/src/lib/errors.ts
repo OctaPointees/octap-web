@@ -3,11 +3,7 @@ export type OctapErrorCode =
   /** Core answered with a non-2xx status; see `status` and `body`. */
   | 'HTTP_ERROR'
   /** No response arrived: offline, CORS, DNS, or the 30 second timeout. */
-  | 'NETWORK_ERROR'
-  /** The call needs a signed-in session and there is none. */
-  | 'NO_SESSION'
-  /** The session was replaced or cleared while the call was in flight. */
-  | 'SESSION_CHANGED';
+  | 'NETWORK_ERROR';
 
 /**
  * Error returned by every SDK method. Like `ConsoleApiError` in `@octap/shared`, it is a plain

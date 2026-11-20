@@ -22,11 +22,13 @@ export class HttpClient {
   private readonly baseUrl: string;
 
   constructor(
-    apiUrl: string,
+    apiBaseUrl: string,
     /** Returns the current bearer token, or `null` when signed out. */
     private readonly getAccessToken: () => string | null,
+    /** Called when Core rejects a request that carried a token. */
+    private readonly onUnauthorized?: () => void,
   ) {
-    this.baseUrl = apiUrl.replace(/\/+$/, '');
+    this.baseUrl = apiBaseUrl.replace(/\/+$/, '');
   }
 
   /** Sends a request and converts success or failure to the common result shape. */
@@ -54,6 +56,14 @@ export class HttpClient {
           'NETWORK_ERROR',
         ),
       };
+    }
+
+    if (response.status === 401 && token !== null) {
+      try {
+        this.onUnauthorized?.();
+      } catch {
+        // The app's handler failing must not hide the 401 from the caller.
+      }
     }
 
     const body = await readBody(response);
