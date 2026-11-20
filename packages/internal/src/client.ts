@@ -11,16 +11,8 @@ import type * as OpenApi from './generated/openapi.js';
 import { HttpClient } from './lib/http.js';
 import { SessionStorage } from './lib/storage.js';
 import { AuthStateNotifier } from './lib/auth-state.js';
-import type {
-  AuthStateChangeCallback,
-  AuthStateSubscriptionResult,
-} from './lib/auth-state.js';
-import type {
-  ClientProps,
-  OctapError,
-  OctapResponse,
-  OctapSession,
-} from './types.js';
+import type { AuthStateChangeCallback, AuthStateSubscriptionResult } from './lib/auth-state.js';
+import type { ClientProps, OctapError, OctapResponse, OctapSession } from './types.js';
 
 function parseExpiration(value: string): number | null {
   const expiration = Date.parse(value);
@@ -42,7 +34,9 @@ class OctapAuthApi {
   };
 
   /** Signs in with a Google ID token and persists the session in localStorage. */
-  signInWithGoogleIDToken = (token: string): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> => {
+  signInWithGoogleIDToken = (
+    token: string,
+  ): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> => {
     return this.consoleApi.login({ idToken: token });
   };
 
@@ -57,7 +51,9 @@ class OctapAuthApi {
     if (session === null) {
       return {
         data: null,
-        error: new AxiosError('No active session.', 'ERR_BAD_REQUEST') as OctapError<OpenApi.ConsoleIdentityMeResponse['user']>,
+        error: new AxiosError('No active session.', 'ERR_BAD_REQUEST') as OctapError<
+          OpenApi.ConsoleIdentityMeResponse['user']
+        >,
       };
     }
 
@@ -77,7 +73,10 @@ class OctapAuthApi {
     if (this.storage.getSession()?.accessToken !== session.accessToken) {
       return {
         data: null,
-        error: new AxiosError('The session changed while the profile was loading.', 'ERR_CANCELED') as OctapError<OpenApi.ConsoleIdentityMeResponse['user']>,
+        error: new AxiosError(
+          'The session changed while the profile was loading.',
+          'ERR_CANCELED',
+        ) as OctapError<OpenApi.ConsoleIdentityMeResponse['user']>,
       };
     }
     const updatedSession: OctapSession = {
@@ -150,7 +149,9 @@ class OctapConsoleApi extends ConsoleApi {
     super(http);
   }
 
-  override async login(input: OpenApi.ConsoleIdentityLoginInput): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> {
+  override async login(
+    input: OpenApi.ConsoleIdentityLoginInput,
+  ): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> {
     const result = await super.login(input);
     if (result.data === null) {
       return result;
@@ -217,12 +218,16 @@ export class VouchersApi {
   }
 
   /** Creates a voucher. */
-  create(input: Parameters<RewardsApi['createVoucher']>[0]): ReturnType<RewardsApi['createVoucher']> {
+  create(
+    input: Parameters<RewardsApi['createVoucher']>[0],
+  ): ReturnType<RewardsApi['createVoucher']> {
     return this.rewards.createVoucher(input);
   }
 
   /** Updates a voucher. */
-  update(input: Parameters<RewardsApi['updateVoucher']>[0]): ReturnType<RewardsApi['updateVoucher']> {
+  update(
+    input: Parameters<RewardsApi['updateVoucher']>[0],
+  ): ReturnType<RewardsApi['updateVoucher']> {
     return this.rewards.updateVoucher(input);
   }
 

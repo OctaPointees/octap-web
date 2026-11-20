@@ -5,11 +5,13 @@ import type * as OpenApi from './openapi.js';
 
 /** OpenAPI endpoint methods for the console API group. */
 export class ConsoleApi extends ApiGroup {
-  constructor(http: HttpClient) { super(http); }
+  constructor(http: HttpClient) {
+    super(http);
+  }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/budget. */
   readIssuanceBudget(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleIssuanceBudgetReadResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleIssuanceBudgetReadResponse>> {
     return this.request<OpenApi.ConsoleIssuanceBudgetReadResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/budget`,
@@ -17,9 +19,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/change-requests. */
   propose(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleChangeRequestsProposeInput;
-}): Promise<OctapResponse<OpenApi.ConsoleChangeRequestsProposeResponse>> {
+    organizationId: string;
+    body: OpenApi.ConsoleChangeRequestsProposeInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleChangeRequestsProposeResponse>> {
     return this.request<OpenApi.ConsoleChangeRequestsProposeResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/change-requests`,
@@ -28,30 +30,30 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/members. */
   listMembers(input: {
-  organizationId: string;
-  limit?: number;
-  cursor?: string;
-  q?: string;
-  status?: 'ACTIVE' | 'BLOCKED';
-  externalMemberId?: string;
-}): Promise<OctapResponse<OpenApi.MembersListResponse>> {
+    organizationId: string;
+    limit?: number;
+    cursor?: string;
+    q?: string;
+    status?: 'ACTIVE' | 'BLOCKED';
+    externalMemberId?: string;
+  }): Promise<OctapResponse<OpenApi.MembersListResponse>> {
     return this.request<OpenApi.MembersListResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/members`,
-        params: {
-          limit: input.limit,
-          cursor: input.cursor,
-          q: input.q,
-          status: input.status,
-          externalMemberId: input.externalMemberId,
-        },
+      params: {
+        limit: input.limit,
+        cursor: input.cursor,
+        q: input.q,
+        status: input.status,
+        externalMemberId: input.externalMemberId,
+      },
     });
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/members/{memberId}. */
   detailMembers(input: {
-  organizationId: string;
-  memberId: string;
-}): Promise<OctapResponse<OpenApi.MembersDetailResponse>> {
+    organizationId: string;
+    memberId: string;
+  }): Promise<OctapResponse<OpenApi.MembersDetailResponse>> {
     return this.request<OpenApi.MembersDetailResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/members/${encodeURIComponent(input.memberId)}`,
@@ -59,10 +61,10 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PATCH request to /v1/console/organizations/{organizationId}/members/{memberId}. */
   patch(input: {
-  organizationId: string;
-  memberId: string;
-  body: OpenApi.MembersPatchInput;
-}): Promise<OctapResponse<OpenApi.MembersPatchResponse>> {
+    organizationId: string;
+    memberId: string;
+    body: OpenApi.MembersPatchInput;
+  }): Promise<OctapResponse<OpenApi.MembersPatchResponse>> {
     return this.request<OpenApi.MembersPatchResponse>({
       method: 'patch',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/members/${encodeURIComponent(input.memberId)}`,
@@ -71,25 +73,25 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/members/{memberId}/transactions. */
   transactions(input: {
-  organizationId: string;
-  memberId: string;
-  limit?: number;
-  cursor?: string;
-}): Promise<OctapResponse<OpenApi.MembersTransactionsResponse>> {
+    organizationId: string;
+    memberId: string;
+    limit?: number;
+    cursor?: string;
+  }): Promise<OctapResponse<OpenApi.MembersTransactionsResponse>> {
     return this.request<OpenApi.MembersTransactionsResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/members/${encodeURIComponent(input.memberId)}/transactions`,
-        params: {
-          limit: input.limit,
-          cursor: input.cursor,
-        },
+      params: {
+        limit: input.limit,
+        cursor: input.cursor,
+      },
     });
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/members/{memberId}/vouchers. */
   vouchers(input: {
-  organizationId: string;
-  memberId: string;
-}): Promise<OctapResponse<OpenApi.MembersVouchersResponse>> {
+    organizationId: string;
+    memberId: string;
+  }): Promise<OctapResponse<OpenApi.MembersVouchersResponse>> {
     return this.request<OpenApi.MembersVouchersResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/members/${encodeURIComponent(input.memberId)}/vouchers`,
@@ -97,8 +99,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/vouchers. */
   listRewards(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleRewardsListResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleRewardsListResponse>> {
     return this.request<OpenApi.ConsoleRewardsListResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers`,
@@ -106,9 +108,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/vouchers. */
   createRewards(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleRewardsCreateInput;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    body: OpenApi.ConsoleRewardsCreateInput;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers`,
@@ -117,9 +119,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/vouchers/{id}. */
   detailRewards(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}`,
@@ -127,10 +129,10 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PATCH request to /v1/console/organizations/{organizationId}/vouchers/{id}. */
   updateRewards(input: {
-  organizationId: string;
-  id: string;
-  body: OpenApi.ConsoleRewardsUpdateInput;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    id: string;
+    body: OpenApi.ConsoleRewardsUpdateInput;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'patch',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}`,
@@ -139,9 +141,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/vouchers/{id}/submit. */
   submit(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}/submit`,
@@ -149,9 +151,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/vouchers/{id}/withdraw. */
   withdraw(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}/withdraw`,
@@ -159,9 +161,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/vouchers/{id}/approve. */
   approve(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}/approve`,
@@ -169,10 +171,10 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/vouchers/{id}/reject. */
   reject(input: {
-  organizationId: string;
-  id: string;
-  body: OpenApi.ConsoleRewardsRejectInput;
-}): Promise<OctapResponse<OpenApi.VoucherDto>> {
+    organizationId: string;
+    id: string;
+    body: OpenApi.ConsoleRewardsRejectInput;
+  }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}/reject`,
@@ -181,8 +183,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/refund-policy. */
   current(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleRefundPolicyCurrentResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleRefundPolicyCurrentResponse>> {
     return this.request<OpenApi.ConsoleRefundPolicyCurrentResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/refund-policy`,
@@ -190,9 +192,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PUT request to /v1/console/organizations/{organizationId}/refund-policy. */
   publish(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleRefundPolicyPublishInput;
-}): Promise<OctapResponse<OpenApi.VoucherRefundPolicyDto>> {
+    organizationId: string;
+    body: OpenApi.ConsoleRefundPolicyPublishInput;
+  }): Promise<OctapResponse<OpenApi.VoucherRefundPolicyDto>> {
     return this.request<OpenApi.VoucherRefundPolicyDto>({
       method: 'put',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/refund-policy`,
@@ -201,23 +203,23 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/refund-policy/history. */
   history(input: {
-  organizationId: string;
-  limit?: number;
-  beforeVersion?: number;
-}): Promise<OctapResponse<OpenApi.ConsoleRefundPolicyHistoryResponse>> {
+    organizationId: string;
+    limit?: number;
+    beforeVersion?: number;
+  }): Promise<OctapResponse<OpenApi.ConsoleRefundPolicyHistoryResponse>> {
     return this.request<OpenApi.ConsoleRefundPolicyHistoryResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/refund-policy/history`,
-        params: {
-          limit: input.limit,
-          beforeVersion: input.beforeVersion,
-        },
+      params: {
+        limit: input.limit,
+        beforeVersion: input.beforeVersion,
+      },
     });
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/webhooks/endpoints. */
   listEndpoints(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksListEndpointsResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksListEndpointsResponse>> {
     return this.request<OpenApi.ConsoleWebhooksListEndpointsResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/endpoints`,
@@ -225,9 +227,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/webhooks/endpoints. */
   registerEndpoint(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleWebhooksRegisterEndpointInput;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksRegisterEndpointResponse>> {
+    organizationId: string;
+    body: OpenApi.ConsoleWebhooksRegisterEndpointInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksRegisterEndpointResponse>> {
     return this.request<OpenApi.ConsoleWebhooksRegisterEndpointResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/endpoints`,
@@ -236,9 +238,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/webhooks/endpoints/{id}/disable. */
   disableEndpoint(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksDisableEndpointResponse>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksDisableEndpointResponse>> {
     return this.request<OpenApi.ConsoleWebhooksDisableEndpointResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/endpoints/${encodeURIComponent(input.id)}/disable`,
@@ -246,9 +248,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/webhooks/endpoints/{id}/enable. */
   enableEndpoint(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksEnableEndpointResponse>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksEnableEndpointResponse>> {
     return this.request<OpenApi.ConsoleWebhooksEnableEndpointResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/endpoints/${encodeURIComponent(input.id)}/enable`,
@@ -256,9 +258,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/webhooks/endpoints/{id}/rotate-secret. */
   rotateSecret(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksRotateSecretResponse>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksRotateSecretResponse>> {
     return this.request<OpenApi.ConsoleWebhooksRotateSecretResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/endpoints/${encodeURIComponent(input.id)}/rotate-secret`,
@@ -266,8 +268,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/webhooks/deliveries. */
   listDeliveries(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksListDeliveriesResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksListDeliveriesResponse>> {
     return this.request<OpenApi.ConsoleWebhooksListDeliveriesResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/deliveries`,
@@ -275,9 +277,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/webhooks/deliveries/{id}/replay. */
   replayDelivery(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.ConsoleWebhooksReplayDeliveryResponse>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksReplayDeliveryResponse>> {
     return this.request<OpenApi.ConsoleWebhooksReplayDeliveryResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/deliveries/${encodeURIComponent(input.id)}/replay`,
@@ -285,8 +287,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/api-credentials. */
   listApiCredentials(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsListResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsListResponse>> {
     return this.request<OpenApi.ConsoleApiCredentialsListResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/api-credentials`,
@@ -294,9 +296,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/api-credentials. */
   issue(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleApiCredentialsIssueInput;
-}): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsIssueResponse>> {
+    organizationId: string;
+    body: OpenApi.ConsoleApiCredentialsIssueInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsIssueResponse>> {
     return this.request<OpenApi.ConsoleApiCredentialsIssueResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/api-credentials`,
@@ -305,10 +307,10 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PATCH request to /v1/console/organizations/{organizationId}/api-credentials/{id}. */
   rename(input: {
-  organizationId: string;
-  id: string;
-  body: OpenApi.ConsoleApiCredentialsRenameInput;
-}): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsRenameResponse>> {
+    organizationId: string;
+    id: string;
+    body: OpenApi.ConsoleApiCredentialsRenameInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsRenameResponse>> {
     return this.request<OpenApi.ConsoleApiCredentialsRenameResponse>({
       method: 'patch',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/api-credentials/${encodeURIComponent(input.id)}`,
@@ -317,16 +319,18 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a DELETE request to /v1/console/organizations/{organizationId}/api-credentials/{id}. */
   revoke(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsRevokeResponse>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleApiCredentialsRevokeResponse>> {
     return this.request<OpenApi.ConsoleApiCredentialsRevokeResponse>({
       method: 'delete',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/api-credentials/${encodeURIComponent(input.id)}`,
     });
   }
   /** Sends a POST request to /v1/console/auth/google. */
-  login(input: OpenApi.ConsoleIdentityLoginInput): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> {
+  login(
+    input: OpenApi.ConsoleIdentityLoginInput,
+  ): Promise<OctapResponse<OpenApi.ConsoleIdentityLoginResponse>> {
     return this.request<OpenApi.ConsoleIdentityLoginResponse>({
       method: 'post',
       url: `/v1/console/auth/google`,
@@ -341,7 +345,9 @@ export class ConsoleApi extends ApiGroup {
     });
   }
   /** Sends a POST request to /v1/console/organization-requests. */
-  apply(input: OpenApi.ConsoleOrganizationsApplyInput): Promise<OctapResponse<OpenApi.ConsoleOrganizationsApplyResponse>> {
+  apply(
+    input: OpenApi.ConsoleOrganizationsApplyInput,
+  ): Promise<OctapResponse<OpenApi.ConsoleOrganizationsApplyResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsApplyResponse>({
       method: 'post',
       url: `/v1/console/organization-requests`,
@@ -357,8 +363,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}. */
   organization(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsOrganizationResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsOrganizationResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsOrganizationResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}`,
@@ -366,9 +372,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PATCH request to /v1/console/organizations/{organizationId}/profile. */
   profile(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleOrganizationsProfileInput;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsProfileResponse>> {
+    organizationId: string;
+    body: OpenApi.ConsoleOrganizationsProfileInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsProfileResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsProfileResponse>({
       method: 'patch',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/profile`,
@@ -377,9 +383,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PATCH request to /v1/console/organizations/{organizationId}/settings. */
   settings(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleOrganizationsSettingsInput;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsSettingsResponse>> {
+    organizationId: string;
+    body: OpenApi.ConsoleOrganizationsSettingsInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsSettingsResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsSettingsResponse>({
       method: 'patch',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/settings`,
@@ -388,8 +394,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/staff. */
   staff(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsStaffResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsStaffResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsStaffResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/staff`,
@@ -397,10 +403,10 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a PATCH request to /v1/console/organizations/{organizationId}/staff/{userId}. */
   staffAccess(input: {
-  organizationId: string;
-  userId: string;
-  body: OpenApi.ConsoleOrganizationsStaffAccessInput;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsStaffAccessResponse>> {
+    organizationId: string;
+    userId: string;
+    body: OpenApi.ConsoleOrganizationsStaffAccessInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsStaffAccessResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsStaffAccessResponse>({
       method: 'patch',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/staff/${encodeURIComponent(input.userId)}`,
@@ -409,9 +415,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/invitations. */
   invite(input: {
-  organizationId: string;
-  body: OpenApi.ConsoleOrganizationsInviteInput;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsInviteResponse>> {
+    organizationId: string;
+    body: OpenApi.ConsoleOrganizationsInviteInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsInviteResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsInviteResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/invitations`,
@@ -420,8 +426,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/invitations. */
   invitations(input: {
-  organizationId: string;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsInvitationsResponse>> {
+    organizationId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsInvitationsResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsInvitationsResponse>({
       method: 'get',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/invitations`,
@@ -429,9 +435,9 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/invitations/{id}/revoke. */
   revokeOrganizations(input: {
-  organizationId: string;
-  id: string;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsRevokeResponse>> {
+    organizationId: string;
+    id: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsRevokeResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsRevokeResponse>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/invitations/${encodeURIComponent(input.id)}/revoke`,
@@ -439,8 +445,8 @@ export class ConsoleApi extends ApiGroup {
   }
   /** Sends a POST request to /v1/console/invitations/{token}/accept. */
   accept(input: {
-  token: string;
-}): Promise<OctapResponse<OpenApi.ConsoleOrganizationsAcceptResponse>> {
+    token: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleOrganizationsAcceptResponse>> {
     return this.request<OpenApi.ConsoleOrganizationsAcceptResponse>({
       method: 'post',
       url: `/v1/console/invitations/${encodeURIComponent(input.token)}/accept`,

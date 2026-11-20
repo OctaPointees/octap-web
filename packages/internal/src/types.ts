@@ -17,9 +17,7 @@ export interface OctapData<T> extends AxiosResponse<T> {}
 export interface OctapError<T = unknown> extends AxiosError<T> {}
 
 /** Standard result returned by all asynchronous API methods. */
-export type OctapResponse<T> =
-  | { data: T; error: null }
-  | { data: null; error: OctapError<T> };
+export type OctapResponse<T> = { data: T; error: null } | { data: null; error: OctapError<T> };
 
 /** Stored browser authentication session. */
 export interface OctapSession {

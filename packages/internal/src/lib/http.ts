@@ -6,7 +6,10 @@ import type { SessionStorage } from './storage.js';
 export class HttpClient {
   private readonly axios: AxiosInstance;
 
-  constructor(apiUrl: string, private readonly sessionStorage: SessionStorage) {
+  constructor(
+    apiUrl: string,
+    private readonly sessionStorage: SessionStorage,
+  ) {
     this.axios = axios.create({
       baseURL: apiUrl.replace(/\/+$/, ''),
       headers: { Accept: 'application/json' },

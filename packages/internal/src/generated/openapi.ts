@@ -31,10 +31,10 @@ export interface ConsoleChangeRequestsProposeInput {
   requestType: GovernanceRequestType;
   reason: string;
   payload: {
-  name?: string;
-  targetUserId?: string;
-  amount?: number;
-} & IdentityChangePayload;
+    name?: string;
+    targetUserId?: string;
+    amount?: number;
+  } & IdentityChangePayload;
 }
 
 export interface ConsoleChangeRequestsProposeResponse {
@@ -45,7 +45,15 @@ export interface ConsoleChangeRequestsProposeResponse {
   organizationId: null | string;
   requestedById: string;
   reviewedById: null | string;
-  requestType: 'BUDGET_TOP_UP' | 'CREATE_ORGANIZATION' | 'DEACTIVATE' | 'REINSTATE' | 'SUSPEND' | 'TRANSFER_OWNERSHIP' | 'UPDATE_IDENTITY' | 'UPDATE_PROFILE';
+  requestType:
+    | 'BUDGET_TOP_UP'
+    | 'CREATE_ORGANIZATION'
+    | 'DEACTIVATE'
+    | 'REINSTATE'
+    | 'SUSPEND'
+    | 'TRANSFER_OWNERSHIP'
+    | 'UPDATE_IDENTITY'
+    | 'UPDATE_PROFILE';
   payload: unknown;
   reason: null | string;
   reviewedAt: string | null;
@@ -57,35 +65,35 @@ export interface ConsoleIdentityLoginInput {
 
 export interface ConsoleIdentityLoginResponse {
   user: {
-  id: string;
-  email: string;
-  fullName: string;
-  avatarUrl: null | string;
-  systemRole: SystemRole;
-};
+    id: string;
+    email: string;
+    fullName: string;
+    avatarUrl: null | string;
+    systemRole: SystemRole;
+  };
   organizations: Array<{
-  organizationId: string;
-  name: string;
-  slug: string;
-  persona: OrganizationPersona;
-}>;
+    organizationId: string;
+    name: string;
+    slug: string;
+    persona: OrganizationPersona;
+  }>;
   expiresAt: string;
 }
 
 export interface ConsoleIdentityMeResponse {
   user: {
-  id: string;
-  email: string;
-  fullName: string;
-  avatarUrl: null | string;
-  systemRole: SystemRole;
-};
+    id: string;
+    email: string;
+    fullName: string;
+    avatarUrl: null | string;
+    systemRole: SystemRole;
+  };
   organizations: Array<{
-  organizationId: string;
-  name: string;
-  slug: string;
-  persona: OrganizationPersona;
-}>;
+    organizationId: string;
+    name: string;
+    slug: string;
+    persona: OrganizationPersona;
+  }>;
   expiresAt: string;
 }
 
@@ -496,7 +504,14 @@ export interface CustomerVerificationVerifyResponse {
   active: boolean;
 }
 
-export type GovernanceRequestType = 'BUDGET_TOP_UP' | 'DEACTIVATE' | 'REINSTATE' | 'SUSPEND' | 'TRANSFER_OWNERSHIP' | 'UPDATE_IDENTITY' | 'UPDATE_PROFILE';
+export type GovernanceRequestType =
+  | 'BUDGET_TOP_UP'
+  | 'DEACTIVATE'
+  | 'REINSTATE'
+  | 'SUSPEND'
+  | 'TRANSFER_OWNERSHIP'
+  | 'UPDATE_IDENTITY'
+  | 'UPDATE_PROFILE';
 
 export interface HealthCheckResponse {
   status: HealthStatus;
@@ -584,16 +599,16 @@ export interface MembersListParams {
 
 export interface MembersListResponse {
   items: Array<{
-  joinedAt: string;
-  id: string;
-  endUserId: string;
-  displayName: null | string;
-  email: null | string;
-  phoneNumber: null | string;
-  status: string;
-  externalMemberId: null | string;
-  metadata: unknown;
-}>;
+    joinedAt: string;
+    id: string;
+    endUserId: string;
+    displayName: null | string;
+    email: null | string;
+    phoneNumber: null | string;
+    status: string;
+    externalMemberId: null | string;
+    metadata: unknown;
+  }>;
   nextCursor: null | string;
 }
 
@@ -645,25 +660,35 @@ export interface PlatformChangeRequestsListParams {
 }
 
 export interface PlatformChangeRequestsListResponse {
-  items: Array<{
-  organizationName: null | string;
-  requesterEmail: string;
-  reviewerEmail: null | string;
-  id: string;
-  organizationId: null | string;
-  requestedById: string;
-  reviewedById: null | string;
-  requestType: 'BUDGET_TOP_UP' | 'CREATE_ORGANIZATION' | 'DEACTIVATE' | 'REINSTATE' | 'SUSPEND' | 'TRANSFER_OWNERSHIP' | 'UPDATE_IDENTITY' | 'UPDATE_PROFILE';
-  status: 'APPROVED' | 'CANCELLED' | 'PENDING' | 'REJECTED';
-  payload: unknown;
-  reason: null | string;
-  reviewedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-} & {
-  initialOwnerName: null | string;
-  initialOwnerEmail: null | string;
-}>;
+  items: Array<
+    {
+      organizationName: null | string;
+      requesterEmail: string;
+      reviewerEmail: null | string;
+      id: string;
+      organizationId: null | string;
+      requestedById: string;
+      reviewedById: null | string;
+      requestType:
+        | 'BUDGET_TOP_UP'
+        | 'CREATE_ORGANIZATION'
+        | 'DEACTIVATE'
+        | 'REINSTATE'
+        | 'SUSPEND'
+        | 'TRANSFER_OWNERSHIP'
+        | 'UPDATE_IDENTITY'
+        | 'UPDATE_PROFILE';
+      status: 'APPROVED' | 'CANCELLED' | 'PENDING' | 'REJECTED';
+      payload: unknown;
+      reason: null | string;
+      reviewedAt: string | null;
+      createdAt: string;
+      updatedAt: string;
+    } & {
+      initialOwnerName: null | string;
+      initialOwnerEmail: null | string;
+    }
+  >;
   nextCursor: null | string;
 }
 
@@ -671,10 +696,10 @@ export interface PlatformChangeRequestsProposeInput {
   requestType: GovernanceRequestType;
   reason: string;
   payload: {
-  name?: string;
-  targetUserId?: string;
-  amount?: number;
-} & IdentityChangePayload;
+    name?: string;
+    targetUserId?: string;
+    amount?: number;
+  } & IdentityChangePayload;
 }
 
 export interface PlatformChangeRequestsProposeResponse {
@@ -685,7 +710,15 @@ export interface PlatformChangeRequestsProposeResponse {
   organizationId: null | string;
   requestedById: string;
   reviewedById: null | string;
-  requestType: 'BUDGET_TOP_UP' | 'CREATE_ORGANIZATION' | 'DEACTIVATE' | 'REINSTATE' | 'SUSPEND' | 'TRANSFER_OWNERSHIP' | 'UPDATE_IDENTITY' | 'UPDATE_PROFILE';
+  requestType:
+    | 'BUDGET_TOP_UP'
+    | 'CREATE_ORGANIZATION'
+    | 'DEACTIVATE'
+    | 'REINSTATE'
+    | 'SUSPEND'
+    | 'TRANSFER_OWNERSHIP'
+    | 'UPDATE_IDENTITY'
+    | 'UPDATE_PROFILE';
   payload: unknown;
   reason: null | string;
   reviewedAt: string | null;
@@ -777,12 +810,12 @@ export interface PlatformOrganizationsCreateResponse {
 
 export interface PlatformOrganizationsDetailResponse {
   provisioning: {
-  tenantId: string;
-  operationId: string;
-  status: string;
-  errorMessage: null | string;
-  updatedAt: string;
-};
+    tenantId: string;
+    operationId: string;
+    status: string;
+    errorMessage: null | string;
+    updatedAt: string;
+  };
   id: string;
   name: string;
   slug: string;
@@ -806,26 +839,26 @@ export interface PlatformOrganizationsListParams {
 
 export interface PlatformOrganizationsListResponse {
   items: Array<{
-  provisioning: {
-  tenantId: string;
-  operationId: string;
-  status: string;
-  errorMessage: null | string;
-  updatedAt: string;
-} | null;
-  id: string;
-  name: string;
-  slug: string;
-  status: 'ACTIVE' | 'ARCHIVED' | 'PENDING_APPROVAL' | 'SUSPENDED';
-  organizationType: 'COMPANY' | 'INDIVIDUAL_HOUSEHOLD' | null;
-  legalName: null | string;
-  taxId: null | string;
-  representativeName: null | string;
-  logoUrl: null | string;
-  createdAt: string;
-  programStatus: null | string;
-  programControlId: null | string;
-}>;
+    provisioning: {
+      tenantId: string;
+      operationId: string;
+      status: string;
+      errorMessage: null | string;
+      updatedAt: string;
+    } | null;
+    id: string;
+    name: string;
+    slug: string;
+    status: 'ACTIVE' | 'ARCHIVED' | 'PENDING_APPROVAL' | 'SUSPENDED';
+    organizationType: 'COMPANY' | 'INDIVIDUAL_HOUSEHOLD' | null;
+    legalName: null | string;
+    taxId: null | string;
+    representativeName: null | string;
+    logoUrl: null | string;
+    createdAt: string;
+    programStatus: null | string;
+    programControlId: null | string;
+  }>;
   nextCursor: null | string;
 }
 
@@ -1003,11 +1036,13 @@ export type SystemRole = 'SYSTEM_ADMIN' | 'SYSTEM_USER';
 
 export type VoucherApprovalStatus = 'APPROVED' | 'PENDING' | 'REJECTED' | 'WITHDRAWN';
 
-export type VoucherOwnershipStatus = 'AVAILABLE' | 'CANCELLED' | 'EXPIRED' | 'REDEEMED' | 'RESERVED';
+export type VoucherOwnershipStatus =
+  'AVAILABLE' | 'CANCELLED' | 'EXPIRED' | 'REDEEMED' | 'RESERVED';
 
 export type VoucherPublishStatus = 'FAILED' | 'NOT_PUBLISHED' | 'PUBLISHED' | 'PUBLISHING';
 
-export type VoucherStatus = 'ACTIVE' | 'DEPLETED' | 'DRAFT' | 'EXPIRED' | 'PAUSED' | 'PENDING_APPROVAL';
+export type VoucherStatus =
+  'ACTIVE' | 'DEPLETED' | 'DRAFT' | 'EXPIRED' | 'PAUSED' | 'PENDING_APPROVAL';
 
 export type WebhooksListDeliveriesResponse = Array<{
   id: string;
@@ -1065,15 +1100,15 @@ export interface OperationLag {
 
 export interface WorkerLag {
   operations: {
-  oldestWorkerOwedAgeSeconds: null | number;
-  byCommandType: Array<OperationLag>;
-};
+    oldestWorkerOwedAgeSeconds: null | number;
+    byCommandType: Array<OperationLag>;
+  };
   webhookDeliveries: {
-  pending: number;
-  due: number;
-  oldestDueAgeSeconds: null | number;
-  deadLettered: number;
-};
+    pending: number;
+    due: number;
+    oldestDueAgeSeconds: null | number;
+    deadLettered: number;
+  };
   indexer: Array<IndexerLag>;
 }
 
@@ -1141,9 +1176,9 @@ export interface LoyaltyTransactionDto {
 export interface VoucherApprovalDto {
   status: VoucherApprovalStatus;
   submittedBy: {
-  type: 'API_CREDENTIAL' | 'USER';
-  id: string;
-} | null;
+    type: 'API_CREDENTIAL' | 'USER';
+    id: string;
+  } | null;
   submittedAt: string;
   reviewedById: null | string;
   reviewedAt: null | string;
@@ -1213,14 +1248,14 @@ export interface VoucherRefundPolicySnapshot {
 
 export interface a_Iterable_string_length_number_b_Iterable_Iterable_string_length_number_length_number_c_Iterable_string_length_number {
   a: Iterable_string & {
-  length: number;
-};
+    length: number;
+  };
   b: Iterable_Iterable_string_length_number & {
-  length: number;
-};
+    length: number;
+  };
   c: Iterable_string & {
-  length: number;
-};
+    length: number;
+  };
 }
 
 export interface value_string_indexMod4_number {

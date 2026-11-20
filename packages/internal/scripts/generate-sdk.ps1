@@ -241,3 +241,7 @@ foreach ($group in $groups.Keys) {
   )
   [System.IO.File]::WriteAllText((Join-Path $OutputDirectory "$group.ts"), ($fileLines -join "`n"), [System.Text.UTF8Encoding]::new($false))
 }
+
+# Format the generated files so they match the repo's Prettier config.
+npx --no-install prettier --write $OutputDirectory
+if ($LASTEXITCODE -ne 0) { throw "Prettier failed to format $OutputDirectory" }
