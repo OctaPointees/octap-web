@@ -1,103 +1,79 @@
-import ConsoleAccessLayout from './console/AccessLayout';
-import { ConsoleRoot, ConsoleSignedIn, ConsoleScreen } from '@octap/shared/google-auth';
-import { queryClient } from '../queries/client';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
-import { RequireRoles } from './guards';
-
+import { RequireSignIn } from '@octap/shared/authentication';
+import BusinessRoot from './Root';
+import { RequireOwner } from './guards';
+import NotFoundPage from './NotFoundPage';
 import AuthenticationEntryPoint from './auth';
+
+import OrganizationLayout from './organization';
+import { OrganizationProvider } from './organization/context/OrganizationProvider';
+import OrganizationsPage from './organization/pages/OrganizationsPage';
+import OnboardingPage from './organization/pages/OnboardingPage';
+import OrganizationHome from './organization/pages/OrganizationHome';
+import { OrganizationSettings } from './organization/components/OrganizationSettings';
+
 import MerchantLayout from './merchant';
 import DeveloperLayout from './developer';
-import DeveloperDashboardPage from './developer/pages/DashboardPage';
 import DeveloperApiKeysPage from './developer/pages/ApiKeysPage';
-import DeveloperWebhooksPage from './developer/pages/WebhooksPage';
-import DeveloperMcpPage from './developer/pages/McpPage';
-import CampaignsPage from './merchant/pages/CampaignsPage';
-import MerchantDashboardPage from './merchant/pages/DashboardPage';
-import MembersPage from './merchant/pages/MembersPage';
-import PosPage from './merchant/pages/PosPage';
-import RewardsPage from './merchant/pages/RewardsPage';
-import SettingsPage from './merchant/pages/SettingsPage';
-import TransactionsPage from './merchant/pages/TransactionsPage';
+import Dashboard from './console/Dashboard';
+import Members from './console/Members';
+import Rewards from './console/Rewards';
 
-import NotFoundPage from './NotFoundPage';
-import WalletApp from './wallet';
-
-const portalRoutes: RouteObject[] = [
+/** Pages of one organization, under `/organizations/:organizationId`. */
+const organizationRoutes: RouteObject[] = [
+  { index: true, element: <OrganizationHome /> },
   {
-    element: <RequireRoles merchantRoles={['developer', 'owner']} />,
+    path: 'merchant',
+    element: <RequireOwner />,
     children: [
       {
-        path: '/developer',
-        element: <DeveloperLayout />,
+        element: <MerchantLayout />,
         children: [
-          { index: true, element: <DeveloperDashboardPage /> },
-          { path: 'api-keys', element: <DeveloperApiKeysPage /> },
-          { path: 'members', element: <MembersPage /> },
-          { path: 'rewards', element: <RewardsPage /> },
-          { path: 'webhooks', element: <DeveloperWebhooksPage /> },
-          { path: 'mcp', element: <DeveloperMcpPage /> },
+          { index: true, element: <Dashboard /> },
+          { path: 'rewards', element: <Rewards /> },
+          { path: 'members', element: <Members /> },
+          { path: 'settings', element: <OrganizationSettings view="profile" /> },
+          { path: 'team', element: <OrganizationSettings view="team" /> },
         ],
       },
     ],
   },
   {
-    element: <RequireRoles merchantRoles={['developer', 'owner', 'cashier', 'manager']} />,
+    path: 'developer',
+    element: <DeveloperLayout />,
     children: [
-      {
-        children: [
-          {
-            path: '/merchant',
-            element: <MerchantLayout />,
-            children: [
-              { index: true, element: <MerchantDashboardPage /> },
-              { path: 'pos', element: <PosPage /> },
-              { path: 'campaigns', element: <CampaignsPage /> },
-              { path: 'rewards', element: <RewardsPage /> },
-              { path: 'members', element: <MembersPage /> },
-              { path: 'transactions', element: <TransactionsPage /> },
-              { path: 'settings', element: <SettingsPage /> },
-              { path: 'team', element: <SettingsPage /> },
-            ],
-          },
-        ],
-      },
+      { index: true, element: <Dashboard developer /> },
+      { path: 'api-keys', element: <DeveloperApiKeysPage /> },
+      { path: 'members', element: <Members /> },
+      { path: 'rewards', element: <Rewards /> },
     ],
   },
-  { path: '/login', element: <Navigate to="/" /> },
+];
+
+const routes: RouteObject[] = [
   { path: '/', element: <AuthenticationEntryPoint /> },
+  { path: '/login', element: <Navigate to="/" /> },
+  {
+    element: <RequireSignIn />,
+    children: [
+      {
+        element: <OrganizationLayout />,
+        children: [
+          { path: '/organizations', element: <OrganizationsPage /> },
+          { path: '/onboarding', element: <OnboardingPage /> },
+        ],
+      },
+      {
+        path: '/organizations/:organizationId',
+        element: <OrganizationProvider />,
+        children: organizationRoutes,
+      },
+    ],
+  },
+  // Dashboards used to live here, before the organization was part of the URL.
+  { path: '/merchant/*', element: <Navigate to="/organizations" replace /> },
+  { path: '/developer/*', element: <Navigate to="/organizations" replace /> },
   { path: '*', element: <NotFoundPage /> },
 ];
 
-const liveRoutes: RouteObject[] = [
-  ...portalRoutes,
-  {
-    element: <ConsoleSignedIn />,
-    children: [
-      {
-        element: <ConsoleAccessLayout />,
-        children: [
-          { path: '/onboarding', element: <ConsoleScreen /> },
-          { path: '/organizations', element: <ConsoleScreen /> },
-          { path: '/admin', element: <ConsoleScreen /> },
-        ],
-      },
-    ],
-  },
-];
-export const router = createBrowserRouter(
-  import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true'
-    ? [{ path: '/wallet', element: <WalletApp /> }, ...portalRoutes]
-    : [
-        {
-          element: (
-            <ConsoleRoot
-              portal="business"
-              clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}
-              apiBaseUrl={import.meta.env.VITE_CORE_API_URL ?? ''}
-              onReset={() => queryClient.clear()}
-            />
-          ),
-          children: liveRoutes,
-        },
-      ],
-);
+export const router = createBrowserRouter([{ element: <BusinessRoot />, children: routes }]);

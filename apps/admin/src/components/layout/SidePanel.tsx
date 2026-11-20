@@ -1,8 +1,7 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
 import { SignOut, type Icon } from 'phosphor-react';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink } from 'react-router';
 import { useSession } from '../../queries/useSession';
-import { authService } from '../../services';
 import { cn } from '../../utils/cn';
 import { toTitle } from '../../utils/format';
 import { Button } from '../shared/Button';
@@ -25,8 +24,7 @@ type Props = {
 
 export default function SidePanel({ subtitle, options, roleLabel, footer }: Props) {
   const session = useSession();
-  const auth = useConsoleAuth();
-  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const user = session?.user;
 
   return (
@@ -90,14 +88,7 @@ export default function SidePanel({ subtitle, options, roleLabel, footer }: Prop
         </div>
       </div>
 
-      <Button
-        className="btn-block btn-soft btn-error justify-between"
-        onClick={() =>
-          auth
-            ? auth.signOut()
-            : authService.logout().then(() => navigate('/login', { replace: true }))
-        }
-      >
+      <Button className="btn-block btn-soft btn-error justify-between" onClick={signOut}>
         Log-out
         <SignOut size="1.8em" />
       </Button>

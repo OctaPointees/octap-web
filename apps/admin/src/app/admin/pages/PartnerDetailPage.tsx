@@ -24,6 +24,7 @@ import {
 } from '../../../queries/admin';
 import type { TenantRow } from '../../../services/admin.service';
 import type { TenantPlan } from '../../../types/domain';
+import { cn } from '../../../utils/cn';
 import { fieldErrorsOf } from '../../../utils/errors';
 import {
   fmtCompact,
@@ -174,7 +175,7 @@ export default function PartnerDetailPage() {
             </Button>
           ) : (
             <Button
-              className={suspending ? 'btn-error btn-soft' : 'btn-success btn-soft'}
+              className={cn('btn-soft', { 'btn-error': suspending, 'btn-success': !suspending })}
               onClick={() => setStatusDialog(true)}
             >
               {suspending ? <Pause /> : <Play />} {suspending ? 'Suspend' : 'Reinstate'}
@@ -443,7 +444,7 @@ export default function PartnerDetailPage() {
         {suspending && (
           <FormField label="Reason (recorded on-chain)" error={reasonError}>
             <textarea
-              className={`textarea w-full ${reasonError ? 'textarea-error' : ''}`}
+              className={cn('textarea w-full', reasonError && 'textarea-error')}
               rows={3}
               value={reason}
               onChange={(e) => setReason(e.target.value)}

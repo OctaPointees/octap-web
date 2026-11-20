@@ -1,11 +1,7 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
-import { ArrowsLeftRight, SignOut, type Icon } from 'phosphor-react';
-import { NavLink, useLocation, useNavigate } from 'react-router';
-import { useSession } from '../../queries/useSession';
-import { authService } from '../../services/auth.service';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { ArrowSquareOut, CaretDoubleLeft, CaretDoubleRight, type Icon } from 'phosphor-react';
+import { NavLink, useLocation } from 'react-router';
 import { cn } from '../../utils/cn';
-import { toTitle } from '../../utils/format';
-import { Button } from '../shared/Button';
 
 export type NavOption = {
   label: string;
@@ -14,92 +10,158 @@ export type NavOption = {
   /** Count badge, e.g. items awaiting review. */
   badge?: number;
   end?: boolean;
+  /** Another app (e.g. the admin portal): listed apart from this portal's pages. */
+  external?: boolean;
 
   active?: (path: string) => boolean;
 };
 
 type Props = {
   options: NavOption[];
-  roleLabel: string;
   footer?: React.ReactNode;
 } & React.ComponentProps<'aside'>;
 
-export default function SidePanel({ options, roleLabel, footer, className }: Props) {
-  const session = useSession();
-  const auth = useConsoleAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const user = session?.user;
-
-  const isDeveloperMode = location.pathname.startsWith('/developer');
-  const isOwner = ['owner'].includes(user?.merchantRole ?? '');
-
-  const clss = cn(
-    'flex w-80 shrink-0 flex-col max-lg:hidden p-3 rounded-box bg-primary text-primary-content',
-    className,
+/**
+ * The panel retracts to an icon rail, `--size-sidebar-retract` wide: always on md–lg, and on
+ * larger screens when the user retracts it with the toggle at the bottom. Labels stay as the
+ * accessible name while hidden.
+ */
+const label = (retracted: boolean) => cn('truncate max-lg:sr-only', retracted && 'sr-only');
+const row = (retracted: boolean) =>
+  cn(
+    'btn btn-block h-12 justify-between rounded-none px-5 max-lg:justify-center max-lg:px-0 font-medium',
+    retracted && 'justify-center px-0',
   );
+/** Hidden whenever the panel is a rail. */
+const railHidden = (retracted: boolean) => cn('max-lg:hidden', retracted && 'hidden');
+
+/** The user's choice survives reloads. Storage can be unavailable, so it falls back to open. */
+const retractedKey = 'octap.business.sidebarRetracted';
+const savedRetracted = () => {
+  try {
+    return localStorage.getItem(retractedKey) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * The line beside the active page. When the page changes it stays where it was, stretches until
+ * it reaches the new page, then lets go of the old one, like an inchworm. It sits at the active
+ * row at once on first render, and without motion when the user asks for reduced motion.
+ */
+function useActiveLine(pathname: string) {
+  const nav = useRef<HTMLElement>(null);
+  const line = useRef<HTMLSpanElement>(null);
+  const last = useRef<{ top: number; height: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const list = nav.current;
+    const bar = line.current;
+    if (!list || !bar) return;
+    const active = list.querySelector<HTMLElement>('[data-active]');
+    if (!active) {
+      bar.style.opacity = '0';
+      last.current = null;
+      return;
+    }
+    const box = active.getBoundingClientRect();
+    const top = box.top - list.getBoundingClientRect().top;
+    const next = { top, height: box.height };
+    const from = last.current;
+    last.current = next;
+
+    bar.style.opacity = '1';
+    bar.style.top = `${next.top}px`;
+    bar.style.height = `${next.height}px`;
+    if (!from || from.top === next.top) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Stretch to cover both rows, then shrink onto the new one.
+    const spanTop = Math.min(from.top, next.top);
+    const spanBottom = Math.max(from.top + from.height, next.top + next.height);
+    const animation = bar.animate(
+      [
+        { top: `${from.top}px`, height: `${from.height}px` },
+        { top: `${spanTop}px`, height: `${spanBottom - spanTop}px`, offset: 0.5 },
+        { top: `${next.top}px`, height: `${next.height}px` },
+      ],
+      { duration: 250, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
+    );
+    return () => animation.cancel();
+  }, [pathname]);
+
+  return { nav, line };
+}
+
+export default function SidePanel({ options, footer, className }: Props) {
+  const pages = options.filter((opt) => !opt.external);
+  const external = options.filter((opt) => opt.external);
+  const [retracted, setRetracted] = useState(savedRetracted);
+  const { pathname } = useLocation();
+  const { nav: navRef, line: lineRef } = useActiveLine(pathname);
+  const toggle = () => {
+    setRetracted(!retracted);
+    try {
+      localStorage.setItem(retractedKey, String(!retracted));
+    } catch {
+      /* Storage can be unavailable (private mode, blocked site data). */
+    }
+  };
 
   return (
     <aside
-      className={clss}
-      style={{
-        background: 'linear-gradient(165deg, var(--color-primary) 0%, #a2007b 48%, #7a1068 100%)',
-      }}
-    >
-      <div className="flex items-center gap-4 rounded-field bg-base-100 text-base-content p-2">
-        <img
-          src={user?.avatarUrl || '/icons/logo_light.png'}
-          className="size-16 rounded-box object-cover"
-          alt=""
-        />
-        <div className="min-w-0">
-          <div className="text-sm">
-            {user?.merchantRole ? `${roleLabel} ${toTitle(user.merchantRole)}` : roleLabel}
-          </div>
-          <div className="truncate font-bold">{user?.displayName}</div>
-          <div className="truncate text-xs italic opacity-67">{user?.email}</div>
-        </div>
-      </div>
-
-      {isOwner && (
-        <Button
-          className="btn-block justify-start btn-primary justify-between mt-2"
-          onClick={() => navigate(isDeveloperMode ? '/merchant' : '/developer')}
-        >
-          Switch to {isDeveloperMode ? 'Business' : 'Developer'} mode
-          <ArrowsLeftRight size="1.5em" />
-        </Button>
+      className={cn(
+        // Background turned off for now: 'bg-primary'
+        'flex w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-base-300 text-base-content transition-[width] duration-200 max-md:hidden max-lg:w-(--size-sidebar-retract)',
+        retracted && 'w-(--size-sidebar-retract)',
+        className,
       )}
-
-      <div className="border-b-2 border-dashed border-primary-content/67 my-2"></div>
-
-      <nav className="space-y-1">
-        {options.map((opt) => (
-          <NavLink key={opt.path} to={opt.path} end={opt.end}>
+      // style={{
+      //   background: 'linear-gradient(165deg, var(--color-primary) 0%, #a2007b 48%, #7a1068 100%)',
+      // }}
+    >
+      {/* Switching between the Business and Developer panels lives in the top bar. */}
+      <nav ref={navRef} aria-label="Pages" className="relative flex flex-col">
+        <span
+          ref={lineRef}
+          aria-hidden
+          className="pointer-events-none absolute right-0 z-4 w-1 bg-primary opacity-0"
+        />
+        {pages.map((opt) => (
+          <NavLink key={opt.path} to={opt.path} end={opt.end} title={opt.label}>
             {({ isActive: pathActive }) => {
               const isActive = opt.active ? opt.active(opt.path) : pathActive;
 
               return (
                 <span
+                  data-active={isActive || undefined}
                   className={cn(
-                    'btn btn-block justify-between p-4',
-                    isActive ? '' : 'btn-ghost not-hover:text-white',
+                    row(retracted),
+                    isActive
+                      ? 'border-none bg-primary/10 text-primary'
+                      : 'btn-ghost border-none text-base-content/80 hover:bg-base-200 hover:text-base-content',
                   )}
                 >
-                  <span className="flex items-center gap-2">
-                    {opt.label}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className={label(retracted)}>{opt.label}</span>
                     {!!opt.badge && (
                       <span
                         className={cn(
                           'badge badge-sm',
-                          isActive ? 'badge-neutral' : 'badge-primary',
+                          railHidden(retracted),
+                          isActive ? 'badge-primary' : 'badge-neutral',
                         )}
                       >
                         {opt.badge}
                       </span>
                     )}
                   </span>
-                  <opt.icon size="1.8em" weight={isActive ? 'fill' : 'regular'} />
+                  <opt.icon
+                    size="1.90em"
+                    weight={isActive ? 'fill' : 'regular'}
+                    className={cn('shrink-0 transition-all', { 'mr-1': isActive })}
+                  />
                 </span>
               );
             }}
@@ -107,21 +169,59 @@ export default function SidePanel({ options, roleLabel, footer, className }: Pro
         ))}
       </nav>
 
-      <div className="flex-1"></div>
+      <div className="flex-1 flex items-end">
+        <div
+          className="bg-pattern-grid size-full max-h-36 transition-all"
+          style={{ backgroundSize: '29px 29px', opacity: retracted ? 0.03 : 0.05 }}
+        />
+      </div>
 
       {footer}
 
-      <Button
-        className="btn-block btn-soft btn-error justify-between"
-        onClick={() =>
-          auth
-            ? auth.signOut()
-            : authService.logout().then(() => navigate('/login', { replace: true }))
-        }
+      {external.length > 0 && (
+        <nav aria-label="Other apps" className="flex flex-col border-t border-base-300">
+          {external.map((opt) => (
+            <a
+              key={opt.path}
+              href={opt.path}
+              title={opt.label}
+              className={cn(
+                row(retracted),
+                'btn-ghost border-none text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content',
+              )}
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <opt.icon size="1.2em" className={cn('shrink-0', railHidden(retracted))} />
+                <span className={label(retracted)}>{opt.label}</span>
+              </span>
+              <ArrowSquareOut size="1.2em" className="shrink-0" aria-hidden />
+            </a>
+          ))}
+        </nav>
+      )}
+
+      {/* Below lg the panel is always a rail, so the toggle only shows on larger screens. */}
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={!retracted}
+        title={retracted ? 'Expand sidebar' : 'Collapse sidebar'}
+        className={cn(
+          row(retracted),
+          'btn-ghost border-x-0 border-b-0 border-t border-base-300 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content max-lg:hidden',
+        )}
       >
-        Log-out
-        <SignOut size="1.8em" />
-      </Button>
+        <span className={label(retracted)}>
+          {retracted ? 'Expand sidebar' : 'Collapse sidebar'}
+        </span>
+        {retracted ? (
+          <CaretDoubleRight size="1.2em" className="shrink-0" aria-hidden />
+        ) : (
+          <CaretDoubleLeft size="1.2em" className="shrink-0" aria-hidden />
+        )}
+      </button>
+
+      <div className="h-1 w-full bg-base-300"></div>
     </aside>
   );
 }

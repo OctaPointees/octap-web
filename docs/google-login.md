@@ -45,8 +45,14 @@ is no bootstrap form in this Web delivery. Ownership transfer remains OCT-208.
   active organizations. Legacy Manager/Admin/Staff/Viewer roles are not inferred as Developers.
 - A preexisting email account requires controlled administrator-assisted subject linking;
   the login endpoint cannot attach itself to an existing privileged account.
-- Credentials remain in memory and expire with Google's ID token. Reloading requires
-  sign-in; Refresh access re-verifies Google and reads current Core permissions.
+- Credentials remain in memory and expire with Google's ID token. On reload the portal
+  asks Google for a fresh ID token without a click (automatic sign-in, `auto_select`) and
+  verifies it with Core; it stays on the reloaded page and selected organization. Only a
+  "signed in here before" flag (localStorage) and the tab's organization id (sessionStorage)
+  are stored, never a credential. If Google cannot sign in silently (no Google session,
+  dismissed prompt, browser rate limits), the login page is shown. Sign out clears both
+  and calls `disableAutoSelect`. Refresh access re-verifies Google and reads current Core
+  permissions.
 
 ## Portal routes and onboarding
 
@@ -103,7 +109,8 @@ recipient; no email is sent automatically. The recipient signs in using the addr
 Google email and explicitly accepts. Acceptance is one-time, requires an active inviter
 who is still an Owner, and rejects expired/revoked invitations. Tokens are stored hashed;
 the raw token is returned only when creating the invitation. Links are removed from the
-address bar when opened and kept in memory for the current sign-in attempt.
+address bar when opened. The token moves into router state (never the URL or browser storage)
+and goes with the sign-in to `/onboarding`.
 
 Every operation verifies the current Google credential and rechecks persisted roles,
 memberships and organization status. SYSTEM_ADMIN grants platform access, not tenant
@@ -112,12 +119,13 @@ access. Developer accounts cannot update organization profiles or manage invitat
 The original dashboard components remain available in both modes. Real mode uses
 persisted Core organization/access data and clearly marks analytics or other modules
 that do not have live adapters yet. Mock services cannot serve or mutate data in real
-mode. The original sample charts, analytics and password-demo flow remain available
-only with `VITE_ENABLE_DEMO_AUTH=true`. Campaigns, points, rewards, customer member
+mode. Password demo sign-in has been removed; `VITE_ENABLE_DEMO_AUTH=true` only switches a
+few pages to their old sample charts and analytics. Campaigns, points, rewards, customer member
 directory, full governance, credential issuance and chain program provisioning remain
 separate features; approval here establishes portal access, not a provisioned Sui program.
-Lists currently return at most 100 records. A page reload requires Google sign-in
-again because provider credentials are never persisted in browser storage.
+Lists currently return at most 100 records. Provider credentials are never persisted in
+browser storage: a page reload signs in again through Google's automatic sign-in, or
+shows the login page when Google cannot do that silently.
 
 ## Verification
 

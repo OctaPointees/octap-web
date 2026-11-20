@@ -1,12 +1,12 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
 import { Gauge, HardDrive, Layout, Storefront, Ticket, Users } from 'phosphor-react';
 import PortalLayout from '../../components/layout/PortalLayout';
 import type { NavOption } from '../../components/layout/SidePanel';
-import { useAdminRewards, useAdminSearch } from '../../queries/admin';
+import { usePlatformOrganizationRequests } from '../../queries/organizationRequests';
 
 export default function AdminAppEntryPoint() {
-  const auth = useConsoleAuth();
-  const pending = useAdminRewards('pending_review', !auth).data?.length;
+  const { identity } = useAuth();
+  const requests = usePlatformOrganizationRequests().data;
   const businessPortalUrl =
     import.meta.env.VITE_BUSINESS_PORTAL_URL ||
     (import.meta.env.DEV ? 'http://localhost:5173/' : '');
@@ -18,11 +18,11 @@ export default function AdminAppEntryPoint() {
       label: 'Partners',
       path: '/admin/partners',
       icon: Users,
-      badge: auth?.data.applications?.filter((row) => row.status === 'PENDING').length,
+      badge: requests?.filter((row) => row.status === 'PENDING').length,
     },
-    { label: 'Vouchers', path: '/admin/vouchers', icon: Ticket, badge: pending },
+    { label: 'Vouchers', path: '/admin/vouchers', icon: Ticket },
     { label: 'System Audit', path: '/admin/audit', icon: HardDrive },
-    ...(auth?.identity?.organizations.length && businessPortalUrl
+    ...(identity?.organizations.length && businessPortalUrl
       ? [{ label: 'Business dashboard', path: businessPortalUrl, icon: Storefront }]
       : []),
   ];
@@ -32,24 +32,20 @@ export default function AdminAppEntryPoint() {
       subtitle="System Dashboard"
       roleLabel="Administrator"
       nav={nav}
-      useSearch={
-        auth
-          ? (q: string) => ({
-              data: q.trim()
-                ? auth.data.applications
-                    ?.filter((row) => row.name.toLowerCase().includes(q.toLowerCase()))
-                    .map((row) => ({
-                      id: row.id,
-                      title: row.name,
-                      subtitle: row.status,
-                      type: 'organization request',
-                      to: '/admin/partners',
-                    }))
-                : [],
-              isFetching: false,
-            })
-          : useAdminSearch
-      }
+      useSearch={(q: string) => ({
+        data: q.trim()
+          ? requests
+              ?.filter((row) => row.name.toLowerCase().includes(q.toLowerCase()))
+              .map((row) => ({
+                id: row.id,
+                title: row.name,
+                subtitle: row.status,
+                type: 'organization request',
+                to: '/admin/partners',
+              }))
+          : [],
+        isFetching: false,
+      })}
       searchPlaceholder="Search partners, rewards, tx digests…"
     />
   );

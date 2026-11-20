@@ -1,4 +1,4 @@
-import { ConsoleApiError } from '@octap/shared/google-auth';
+import { ConsoleApiError } from '@octap/shared/console-api';
 import { fieldOfCoreError, type DraftErrors } from './benefit';
 
 /** Every error a form can show, from the form's own checks or from Core. */

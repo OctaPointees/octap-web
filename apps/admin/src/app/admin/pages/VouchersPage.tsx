@@ -43,7 +43,10 @@ function ReviewModal({
       description={`${reward.tenantName} · ${reward.title}`}
       footer={
         <Button
-          className={decision === 'approve' ? 'btn-success' : 'btn-error'}
+          className={cn({
+            'btn-success': decision === 'approve',
+            'btn-error': decision !== 'approve',
+          })}
           disabled={review.isPending}
           onClick={() =>
             review.mutate(
