@@ -11,8 +11,8 @@ const noSearch = () => ({ data: [], isFetching: false });
 /** The Developer panel of the organization in the URL, for its Owners and Developers. */
 export default function DeveloperLayout() {
   const { identity } = useAuth();
-  const { organizationId, membership } = useOrganization();
-  const path = (page?: string) => organizationPath(organizationId, 'developer', page);
+  const { slug, membership } = useOrganization();
+  const path = (page?: string) => organizationPath(slug, 'developer', page);
 
   const nav: NavOption[] = [
     { label: 'Dashboard', path: path(), icon: House, end: true },

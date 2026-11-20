@@ -216,9 +216,8 @@ export default function RewardForm({
               type="submit"
               form="reward-form"
               className="btn-primary"
-              disabled={save.isPending}
+              loading={save.isPending}
             >
-              {save.isPending && <span className="loading loading-spinner loading-sm" />}
               {editing ? 'Save' : 'Save as draft'}
             </Button>
           </>

@@ -19,7 +19,7 @@ import Dashboard from './console/Dashboard';
 import Members from './console/Members';
 import Rewards from './console/Rewards';
 
-/** Pages of one organization, under `/organizations/:organizationId`. */
+/** Pages of one organization, under `/organizations/:slug`. */
 const organizationRoutes: RouteObject[] = [
   { index: true, element: <OrganizationHome /> },
   {
@@ -64,7 +64,7 @@ const routes: RouteObject[] = [
         ],
       },
       {
-        path: '/organizations/:organizationId',
+        path: '/organizations/:slug',
         element: <OrganizationProvider />,
         children: organizationRoutes,
       },

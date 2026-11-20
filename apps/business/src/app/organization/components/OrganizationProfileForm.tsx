@@ -1,184 +1,276 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { Field } from '@base-ui/react/field';
+import { Info } from 'phosphor-react';
 import { unwrap, useAuth } from '@octap/shared/authentication';
 import type {
   ConsoleOrganizationsOrganizationResponse as ConsoleOrganization,
   IdentityChangePayload,
   OrganizationType,
 } from '@octap/internal-sdk';
+import { Button } from '@/components/shared/Button';
+import { CopyButton, FormField, TextInput } from '@/components/shared/Controls';
+import { StatusBadge } from '@/components/shared/Display';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import { formFields, organizationTypeLabel } from '../utils';
 
-/**
- * The Owner's organization settings. The name saves straight away. Identity fields (type, legal
- * name, tax number, representative, CCCD) only change through an UPDATE_IDENTITY change request,
- * which needs a reason and a System Admin's approval, so the form sends only the ones that changed.
- */
-export function OrganizationProfileForm({ organization }: { organization: ConsoleOrganization }) {
-  const { identity } = useAuth();
-  const { run, busy } = useOrganizationAction();
-  const [type, setType] = useState<OrganizationType | ''>(organization.organizationType ?? '');
-  const [error, setError] = useState('');
-  if (!identity) return null;
+/** A settings card: fields in the body, Cancel and Save in a footer. */
+function SettingsForm({
+  onSubmit,
+  onCancel,
+  dirty,
+  busy,
+  submitLabel,
+  error,
+  children,
+}: {
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onCancel: () => void;
+  dirty: boolean;
+  busy: boolean;
+  submitLabel: string;
+  error?: string;
+  children: ReactNode;
+}) {
   return (
     <form
-      className="grid gap-4 max-w-xl"
+      onSubmit={onSubmit}
+      className="flex flex-col rounded-box border border-base-300 bg-base-100"
+    >
+      <div className="flex flex-col gap-5 p-5">{children}</div>
+      <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-base-300 px-5 py-3">
+        {error && (
+          <p role="alert" className="mr-auto text-sm text-error">
+            {error}
+          </p>
+        )}
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm"
+          disabled={!dirty || busy}
+          onClick={onCancel}
+        >
+          Cancel
+        </button>
+        <Button type="submit" className="btn-primary btn-sm" disabled={!dirty} loading={busy}>
+          {submitLabel}
+        </Button>
+      </footer>
+    </form>
+  );
+}
+
+/** A labelled read-only value, laid out like a form field. */
+function ReadOnlyField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-sm font-medium">{label}</span>
+      <div className="flex min-h-10 items-center gap-2 text-sm">{children}</div>
+    </div>
+  );
+}
+
+/** The organization's name (saved straight away), its slug and its status. */
+export function OrganizationGeneralForm({ organization }: { organization: ConsoleOrganization }) {
+  const { run, busy } = useOrganizationAction();
+  const [name, setName] = useState(organization.name);
+  const dirty = name.trim() !== organization.name;
+
+  return (
+    <SettingsForm
+      dirty={dirty}
+      busy={busy}
+      submitLabel="Save"
+      onCancel={() => setName(organization.name)}
       onSubmit={(event) => {
-        const form = formFields(event);
-        if (!type) return;
-        const field = (key: string) => String(form.get(key) ?? '').trim();
-        const name = field('name');
-        const reason = field('reason');
-
-        // Only what differs from what Core has, so the request shows the real change.
-        const changes: IdentityChangePayload = {};
-        if (type !== organization.organizationType) changes.organizationType = type;
-        if (type === 'COMPANY') {
-          if (field('legalName') !== (organization.legalName ?? ''))
-            changes.legalName = field('legalName');
-          if (field('taxId') !== (organization.taxId ?? '')) changes.taxId = field('taxId');
-        } else {
-          if (field('representativeName') !== (organization.representativeName ?? ''))
-            changes.representativeName = field('representativeName');
-          if (field('nationalId')) changes.nationalId = field('nationalId');
-        }
-        const renamed = name !== organization.name;
-        const identityChanged = Object.keys(changes).length > 0;
-
-        if (!renamed && !identityChanged) return setError('Nothing has changed.');
-        if (identityChanged && reason.length < 3)
-          return setError('Give a reason so a System Admin can review the identity change.');
-        setError('');
-
-        run(
-          async (api) => {
-            const organizationId = organization.id;
-            if (renamed) await unwrap(api.console.profile({ organizationId, body: { name } }));
-            if (identityChanged)
-              await unwrap(
-                api.console.propose({
-                  organizationId,
-                  body: { requestType: 'UPDATE_IDENTITY', reason, payload: changes },
-                }),
-              );
-          },
-          identityChanged
-            ? renamed
-              ? 'Name saved. Identity change sent for approval'
-              : 'Identity change sent for approval'
-            : 'Organization name saved',
-        );
+        formFields(event);
+        run(async (api) => {
+          await unwrap(
+            api.console.profile({
+              organizationId: organization.id,
+              body: { name: name.trim() },
+            }),
+          );
+        }, 'Organization name saved');
       }}
     >
-      <h2 className="font-semibold">Organization settings</h2>
+      <FormField label="Organization name">
+        <TextInput
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
+          minLength={2}
+          maxLength={160}
+        />
+      </FormField>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <ReadOnlyField label="Slug">
+          <code className="truncate font-mono">{organization.slug}</code>
+          <CopyButton value={organization.slug} />
+        </ReadOnlyField>
+        <ReadOnlyField label="Status">
+          <StatusBadge status={organization.status.toLowerCase()} />
+        </ReadOnlyField>
+      </div>
+    </SettingsForm>
+  );
+}
+
+/**
+ * The organization's legal identity. Core only changes it through an UPDATE_IDENTITY change
+ * request, which needs a reason and a System Admin's approval, so the form sends only the fields
+ * that differ from what Core has, and asks for the reason once something has changed.
+ */
+export function OrganizationIdentityForm({ organization }: { organization: ConsoleOrganization }) {
+  const { identity } = useAuth();
+  const { run, busy } = useOrganizationAction();
+  const initial = {
+    type: organization.organizationType ?? '',
+    legalName: organization.legalName ?? '',
+    taxId: organization.taxId ?? '',
+    representativeName: organization.representativeName ?? identity?.user.fullName ?? '',
+    nationalId: '',
+    reason: '',
+  };
+  const [values, setValues] = useState(initial);
+  const [error, setError] = useState('');
+  const set = (key: keyof typeof initial) => (value: string) =>
+    setValues((current) => ({ ...current, [key]: value }));
+
+  // Only what differs from what Core has, so the request shows the real change.
+  const changes: IdentityChangePayload = {};
+  const type = values.type as OrganizationType | '';
+  if (type && type !== organization.organizationType) changes.organizationType = type;
+  if (type === 'COMPANY') {
+    if (values.legalName.trim() !== (organization.legalName ?? ''))
+      changes.legalName = values.legalName.trim();
+    if (values.taxId.trim() !== (organization.taxId ?? '')) changes.taxId = values.taxId.trim();
+  } else if (type === 'INDIVIDUAL_HOUSEHOLD') {
+    if (values.representativeName.trim() !== (organization.representativeName ?? ''))
+      changes.representativeName = values.representativeName.trim();
+    if (values.nationalId.trim()) changes.nationalId = values.nationalId.trim();
+  }
+  const dirty = Object.keys(changes).length > 0;
+
+  return (
+    <SettingsForm
+      dirty={dirty}
+      busy={busy}
+      submitLabel="Request change"
+      error={error}
+      onCancel={() => {
+        setValues(initial);
+        setError('');
+      }}
+      onSubmit={(event) => {
+        formFields(event);
+        const reason = values.reason.trim();
+        if (reason.length < 3)
+          return setError('Add a reason so a System Admin can review the change.');
+        setError('');
+        run(async (api) => {
+          await unwrap(
+            api.console.propose({
+              organizationId: organization.id,
+              body: { requestType: 'UPDATE_IDENTITY', reason, payload: changes },
+            }),
+          );
+        }, 'Change sent for approval');
+      }}
+    >
+      <p className="flex items-start gap-2 text-sm opacity-70">
+        <Info size={18} className="mt-0.5 shrink-0" aria-hidden />
+        Changes here go to a System Admin for review and apply once approved.
+      </p>
+
       {organization.organizationType ? (
-        <p>{organizationTypeLabel(organization.organizationType)}</p>
+        <ReadOnlyField label="Type">
+          {organizationTypeLabel(organization.organizationType)}
+        </ReadOnlyField>
       ) : (
-        <label>
-          Organization type
+        <FormField label="Type">
           <select
-            className="select select-bordered w-full"
-            value={type}
+            className="select w-full"
+            value={values.type}
             required
-            onChange={(event) => setType(event.target.value as OrganizationType)}
+            onChange={(event) => set('type')(event.target.value)}
           >
             <option value="">Select an organization type</option>
             <option value="INDIVIDUAL_HOUSEHOLD">Individual / Household business</option>
             <option value="COMPANY">Company (registered legal entity)</option>
           </select>
-        </label>
+        </FormField>
       )}
-      <label>
-        Organization name
-        <input
-          name="name"
-          className="input input-bordered w-full"
-          defaultValue={organization.name}
-          required
-          minLength={2}
-          maxLength={160}
-        />
-      </label>
-      {type === 'COMPANY' ? (
-        <>
-          <label>
-            Company legal name
-            <input
-              name="legalName"
-              className="input input-bordered w-full"
-              defaultValue={organization.legalName ?? ''}
+
+      {type === 'COMPANY' && (
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FormField label="Company legal name">
+            <TextInput
+              value={values.legalName}
+              onChange={(event) => set('legalName')(event.target.value)}
               required
               minLength={2}
               maxLength={160}
             />
-          </label>
-          <label>
-            Business registration / tax number
-            <input
-              name="taxId"
-              className="input input-bordered w-full"
-              defaultValue={organization.taxId ?? ''}
+          </FormField>
+          <FormField label="Registration / tax number">
+            <TextInput
+              value={values.taxId}
+              onChange={(event) => set('taxId')(event.target.value)}
               required
               pattern="[A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9]"
               maxLength={32}
             />
-          </label>
-        </>
-      ) : type === 'INDIVIDUAL_HOUSEHOLD' ? (
-        <>
-          <label>
-            Owner / representative full name
-            <input
-              name="representativeName"
-              className="input input-bordered w-full"
-              defaultValue={organization.representativeName ?? identity.user.fullName}
+          </FormField>
+        </div>
+      )}
+
+      {type === 'INDIVIDUAL_HOUSEHOLD' && (
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FormField label="Owner or representative">
+            <TextInput
+              value={values.representativeName}
+              onChange={(event) => set('representativeName')(event.target.value)}
               required
               minLength={2}
               maxLength={160}
             />
-          </label>
-          <p className="text-sm">
-            {organization.nationalIdLast4
-              ? `Saved CCCD: ••••••••${organization.nationalIdLast4}, not verified`
-              : 'No CCCD saved. Verification will be available in a later phase.'}
-          </p>
-          <label>
-            Update CCCD number
-            <input
-              name="nationalId"
-              className="input input-bordered w-full"
+          </FormField>
+          <FormField
+            label="CCCD number"
+            hint={
+              organization.nationalIdLast4
+                ? `Saved: ••••${organization.nationalIdLast4}, not verified. Leave blank to keep it.`
+                : 'None saved. Saving one does not verify your identity.'
+            }
+          >
+            <TextInput
+              value={values.nationalId}
+              onChange={(event) => set('nationalId')(event.target.value)}
               inputMode="numeric"
               pattern="[0-9]{12}"
               maxLength={12}
               autoComplete="off"
-              placeholder="Leave blank to keep the saved CCCD"
             />
-          </label>
-          <p className="text-sm opacity-65">
-            Only a Business Owner can update CCCD. Saving it does not verify your identity.
-          </p>
-        </>
-      ) : null}
-      <label>
-        Reason for identity changes
-        <textarea
-          name="reason"
-          className="textarea textarea-bordered w-full"
-          maxLength={1000}
-          placeholder="Needed only when you change the type, legal name, tax number, representative or CCCD"
-        />
-      </label>
-      <p className="text-sm opacity-65">
-        The name saves straight away. Identity changes go to a System Admin for approval and apply
-        once approved.
-      </p>
-      {error && (
-        <p role="alert" className="text-sm text-error">
-          {error}
-        </p>
+          </FormField>
+        </div>
       )}
-      <button className="btn btn-primary" disabled={busy || !type}>
-        Save changes
-      </button>
-    </form>
+
+      {dirty && (
+        <Field.Root className="flex flex-col gap-1">
+          <Field.Label className="text-sm font-medium">Reason for the change</Field.Label>
+          <Field.Control
+            render={<textarea />}
+            className="textarea w-full"
+            value={values.reason}
+            onChange={(event) => set('reason')(event.target.value)}
+            maxLength={1000}
+            required
+          />
+          <Field.Description className="text-xs opacity-60">
+            A System Admin reads this when reviewing the request.
+          </Field.Description>
+        </Field.Root>
+      )}
+    </SettingsForm>
   );
 }

@@ -65,10 +65,10 @@ export default function ImportRewards({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             className="btn-primary"
-            disabled={running || !ready.length}
+            disabled={!ready.length}
+            loading={running}
             onClick={() => void createAll()}
           >
-            {running && <span className="loading loading-spinner loading-sm" />}
             Create {ready.length} draft{ready.length === 1 ? '' : 's'}
           </Button>
         </>

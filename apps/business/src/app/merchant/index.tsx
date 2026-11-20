@@ -13,8 +13,8 @@ const noSearch = () => ({ data: [], isFetching: false });
 /** The Business panel of the organization in the URL, for its Owners. */
 export default function MerchantLayout() {
   const { identity } = useAuth();
-  const { organizationId, membership } = useOrganization();
-  const path = (page?: string) => organizationPath(organizationId, 'merchant', page);
+  const { slug, membership } = useOrganization();
+  const path = (page?: string) => organizationPath(slug, 'merchant', page);
 
   const nav: NavOption[] = [
     { label: 'Dashboard', path: path(), icon: Layout, end: true },

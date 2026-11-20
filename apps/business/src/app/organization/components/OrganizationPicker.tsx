@@ -148,15 +148,13 @@ export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string
               <OrganizationCard
                 entry={entry}
                 onOpen={
-                  entry.persona && entry.organizationId
-                    ? () =>
-                        navigate(organizationPath(entry.organizationId!, panelFor(entry.persona!)))
+                  entry.persona && entry.slug
+                    ? () => navigate(organizationPath(entry.slug!, panelFor(entry.persona!)))
                     : undefined
                 }
                 onSettings={
-                  entry.persona === 'BUSINESS_OWNER' && entry.organizationId
-                    ? () =>
-                        navigate(organizationPath(entry.organizationId!, 'merchant', 'settings'))
+                  entry.persona === 'BUSINESS_OWNER' && entry.slug
+                    ? () => navigate(organizationPath(entry.slug!, 'merchant', 'settings'))
                     : undefined
                 }
               />

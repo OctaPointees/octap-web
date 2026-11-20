@@ -483,10 +483,10 @@ function AvailabilityDialog({
           </Button>
           <Button
             className="btn-primary"
-            disabled={!fresh || Boolean(totalError || limitError) || save.isPending}
+            disabled={!fresh || Boolean(totalError || limitError)}
+            loading={save.isPending}
             onClick={() => save.mutate()}
           >
-            {save.isPending && <span className="loading loading-spinner loading-sm" />}
             Save
           </Button>
         </>

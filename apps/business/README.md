@@ -29,9 +29,10 @@ start Core with its migrations applied. See
 - Users already in organizations can skip setup. Core permissions are refreshed first:
   one organization opens directly, multiple organizations lead to `/organizations`, and
   no active memberships stays in onboarding. Skipping grants no new privileges.
-- Every dashboard page has the organization in its URL: `/organizations/:id/merchant/…`
-  (Business panel, Owners only) and `/organizations/:id/developer/…` (Developer panel).
-  `/organizations/:id` opens the panel for your role, and links can be bookmarked or shared
+- Every dashboard page has the organization in its URL: `/organizations/:slug/merchant/…`
+  (Business panel, Owners only) and `/organizations/:slug/developer/…` (Developer panel).
+  `/organizations/:slug` opens the panel for your role. A link with the organization ID
+  instead of its slug redirects to the slug, and links can be bookmarked or shared
   with other members. Old `/merchant` and `/developer` links go to the organization list.
 - Owners enter `merchant`. `merchant/settings` updates permitted profile fields and
   optional CCCD; `merchant/team` lists staff and creates/revokes Developer invitations.

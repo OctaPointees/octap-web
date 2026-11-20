@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { Button } from '@/components/shared/Button';
 import { unwrap } from '@octap/shared/authentication';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import { dashboardPath, formFields } from '../utils';
@@ -42,9 +43,9 @@ export function InvitationForm({ token }: { token: string }) {
           pattern="[a-f0-9]{64}"
         />
       </label>
-      <button className="btn btn-outline" disabled={busy}>
+      <Button type="submit" className="btn-outline" loading={busy}>
         Accept invitation
-      </button>
+      </Button>
     </form>
   );
 }

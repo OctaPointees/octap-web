@@ -9,6 +9,7 @@ import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import type { OrganizationType } from '@octap/internal-sdk';
 import { unwrap } from '@octap/shared/authentication';
 import { organizationTypeLabel } from '../utils';
+import { Button } from '@/components/shared/Button';
 
 const initialDetails = (fullName: string) => ({
   name: '',
@@ -277,14 +278,9 @@ export function OrganizationSetup() {
                     >
                       Back
                     </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      disabled={busy}
-                      onClick={submit}
-                    >
-                      {busy ? 'Submitting…' : 'Submit'}
-                    </button>
+                    <Button className="btn-primary" loading={busy} onClick={submit}>
+                      Submit
+                    </Button>
                   </Actions>
                 </>
               )}

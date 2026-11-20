@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@octap/shared/authentication';
+import { Button } from '@/components/shared/Button';
 import { unwrap } from '@octap/shared/authentication';
 import { useOrganization } from '../hooks/useOrganization';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
@@ -83,9 +84,9 @@ export function TeamManager() {
           Developer email
           <input name="email" type="email" required className="input input-bordered ml-2" />
         </label>
-        <button className="btn btn-primary" disabled={busy}>
+        <Button type="submit" className="btn-primary" loading={busy}>
           Invite Developer
-        </button>
+        </Button>
       </form>
       {inviteLink && (
         <label className="block">

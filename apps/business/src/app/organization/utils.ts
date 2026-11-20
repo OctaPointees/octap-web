@@ -8,13 +8,13 @@ export type Panel = 'merchant' | 'developer';
 export const panelFor = (persona: string): Panel =>
   persona === 'BUSINESS_OWNER' ? 'merchant' : 'developer';
 
-/** `/organizations/:organizationId`, then the panel and page when given. */
-export const organizationPath = (organizationId: string, panel?: Panel, page?: string) =>
-  ['/organizations', organizationId, panel, page].filter(Boolean).join('/');
+/** `/organizations/:slug`, then the panel and page when given. */
+export const organizationPath = (slug: string, panel?: Panel, page?: string) =>
+  ['/organizations', slug, panel, page].filter(Boolean).join('/');
 
 /** The dashboard to open for an organization the user belongs to. */
-export const dashboardPath = (org: { organizationId: string; persona: string }) =>
-  organizationPath(org.organizationId, panelFor(org.persona));
+export const dashboardPath = (org: { slug: string; persona: string }) =>
+  organizationPath(org.slug, panelFor(org.persona));
 
 /** Query keys for one organization's data. Signing out clears them all. */
 export const organizationKeys = {

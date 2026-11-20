@@ -193,7 +193,7 @@ export function PanelMenu() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   if (!organization) return null;
-  const pathOf = (panel: Panel) => organizationPath(organization.organizationId, panel);
+  const pathOf = (panel: Panel) => organizationPath(organization.slug, panel);
   const current = PANELS.find((option) => pathname.startsWith(pathOf(option.panel)));
   if (!current) return null;
   const available = organization.owner

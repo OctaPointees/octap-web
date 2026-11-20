@@ -8,7 +8,7 @@ export default function ConnectedDashboard({ developer = false }: { developer?: 
   const organization = useOrganization();
   const org = organization.organization;
   const path = (panel: 'merchant' | 'developer', page: string) =>
-    organizationPath(organization.organizationId, panel, page);
+    organizationPath(organization.slug, panel, page);
   return (
     <>
       <PageHeader
