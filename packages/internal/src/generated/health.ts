@@ -5,7 +5,9 @@ import type * as OpenApi from './openapi.js';
 
 /** OpenAPI endpoint methods for the health API group. */
 export class HealthApi extends ApiGroup {
-  constructor(http: HttpClient) { super(http); }
+  constructor(http: HttpClient) {
+    super(http);
+  }
   /** Sends a GET request to /health. */
   check(): Promise<OctapResponse<OpenApi.HealthCheckResponse>> {
     return this.request<OpenApi.HealthCheckResponse>({
