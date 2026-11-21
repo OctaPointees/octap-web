@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
 import { fmtPercent, toTitle } from '../../utils/format';
 import { Sparkline } from '../charts/Sparkline';
-import { Button } from './Button';
+import { Button } from '@octap/shared/components';
 
 /* --------------------------------------------------------------- PageHeader */
 
@@ -11,13 +11,16 @@ export function PageHeader({
   title,
   description,
   actions,
+  icon,
 }: {
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
+  icon?: ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 mb-4 mt-8">
+      {icon}
       <div>
         <h1 className="text-3xl font-bold tracking-tight capitalize">{title}</h1>
         {description && <p className="mt-1 max-w-4xl text-sm opacity-65">{description}</p>}

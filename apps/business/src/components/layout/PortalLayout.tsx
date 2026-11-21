@@ -10,6 +10,8 @@ type Props = {
   nav: NavOption[];
   useSearch: (q: string) => { data?: SearchResult[]; isFetching: boolean };
   searchPlaceholder?: string;
+  /** Above the sidebar's pages; told whether the sidebar is a rail. */
+  sideHeader?: (retracted: boolean) => ReactNode;
   sideFooter?: ReactNode;
   /** Full-width pages such as the organization picker: no side panel, centered content. */
   hideSidebar?: boolean;
@@ -20,6 +22,7 @@ export default function PortalLayout({
   nav,
   useSearch,
   searchPlaceholder,
+  sideHeader,
   sideFooter,
   hideSidebar = false,
 }: Props) {
@@ -39,6 +42,7 @@ export default function PortalLayout({
         {!hideSidebar && (
           <SidePanel
             options={nav}
+            header={sideHeader}
             footer={sideFooter}
             className="sticky top-(--size-main-toolbar) h-[calc(100dvh-var(--size-main-toolbar))]"
           />

@@ -18,7 +18,7 @@ import { cn } from '@/utils/cn';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
-import { organizationPath, panelFor } from '../utils';
+import { organizationPath } from '../utils';
 import type { ConsoleIdentity } from '@octap/shared/authentication';
 import type {
   ConsoleOrganizationsApplicationsResponse,
@@ -149,12 +149,13 @@ export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string
                 entry={entry}
                 onOpen={
                   entry.persona && entry.slug
-                    ? () => navigate(organizationPath(entry.slug!, panelFor(entry.persona!)))
+                    ? () => navigate(organizationPath(entry.slug!))
                     : undefined
                 }
                 onSettings={
-                  entry.persona === 'BUSINESS_OWNER' && entry.slug
-                    ? () => navigate(organizationPath(entry.slug!, 'merchant', 'settings'))
+                  // Every member can read the settings; only the Owner can change them.
+                  entry.persona && entry.slug
+                    ? () => navigate(organizationPath(entry.slug!, 'settings'))
                     : undefined
                 }
               />

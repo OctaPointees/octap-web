@@ -3,6 +3,7 @@ import { Switch as BaseSwitch } from '@base-ui/react/switch';
 import { Tabs } from '@base-ui/react/tabs';
 import { Check, Copy, ArrowSquareOut } from 'phosphor-react';
 import { useState, type ReactNode } from 'react';
+import { Button } from '@octap/shared/components';
 import { cn } from '../../utils/cn';
 import { shortHash } from '../../utils/format';
 
@@ -134,9 +135,8 @@ export function TextInput({
 export function CopyButton({ value, label }: { value: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <button
-      type="button"
-      className="btn btn-ghost btn-xs gap-1"
+    <Button
+      className="btn-ghost btn-xs min-w-0"
       onClick={(e) => {
         e.stopPropagation();
         navigator.clipboard?.writeText(value);
@@ -145,9 +145,11 @@ export function CopyButton({ value, label }: { value: string; label?: string }) 
       }}
       aria-label={`Copy ${label ?? 'value'}`}
     >
-      {copied ? <Check className="text-success" /> : <Copy />}
-      {label}
-    </button>
+      <span className="flex items-center gap-1">
+        {copied ? <Check className="text-success" /> : <Copy />}
+        {label}
+      </span>
+    </Button>
   );
 }
 

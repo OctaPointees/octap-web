@@ -1,4 +1,16 @@
-import { MutationCache, QueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryClient, type QueryKey } from '@tanstack/react-query';
+
+declare module '@tanstack/react-query' {
+  interface Register {
+    mutationMeta: {
+      /**
+       * The queries this mutation makes stale. Leave it out to refresh everything visible; pass
+       * `[]` when the mutation already updates the cache from Core's answer.
+       */
+      invalidates?: readonly QueryKey[];
+    };
+  }
+}
 
 /** HTTP status of a failed request, when the error carries one (the SDK's `OctapError`). */
 const statusOf = (error: unknown) =>
@@ -16,9 +28,11 @@ export const queryClient: QueryClient = new QueryClient({
     },
   },
   mutationCache: new MutationCache({
-    // Every write may affect what is on screen, so refresh anything visible.
-    onSuccess: () => {
-      void queryClient.invalidateQueries();
+    onSuccess: (_data, _variables, _context, mutation) => {
+      const keys = mutation.meta?.invalidates;
+      // By default a write may affect anything on screen, so refresh it all.
+      if (!keys) void queryClient.invalidateQueries();
+      else for (const queryKey of keys) void queryClient.invalidateQueries({ queryKey });
     },
   }),
 });

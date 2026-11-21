@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { RequireSignIn } from '@octap/shared/authentication';
 import BusinessRoot from './Root';
-import { RequireOwner } from './guards';
 import NotFoundPage from './NotFoundPage';
 import AuthenticationEntryPoint from './auth';
 
@@ -9,45 +8,35 @@ import OrganizationLayout from './organization';
 import { OrganizationProvider } from './organization/context/OrganizationProvider';
 import OrganizationsPage from './organization/pages/OrganizationsPage';
 import OnboardingPage from './organization/pages/OnboardingPage';
-import OrganizationHome from './organization/pages/OrganizationHome';
-import { OrganizationSettings } from './organization/components/OrganizationSettings';
 
-import MerchantLayout from './merchant';
-import DeveloperLayout from './developer';
-import DeveloperApiKeysPage from './developer/pages/ApiKeysPage';
-import Dashboard from './console/Dashboard';
-import Members from './console/Members';
-import Rewards from './console/Rewards';
+import WorkspaceLayout from './workspace';
+import { LegacyPanelRedirect } from './workspace/LegacyPanelRedirect';
+import DashboardPage from './dashboard';
+import RewardsPage from './rewards';
+import MembersPage from './members';
+import ApiKeysPage from './api-keys';
+import TeamPage from './team';
+import SettingsPage from './settings';
 
-/** Pages of one organization, under `/organizations/:slug`. */
+/**
+ * Pages of one organization, under `/organizations/:slug`, one per feature. Who may do what on a
+ * page is decided by the page from the user's role; the sidebar focus only filters the menu.
+ */
 const organizationRoutes: RouteObject[] = [
-  { index: true, element: <OrganizationHome /> },
   {
-    path: 'merchant',
-    element: <RequireOwner />,
+    element: <WorkspaceLayout />,
     children: [
-      {
-        element: <MerchantLayout />,
-        children: [
-          { index: true, element: <Dashboard /> },
-          { path: 'rewards', element: <Rewards /> },
-          { path: 'members', element: <Members /> },
-          { path: 'settings', element: <OrganizationSettings view="profile" /> },
-          { path: 'team', element: <OrganizationSettings view="team" /> },
-        ],
-      },
+      { index: true, element: <DashboardPage /> },
+      { path: 'rewards', element: <RewardsPage /> },
+      { path: 'members', element: <MembersPage /> },
+      { path: 'api-keys', element: <ApiKeysPage /> },
+      { path: 'team', element: <TeamPage /> },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
-  {
-    path: 'developer',
-    element: <DeveloperLayout />,
-    children: [
-      { index: true, element: <Dashboard developer /> },
-      { path: 'api-keys', element: <DeveloperApiKeysPage /> },
-      { path: 'members', element: <Members /> },
-      { path: 'rewards', element: <Rewards /> },
-    ],
-  },
+  // Pages used to be split into a Business and a Developer panel.
+  { path: 'merchant/*', element: <LegacyPanelRedirect /> },
+  { path: 'developer/*', element: <LegacyPanelRedirect /> },
 ];
 
 const routes: RouteObject[] = [

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { cn } from '../../utils/cn';
 import type { NavOption } from './SidePanel';
-import { OrganizationMenu, PageMenu, PanelMenu } from './ToolbarMenus';
+import { OrganizationMenu, PageMenu, FocusMenu } from './ToolbarMenus';
 
 export type SearchResult = {
   id: string;
@@ -46,11 +46,6 @@ const Slash = ({ className }: { className?: string }) => (
   </span>
 );
 
-/**
- * The top bar, laid out like Supabase's: logo / organization / panel on the left, then search
- * (Ctrl K or Cmd K focuses it) and the account menu on the right. Full width, flat, with a
- * bottom border; `PortalLayout` makes it sticky.
- */
 export default function MainToolbar({
   nav,
   placeholder = 'Search…',
@@ -101,7 +96,10 @@ export default function MainToolbar({
   };
 
   return (
-    <div className="flex h-(--size-main-toolbar) items-center gap-2 border-b border-base-300 bg-base-100 pr-4 pl-1">
+    <div
+      className="shadow-xs flex h-(--size-main-toolbar) items-center gap-2 border-b border-base-300 bg-base-100 pr-4 pl-1 bg-pattern-left-corner-grid"
+      style={{ backgroundSize: '20px 20px' }}
+    >
       <Menu.Root>
         <Menu.Trigger
           className="btn btn-ghost btn-square btn-sm -ml-1 md:hidden"
@@ -132,11 +130,11 @@ export default function MainToolbar({
           aria-label="OctaP Credit System home"
           className="flex shrink-0 items-center justify-center rounded-field hover:bg-base-200 w-(--size-sidebar-retract)"
         >
-          <img src="/icons/logo_light.png" className="h-7" alt="" />
+          <img src="/favicon.svg" className="h-10" alt="" />
         </Link>
         <Slash />
         <OrganizationMenu label={subtitle} />
-        <PanelBreadcrumb nav={nav} />
+        <FocusBreadcrumb nav={nav} />
       </nav>
 
       {/* Phones get pages from the menu button instead: the bar has no room for search. */}
@@ -219,16 +217,16 @@ export default function MainToolbar({
 }
 
 /**
- * The panel and page segments, shown only inside the Business or Developer panel. Below `md`
- * the page segment hides (the menu button lists pages); below `sm` the panel hides too.
+ * The focus and page segments, shown only inside an organization. Below `md` the page segment
+ * hides (the menu button lists pages); below `sm` the focus hides too.
  */
-function PanelBreadcrumb({ nav }: { nav: NavOption[] }) {
+function FocusBreadcrumb({ nav }: { nav: NavOption[] }) {
   if (!useCurrentOrganization()) return null;
   return (
     <>
       <Slash className="max-sm:hidden" />
       <span className="flex min-w-0 shrink max-sm:hidden">
-        <PanelMenu />
+        <FocusMenu />
       </span>
       <Slash className="max-md:hidden" />
       <span className="flex min-w-0 shrink max-md:hidden">

@@ -9,7 +9,7 @@ import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import type { OrganizationType } from '@octap/internal-sdk';
 import { unwrap } from '@octap/shared/authentication';
 import { organizationTypeLabel } from '../utils';
-import { Button } from '@/components/shared/Button';
+import { Button } from '@octap/shared/components';
 
 const initialDetails = (fullName: string) => ({
   name: '',

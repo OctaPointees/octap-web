@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Button } from '@/components/shared/Button';
+import { Button } from '@octap/shared/components';
 import { unwrap } from '@octap/shared/authentication';
 import { useOrganizationAction } from '../hooks/useOrganizationAction';
 import { dashboardPath, formFields } from '../utils';
