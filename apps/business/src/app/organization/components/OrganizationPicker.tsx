@@ -18,13 +18,15 @@ import { cn } from '@/utils/cn';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
-import { organizationPath, panelFor } from '../utils';
+import { organizationPath } from '../utils';
+import type { ConsoleIdentity } from '@octap/shared/authentication';
 import type {
-  ConsoleIdentity,
-  OrganizationApplication,
+  ConsoleOrganizationsApplicationsResponse,
   OrganizationPersona,
   OrganizationType,
-} from '@octap/shared/console-api';
+} from '@octap/internal-sdk';
+
+type OrganizationApplication = ConsoleOrganizationsApplicationsResponse[number];
 
 type Status = 'ACTIVE' | 'PENDING_REVIEW' | 'SUSPENDED' | 'ARCHIVED';
 
@@ -146,15 +148,14 @@ export function OrganizationPicker({ adminPortalUrl }: { adminPortalUrl?: string
               <OrganizationCard
                 entry={entry}
                 onOpen={
-                  entry.persona && entry.organizationId
-                    ? () =>
-                        navigate(organizationPath(entry.organizationId!, panelFor(entry.persona!)))
+                  entry.persona && entry.slug
+                    ? () => navigate(organizationPath(entry.slug!))
                     : undefined
                 }
                 onSettings={
-                  entry.persona === 'BUSINESS_OWNER' && entry.organizationId
-                    ? () =>
-                        navigate(organizationPath(entry.organizationId!, 'merchant', 'settings'))
+                  // Every member can read the settings; only the Owner can change them.
+                  entry.persona && entry.slug
+                    ? () => navigate(organizationPath(entry.slug!, 'settings'))
                     : undefined
                 }
               />

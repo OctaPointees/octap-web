@@ -29,29 +29,43 @@ start Core with its migrations applied. See
 - Users already in organizations can skip setup. Core permissions are refreshed first:
   one organization opens directly, multiple organizations lead to `/organizations`, and
   no active memberships stays in onboarding. Skipping grants no new privileges.
-- Every dashboard page has the organization in its URL: `/organizations/:id/merchant/…`
-  (Business panel, Owners only) and `/organizations/:id/developer/…` (Developer panel).
-  `/organizations/:id` opens the panel for your role, and links can be bookmarked or shared
-  with other members. Old `/merchant` and `/developer` links go to the organization list.
-- Owners enter `merchant`. `merchant/settings` updates permitted profile fields and
-  optional CCCD; `merchant/team` lists staff and creates/revokes Developer invitations.
-  CCCD responses are masked and Core encrypts the stored value.
-- Developers enter `developer`; `developer/api-keys` lists safe credential metadata.
-  They cannot manage organization profiles or invitations.
-- Owners use `merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
-- Owners manage the reward catalog at `merchant/rewards`; Developers have read-only
-  `developer/rewards`. A reward is saved as a draft, then activated as a separate, confirmed
-  step: Core publishes its terms on-chain through the worker (`Publishing…`, then `Live`, or
-  `Publish failed` with a retry), after which its title, type, points, conditions and dates
-  can never change; only the number available, pause and resume can. Owners can start from a
-  template, duplicate a reward, or import a CSV (template in the import dialog) of drafts.
+- Every page has the organization in its URL and is grouped by feature:
+  `/organizations/:slug` (dashboard), `rewards`, `members`, `api-keys`, `team` and
+  `settings`. A link with the organization ID instead of its slug redirects to the slug, and
+  links can be bookmarked or shared with other members. Older `…/merchant/…` and
+  `…/developer/…` links redirect to the same page; top-level `/merchant` and `/developer`
+  links go to the organization list.
+- The Business / Developer switch, at the top of the sidebar and in the top bar, only picks
+  which pages the sidebar lists. It is remembered per browser and defaults to Business for
+  Owners and Developer for Developers. It grants nothing: each page decides what you can do
+  from your role, as Core does.
+- `settings` shows the name, slug, status and legal identity. Owners rename directly and send
+  identity changes for System Admin approval; Developers see the same sections read-only,
+  without the saved CCCD. CCCD responses are masked and Core encrypts the stored value.
+- `team` lists staff and creates/revokes Developer invitations. Core lets only the Owner read
+  it, so Developers see that the section is closed.
+- `api-keys` lists safe credential metadata; only Owners can issue write keys.
+- `members` offers paginated customer search and balance detail; only Owners edit profile and
+  status. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
+- `rewards` shows the catalog as cards or a table (remembered per browser), filtered by stage.
+  Owners and Developers create and edit drafts, from scratch, a template, a duplicate or a CSV
+  import. Activating publishes the terms on-chain through the worker (`Publishing`, then `Live`,
+  or `Publish failed` with a retry); after that the title, type, points, conditions and dates
+  never change. Only the Owner pauses, resumes or changes availability. When the organization
+  requires approval, a Developer submits a draft instead, and the Owner approves or rejects it.
 - Reward kinds: percent off, amount off and free item map to Core's `discountType`; buy X get Y,
   free delivery, special price and custom rewards are described only by `terms`. Conditions
   (minimum order, maximum discount, applies to) also go in `terms`, shaped as
-  `{ schema: 'octap.benefit.v1', kind, … }` (see `src/app/console/rewards/benefit.ts`).
+  `{ schema: 'octap.benefit.v1', kind, … }` (see `src/app/rewards/domain/draft.ts`).
   Core publishes `terms` but does not enforce it: the merchant applies it at checkout.
 - Invite links require the addressed Google identity and explicit one-time acceptance.
-- Dashboard modules without live adapters report that they are not connected.
+- The dashboard follows the sidebar focus. Business shows what needs attention, the points
+  budget, member statistics, top rewards, the reward pipeline and what closes soon. Developer
+  shows integration setup, API key use and webhook health (Owner only, as in Core). Core has no
+  organization-wide stats yet, so member statistics are counted in the browser from up to 1,000
+  members and shown as a sample above that.
+- Charts live in `@octap/shared/components/charts`, named by the shape of their data. Pages pass
+  plain data, and each chart library stays inside its own folder there.
 - Provider credentials stay in memory, not localStorage/sessionStorage. Reloading requires
   sign-in again. Each organization's data is cached under its own ID; sign-out clears the cache. The real portal
   uses no OctaP SDK or custom Redis session.

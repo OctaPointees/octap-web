@@ -18,6 +18,8 @@ export type NavOption = {
 
 type Props = {
   options: NavOption[];
+  /** Above the pages, such as a menu switch. Told whether the panel is a rail. */
+  header?: (retracted: boolean) => React.ReactNode;
   footer?: React.ReactNode;
 } & React.ComponentProps<'aside'>;
 
@@ -50,7 +52,7 @@ const savedRetracted = () => {
  * it reaches the new page, then lets go of the old one, like an inchworm. It sits at the active
  * row at once on first render, and without motion when the user asks for reduced motion.
  */
-function useActiveLine(pathname: string) {
+function useActiveLine(pathname: string, pages: string) {
   const nav = useRef<HTMLElement>(null);
   const line = useRef<HTMLSpanElement>(null);
   const last = useRef<{ top: number; height: number } | null>(null);
@@ -89,17 +91,21 @@ function useActiveLine(pathname: string) {
       { duration: 250, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
     );
     return () => animation.cancel();
-  }, [pathname]);
+  }, [pathname, pages]);
 
   return { nav, line };
 }
 
-export default function SidePanel({ options, footer, className }: Props) {
+export default function SidePanel({ options, header, footer, className }: Props) {
   const pages = options.filter((opt) => !opt.external);
   const external = options.filter((opt) => opt.external);
   const [retracted, setRetracted] = useState(savedRetracted);
   const { pathname } = useLocation();
-  const { nav: navRef, line: lineRef } = useActiveLine(pathname);
+  // The line follows the page, and the menu too: another menu can list the same page elsewhere.
+  const { nav: navRef, line: lineRef } = useActiveLine(
+    pathname,
+    pages.map((page) => page.path).join('|'),
+  );
   const toggle = () => {
     setRetracted(!retracted);
     try {
@@ -113,7 +119,7 @@ export default function SidePanel({ options, footer, className }: Props) {
     <aside
       className={cn(
         // Background turned off for now: 'bg-primary'
-        'flex w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-base-300 text-base-content transition-[width] duration-200 max-md:hidden max-lg:w-(--size-sidebar-retract)',
+        'flex w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-base-300 bg-base-100 text-base-content transition-[width] duration-200 max-md:hidden max-lg:w-(--size-sidebar-retract) shadow-md',
         retracted && 'w-(--size-sidebar-retract)',
         className,
       )}
@@ -121,12 +127,12 @@ export default function SidePanel({ options, footer, className }: Props) {
       //   background: 'linear-gradient(165deg, var(--color-primary) 0%, #a2007b 48%, #7a1068 100%)',
       // }}
     >
-      {/* Switching between the Business and Developer panels lives in the top bar. */}
+      {header && <div className="border-b border-base-300">{header(retracted)}</div>}
       <nav ref={navRef} aria-label="Pages" className="relative flex flex-col">
         <span
           ref={lineRef}
           aria-hidden
-          className="pointer-events-none absolute right-0 z-4 w-1 bg-primary opacity-0"
+          className="pointer-events-none absolute right-0 z-4 w-(--size-sidebar-thumb) bg-primary opacity-0"
         />
         {pages.map((opt) => (
           <NavLink key={opt.path} to={opt.path} end={opt.end} title={opt.label}>
@@ -160,7 +166,10 @@ export default function SidePanel({ options, footer, className }: Props) {
                   <opt.icon
                     size="1.90em"
                     weight={isActive ? 'fill' : 'regular'}
-                    className={cn('shrink-0 transition-all', { 'mr-1': isActive })}
+                    className={cn(
+                      'shrink-0 transition-transform duration-(--motion-base) ease-enter',
+                      { '-translate-x-1': isActive },
+                    )}
                   />
                 </span>
               );
@@ -171,7 +180,7 @@ export default function SidePanel({ options, footer, className }: Props) {
 
       <div className="flex-1 flex items-end">
         <div
-          className="bg-pattern-grid size-full max-h-36 transition-all"
+          className="bg-pattern-grid size-full max-h-36 transition-opacity"
           style={{ backgroundSize: '29px 29px', opacity: retracted ? 0.03 : 0.05 }}
         />
       </div>
@@ -220,8 +229,6 @@ export default function SidePanel({ options, footer, className }: Props) {
           <CaretDoubleLeft size="1.2em" className="shrink-0" aria-hidden />
         )}
       </button>
-
-      <div className="h-1 w-full bg-base-300"></div>
     </aside>
   );
 }

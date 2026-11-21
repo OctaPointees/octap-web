@@ -5,17 +5,16 @@ import {
   Buildings,
   CaretDown,
   Check,
-  Code,
   ListBullets,
   PlusCircle,
   SignOut,
-  Storefront,
 } from 'phosphor-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { notify } from '@octap/shared/components';
 import { useCurrentOrganization } from '@/app/organization/hooks/useOrganization';
-import { dashboardPath, organizationPath, type Panel } from '@/app/organization/utils';
+import { dashboardPath } from '@/app/organization/utils';
+import { FOCUSES, useFocus, useSwitchFocus, type Focus } from '@/app/workspace/focus';
 import { cn } from '../../utils/cn';
 import type { NavOption } from './SidePanel';
 
@@ -168,71 +167,40 @@ export function OrganizationMenu({ label }: { label: string }) {
   );
 }
 
-const PANELS: { panel: Panel; label: string; description: string; icon: typeof Code }[] = [
-  {
-    panel: 'merchant',
-    label: 'Business',
-    description: 'Members, rewards and settings',
-    icon: Storefront,
-  },
-  {
-    panel: 'developer',
-    label: 'Developer',
-    description: 'API keys, members and rewards',
-    icon: Code,
-  },
-];
-
 /**
- * The panel segment (Business or Developer), in place of Supabase's branch. Owners switch
- * between both; a Developer has only the Developer panel, so it is a plain label. Hidden on
- * pages outside a panel, such as the organization picker.
+ * The focus segment (Business or Developer), in place of Supabase's branch. It picks which menu the
+ * sidebar shows and keeps the URL as it is. Both roles can switch: what each may do on a page is
+ * still up to their role. Use it only inside an organization.
  */
-export function PanelMenu() {
-  const organization = useCurrentOrganization();
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  if (!organization) return null;
-  const pathOf = (panel: Panel) => organizationPath(organization.organizationId, panel);
-  const current = PANELS.find((option) => pathname.startsWith(pathOf(option.panel)));
-  if (!current) return null;
-  const available = organization.owner
-    ? PANELS
-    : PANELS.filter((option) => option.panel === 'developer');
-  const content = (
-    <>
-      <current.icon size={16} className="shrink-0 opacity-70" />
-      <span className="truncate">{current.label}</span>
-    </>
-  );
-
-  if (available.length < 2)
-    return <span className={cn(segment, 'hover:bg-transparent')}>{content}</span>;
+export function FocusMenu() {
+  const focus = useFocus();
+  const switchTo = useSwitchFocus();
+  const current = FOCUSES[focus];
 
   return (
     <Menu.Root>
-      <Menu.Trigger className={segment} aria-label={`Switch panel (current: ${current.label})`}>
-        {content}
+      <Menu.Trigger className={segment} aria-label={`Switch menu (current: ${current.label})`}>
+        <current.icon size={16} className="shrink-0 opacity-70" />
+        <span className="truncate">{current.label}</span>
         <CaretDown size={14} className="shrink-0 opacity-50" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={6} align="start" className="z-50">
           <Menu.Popup className={popup}>
-            <div className="px-3 pt-1 pb-1 text-xs font-medium opacity-60">Panels</div>
-            {available.map((panel) => (
-              <Menu.Item
-                key={panel.panel}
-                className={item}
-                onClick={() => panel !== current && navigate(pathOf(panel.panel))}
-              >
-                <Check size={16} className={cn(panel !== current && 'invisible')} />
-                <panel.icon size={18} className="shrink-0 opacity-70" />
-                <span className="min-w-0">
-                  <span className="block">{panel.label}</span>
-                  <span className="block text-xs opacity-60">{panel.description}</span>
-                </span>
-              </Menu.Item>
-            ))}
+            <div className="px-3 pt-1 pb-1 text-xs font-medium opacity-60">Menu</div>
+            {(Object.keys(FOCUSES) as Focus[]).map((option) => {
+              const { label, description, icon: OptionIcon } = FOCUSES[option];
+              return (
+                <Menu.Item key={option} className={item} onClick={() => switchTo(option)}>
+                  <Check size={16} className={cn(option !== focus && 'invisible')} />
+                  <OptionIcon size={18} className="shrink-0 opacity-70" />
+                  <span className="min-w-0">
+                    <span className="block">{label}</span>
+                    <span className="block text-xs opacity-60">{description}</span>
+                  </span>
+                </Menu.Item>
+              );
+            })}
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

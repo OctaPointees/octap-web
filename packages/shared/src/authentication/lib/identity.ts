@@ -1,8 +1,5 @@
-import {
-  createConsoleClient,
-  type ConsoleIdentity,
-  type ConsoleClient,
-} from '../../console-api/client';
+import type { OctapClient } from '@octap/internal-sdk';
+import { unwrap, type ConsoleIdentity } from './core';
 
 /** Rejects anything Core should never send, so the app never runs on a malformed identity. */
 export function readIdentity(body: ConsoleIdentity): ConsoleIdentity {
@@ -23,20 +20,13 @@ export function readIdentity(body: ConsoleIdentity): ConsoleIdentity {
 
 /** Exchanges a Google ID token for the OctaP identity. Core verifies the token's signature. */
 export async function verifyGoogleCredential(
-  apiBaseUrl: string,
+  api: OctapClient,
   idToken: string,
-  signal?: AbortSignal,
 ): Promise<ConsoleIdentity> {
-  const client = createConsoleClient({ apiBaseUrl });
-  return readIdentity(await client.loginConsoleWithGoogle(idToken, { signal }));
+  return readIdentity(await unwrap(api.console.login({ idToken })));
 }
 
 /** Reads the current identity again, for example after an action changed its access. */
-export async function fetchIdentity(
-  client: ConsoleClient,
-  signal?: AbortSignal,
-): Promise<ConsoleIdentity> {
-  return readIdentity(
-    await client.getConsoleIdentity({ signal: signal ?? AbortSignal.timeout(30_000) }),
-  );
+export async function fetchIdentity(api: OctapClient): Promise<ConsoleIdentity> {
+  return readIdentity(await unwrap(api.console.me()));
 }

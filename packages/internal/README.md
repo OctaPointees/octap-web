@@ -2,7 +2,7 @@
 
 Browser TypeScript client for the OctaP Core API. Endpoint methods and DTO types are generated from `docs/openapi.json`, which is a copy of `docs/openapi.json` in `octap-core`.
 
-It covers the Core routes a signed-in console user can call from the browser (63 of Core's 85 operations). Merchant routes that need an API key (credits, rewards, webhooks, customer verification) are left out; they belong to `@octap/sdk`, which runs server-side with credentials. `packages/services` holds hand-written API modules for the features the portals use today (rewards, API credentials) on top of the `@octap/shared` transport. Those modules can move onto this SDK one at a time.
+It covers the Core routes a signed-in console user can call from the browser (63 of Core's 85 operations). Merchant routes that need an API key (credits, rewards, webhooks, customer verification) are left out; they belong to `@octap/sdk`, which runs server-side with credentials. The portals reach it through `useAuth().api` from `@octap/shared/authentication`, which builds one client per session. `packages/services` wraps the API credential routes on top of that client.
 
 ## Installation
 

@@ -3,6 +3,7 @@ import { Switch as BaseSwitch } from '@base-ui/react/switch';
 import { Tabs } from '@base-ui/react/tabs';
 import { Check, Copy, ArrowSquareOut } from 'phosphor-react';
 import { useState, type ReactNode } from 'react';
+import { Button } from '@octap/shared/components';
 import { cn } from '../../utils/cn';
 import { shortHash } from '../../utils/format';
 
@@ -16,7 +17,10 @@ type SegmentedProps<T extends string> = {
   className?: string;
 };
 
-/** Pill-style tab bar (Base UI Tabs), used for ranges and view switches. */
+/**
+ * Pill-style tab bar (Base UI Tabs), used for filters and view switches. The indicator slides to
+ * the chosen tab, except with the keyboard, where it moves at once.
+ */
 export function Segmented<T extends string>({
   value,
   onValueChange,
@@ -26,20 +30,20 @@ export function Segmented<T extends string>({
 }: SegmentedProps<T>) {
   return (
     <Tabs.Root value={value} onValueChange={(v) => onValueChange(v as T)} className={className}>
-      <Tabs.List className="relative z-0 inline-flex gap-1 rounded-field bg-base-200 p-1">
+      <Tabs.List className="relative z-0 inline-flex gap-1 rounded-field border border-base-300 bg-base-100 p-1">
         {options.map((o) => (
           <Tabs.Tab
             key={o.value}
             value={o.value}
             className={cn(
-              'cursor-pointer rounded-field px-3 font-medium whitespace-nowrap opacity-60 outline-none transition-opacity select-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary data-active:opacity-100',
+              'inline-flex min-w-20 cursor-pointer items-center justify-center gap-1.5 rounded-field px-3 font-medium whitespace-nowrap opacity-70 outline-none transition-[opacity,color] duration-(--motion-fast) select-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 data-active:font-bold data-active:text-primary-content data-active:opacity-100',
               size === 'sm' ? 'h-7 text-xs' : 'h-9 text-sm',
             )}
           >
             {o.label}
           </Tabs.Tab>
         ))}
-        <Tabs.Indicator className="absolute top-1/2 left-0 -z-1 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-1/2 rounded-field bg-base-100 shadow-sm transition-all duration-200" />
+        <Tabs.Indicator className="absolute top-1/2 left-0 -z-1 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-1/2 rounded-field bg-primary transition-[translate,width,height] duration-(--motion-base) ease-move [:has(:focus-visible)>&]:transition-none" />
       </Tabs.List>
     </Tabs.Root>
   );
@@ -134,9 +138,8 @@ export function TextInput({
 export function CopyButton({ value, label }: { value: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <button
-      type="button"
-      className="btn btn-ghost btn-xs gap-1"
+    <Button
+      className="btn-ghost btn-xs min-w-0"
       onClick={(e) => {
         e.stopPropagation();
         navigator.clipboard?.writeText(value);
@@ -145,9 +148,11 @@ export function CopyButton({ value, label }: { value: string; label?: string }) 
       }}
       aria-label={`Copy ${label ?? 'value'}`}
     >
-      {copied ? <Check className="text-success" /> : <Copy />}
-      {label}
-    </button>
+      <span className="flex items-center gap-1">
+        {copied ? <Check className="text-success" /> : <Copy />}
+        {label}
+      </span>
+    </Button>
   );
 }
 

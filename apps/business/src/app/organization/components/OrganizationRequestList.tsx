@@ -7,7 +7,9 @@ import { useAuth } from '@octap/shared/authentication';
 import { useNavigate } from 'react-router';
 import { dashboardPath } from '../utils';
 import { useOrganizationRequests } from '../hooks/useOrganizationRequests';
-import type { OrganizationApplication } from '@octap/shared/console-api';
+import type { ConsoleOrganizationsApplicationsResponse } from '@octap/internal-sdk';
+
+type OrganizationApplication = ConsoleOrganizationsApplicationsResponse[number];
 
 const STATUS: Record<OrganizationApplication['status'], { label: string; badge: string }> = {
   PENDING: { label: 'Pending review', badge: 'badge-warning' },

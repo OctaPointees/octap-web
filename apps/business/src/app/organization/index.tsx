@@ -2,6 +2,7 @@ import { Buildings, PlusCircle } from 'phosphor-react';
 import { useAuth } from '@octap/shared/authentication';
 import PortalLayout from '@/components/layout/PortalLayout';
 import { platformAdminLinks } from '@/components/layout/nav';
+import { StatusBar } from '@/app/status/components/StatusBar';
 
 const noSearch = () => ({ data: [], isFetching: false });
 
@@ -16,5 +17,13 @@ export default function OrganizationLayout() {
     { label: 'Organization onboarding', path: '/onboarding', icon: PlusCircle },
     ...platformAdminLinks(identity),
   ];
-  return <PortalLayout subtitle="OctaP Organization" hideSidebar nav={nav} useSearch={noSearch} />;
+  return (
+    <PortalLayout
+      subtitle="OctaP Organization"
+      hideSidebar
+      nav={nav}
+      useSearch={noSearch}
+      statusBar={<StatusBar />}
+    />
+  );
 }

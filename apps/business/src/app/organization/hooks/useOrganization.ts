@@ -1,11 +1,10 @@
 import { useContext } from 'react';
 import { OrganizationContext, type CurrentOrganization } from '../context/OrganizationContext';
 
-/** The organization in the URL. Must be used on a page under `/organizations/:organizationId`. */
+/** The organization in the URL. Must be used on a page under `/organizations/:slug`. */
 export function useOrganization(): CurrentOrganization {
   const current = useContext(OrganizationContext);
-  if (!current)
-    throw new Error('useOrganization() must be used under /organizations/:organizationId.');
+  if (!current) throw new Error('useOrganization() must be used under /organizations/:slug.');
   return current;
 }
 

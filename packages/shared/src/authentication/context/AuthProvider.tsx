@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { createConsoleClient, type ConsoleIdentity } from '../../console-api/client';
+import { createCoreClient, type ConsoleIdentity } from '../lib/core';
+import { createTokenHolder } from '../lib/token';
 import { disableGoogleAutoSelect, silentGoogleSignIn } from '../lib/google';
 import { fetchIdentity } from '../lib/identity';
 import { resumeFlag } from '../lib/resume';
@@ -25,7 +26,8 @@ export function AuthProvider({
   onSessionEnd,
   children,
 }: AuthProviderProps) {
-  const credential = useRef('');
+  // The Google ID token, in memory only. Created once; the SDK client reads it per request.
+  const [token] = useState(createTokenHolder);
   const [identity, setIdentity] = useState<ConsoleIdentity>();
   const [error, setError] = useState('');
   const [resuming, setResuming] = useState(() => !!clientId && resumeFlag.get(portal));
@@ -35,50 +37,64 @@ export function AuthProvider({
     sessionEnd.current = onSessionEnd;
   });
 
-  const client = useCallback(
-    () => createConsoleClient({ apiBaseUrl, getAuthToken: () => credential.current }),
-    [apiBaseUrl],
+  // Ends the session without asking: the token expired, or Core stopped accepting it.
+  const expire = useCallback(() => {
+    if (!token.get()) return;
+    token.clear();
+    setIdentity(undefined);
+    setError('Your Google sign-in has expired. Sign in again.');
+    sessionEnd.current?.('expired');
+  }, [token]);
+
+  // One client for the whole session. It reads the token for every request, so it never needs
+  // rebuilding when the user signs in or out.
+  const api = useMemo(
+    () =>
+      createCoreClient({
+        apiBaseUrl,
+        getAccessToken: token.get,
+        onUnauthorized: token.unauthorized,
+      }),
+    [apiBaseUrl, token],
   );
+  useEffect(() => token.onUnauthorized(expire), [token, expire]);
 
   const signIn = useCallback(
-    (next: ConsoleIdentity, token: string) => {
-      credential.current = token;
+    (next: ConsoleIdentity, credential: string) => {
+      token.set(credential);
       resumeFlag.set(portal);
       setIdentity(next);
       setError('');
     },
-    [portal],
+    [portal, token],
   );
 
   const signOut = useCallback(() => {
     resumeFlag.clear(portal);
     disableGoogleAutoSelect();
-    credential.current = '';
+    token.clear();
     setIdentity(undefined);
     setError('');
     sessionEnd.current?.('sign-out');
-  }, [portal]);
+  }, [portal, token]);
 
-  const refresh = useCallback(
-    async (signal?: AbortSignal) => {
-      const next = await fetchIdentity(client(), signal);
-      setIdentity(next);
-      return next;
-    },
-    [client],
-  );
+  const refresh = useCallback(async () => {
+    const next = await fetchIdentity(api);
+    setIdentity(next);
+    return next;
+  }, [api]);
 
   // On load after an earlier sign-in, ask Google for a fresh token instead of the login form.
   // The attempt lives in a ref so StrictMode's double effect does not prompt Google twice.
   useEffect(() => {
     if (!resuming) return;
     let active = true;
-    resumeAttempt.current ??= silentGoogleSignIn({ clientId, apiBaseUrl });
+    resumeAttempt.current ??= silentGoogleSignIn({ clientId, api });
     void resumeAttempt.current.result.then((result) => {
       if (!active) return;
       resumeAttempt.current = undefined;
       if (result) {
-        credential.current = result.credential;
+        token.set(result.credential);
         setIdentity(result.identity);
       } else resumeFlag.clear(portal);
       setResuming(false);
@@ -86,7 +102,7 @@ export function AuthProvider({
     return () => {
       active = false;
     };
-  }, [resuming, clientId, apiBaseUrl, portal]);
+  }, [resuming, clientId, api, portal, token]);
 
   const cancelResume = useCallback(() => resumeAttempt.current?.cancel(), []);
 
@@ -94,16 +110,11 @@ export function AuthProvider({
   useEffect(() => {
     if (!identity) return;
     const timer = window.setTimeout(
-      () => {
-        credential.current = '';
-        setIdentity(undefined);
-        setError('Your Google sign-in has expired. Sign in again.');
-        sessionEnd.current?.('expired');
-      },
+      expire,
       Math.max(0, Date.parse(identity.expiresAt) - Date.now()),
     );
     return () => window.clearTimeout(timer);
-  }, [identity]);
+  }, [identity, expire]);
 
   const value = useMemo<AuthSession>(
     () => ({
@@ -117,7 +128,7 @@ export function AuthProvider({
       signOut,
       cancelResume,
       refresh,
-      client,
+      api,
     }),
     [
       portal,
@@ -130,7 +141,7 @@ export function AuthProvider({
       signOut,
       cancelResume,
       refresh,
-      client,
+      api,
     ],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

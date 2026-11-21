@@ -1,26 +1,30 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@octap/shared/authentication';
 import { notify } from '@octap/shared/components';
-import type { ConsoleClient, ConsoleIdentity } from '@octap/shared/console-api';
+import type { OctapClient } from '@octap/internal-sdk';
+import type { ConsoleIdentity } from '@octap/shared/authentication';
 
-type Action = (client: ConsoleClient) => Promise<void>;
+/** Calls Core through the SDK; wrap each call in `unwrap` so a failure throws. */
+type Action = (api: OctapClient) => Promise<void>;
 
 /**
  * Runs an organization action against Core, then reads the identity again so access changes
  * (a new organization, a removed membership) show at once. The result is a toast: `success`
- * when not empty, or the error.
+ * when not empty, or the error. Leave `success` empty when the result stays on screen, and pass
+ * `savedAt` to the button as its `successKey`.
  */
 export function useOrganizationAction() {
-  const { client, refresh } = useAuth();
+  const { api, refresh } = useAuth();
   const mutation = useMutation({
     mutationFn: async (action: Action) => {
-      await action(client());
+      await action(api);
       return refresh();
     },
   });
 
   return {
     busy: mutation.isPending,
+    savedAt: mutation.isSuccess ? mutation.submittedAt : null,
     run: (action: Action, success: string, after?: (identity: ConsoleIdentity) => void) =>
       mutation.mutate(action, {
         onSuccess: (identity) => {

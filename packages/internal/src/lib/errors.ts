@@ -6,8 +6,8 @@ export type OctapErrorCode =
   | 'NETWORK_ERROR';
 
 /**
- * Error returned by every SDK method. Like `ConsoleApiError` in `@octap/shared`, it is a plain
- * `Error` plus the HTTP status, so callers can tell 400 from 403 without a transport-specific type.
+ * Error returned by every SDK method: a plain `Error` plus the HTTP status, so callers can tell
+ * 400 from 403 without a transport-specific type.
  */
 export class OctapError extends Error {
   override readonly name = 'OctapError';
