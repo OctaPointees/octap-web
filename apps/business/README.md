@@ -59,7 +59,13 @@ start Core with its migrations applied. See
   `{ schema: 'octap.benefit.v1', kind, … }` (see `src/app/rewards/domain/draft.ts`).
   Core publishes `terms` but does not enforce it: the merchant applies it at checkout.
 - Invite links require the addressed Google identity and explicit one-time acceptance.
-- Dashboard modules without live adapters report that they are not connected.
+- The dashboard follows the sidebar focus. Business shows what needs attention, the points
+  budget, member statistics, top rewards, the reward pipeline and what closes soon. Developer
+  shows integration setup, API key use and webhook health (Owner only, as in Core). Core has no
+  organization-wide stats yet, so member statistics are counted in the browser from up to 1,000
+  members and shown as a sample above that.
+- Charts live in `@octap/shared/components/charts`, named by the shape of their data. Pages pass
+  plain data, and each chart library stays inside its own folder there.
 - Provider credentials stay in memory, not localStorage/sessionStorage. Reloading requires
   sign-in again. Each organization's data is cached under its own ID; sign-out clears the cache. The real portal
   uses no OctaP SDK or custom Redis session.

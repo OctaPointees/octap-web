@@ -30,6 +30,8 @@ export const memberKeys = {
   all: (organizationId: string) => ['console', 'organization', organizationId, 'members'] as const,
   list: (organizationId: string, filters: MemberFilters, cursor: string) =>
     [...memberKeys.all(organizationId), 'list', filters, cursor] as const,
+  /** Not under `list`: saving a member patches every entry there as a page of rows. */
+  stats: (organizationId: string) => [...memberKeys.all(organizationId), 'stats'] as const,
   detail: (organizationId: string, memberId: string) =>
     [...memberKeys.all(organizationId), 'detail', memberId] as const,
   transactions: (organizationId: string, memberId: string) =>
@@ -131,6 +133,8 @@ export function useUpdateMember(member: Member) {
             items: page.items.map((row) => (row.id === member.id ? { ...row, ...patch } : row)),
           },
       );
+      if (body.status !== undefined || body.externalMemberId !== undefined)
+        void cache.invalidateQueries({ queryKey: memberKeys.stats(organizationId) });
       notify.success('Member saved', member.displayName ?? member.email ?? undefined);
     },
     onError: (cause) => notify.error(cause, 'Could not save the member'),
