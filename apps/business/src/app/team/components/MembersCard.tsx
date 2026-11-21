@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@octap/shared/authentication';
-import { Button, ConfirmDialog, useExitValue } from '@octap/shared/components';
+import { Button, ConfirmDialog, useExitValue, useRowFlash } from '@octap/shared/components';
 import { StatusBadge } from '@/components/shared/Display';
 import { cn } from '@/utils/cn';
 import { useDeveloperAccess, type TeamMember } from '../hooks/useTeam';
@@ -28,6 +28,7 @@ export function MembersCard({
 }) {
   const { identity } = useAuth();
   const access = useDeveloperAccess();
+  const { flashRow, isFlashing } = useRowFlash();
   const [suspending, setSuspending] = useState<TeamMember | null>(null);
   const suspendingShown = useExitValue(suspending);
   const sorted = [...(members ?? [])].sort(
@@ -44,13 +45,18 @@ export function MembersCard({
       ) : error ? (
         <TeamCardMessage error={error} onRetry={onRetry} />
       ) : (
-        <ul className="divide-y divide-base-300">
+        <ul className="animate-reveal divide-y divide-base-300">
           {sorted.map((member) => {
             const owner = member.persona === 'BUSINESS_OWNER';
             const you = member.id === identity?.user.id;
             const suspended = member.status === 'SUSPENDED';
             return (
-              <li key={member.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
+              <li
+                key={member.id}
+                className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3', {
+                  'animate-flash-row': isFlashing(member.id),
+                })}
+              >
                 <span
                   aria-hidden
                   className={cn(
@@ -84,7 +90,10 @@ export function MembersCard({
                       disabled={!!busyWith}
                       onClick={() =>
                         suspended
-                          ? access.mutate({ member, status: 'ACTIVE' })
+                          ? access.mutate(
+                              { member, status: 'ACTIVE' },
+                              { onSuccess: () => flashRow(member.id) },
+                            )
                           : setSuspending(member)
                       }
                     >
@@ -110,7 +119,12 @@ export function MembersCard({
           suspending &&
           access.mutate(
             { member: suspending, status: 'SUSPENDED' },
-            { onSettled: () => setSuspending(null) },
+            {
+              onSuccess: ({ member }) => {
+                flashRow(member.id);
+                setSuspending(null);
+              },
+            },
           )
         }
       />

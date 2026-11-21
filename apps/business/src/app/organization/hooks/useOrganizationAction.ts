@@ -10,7 +10,8 @@ type Action = (api: OctapClient) => Promise<void>;
 /**
  * Runs an organization action against Core, then reads the identity again so access changes
  * (a new organization, a removed membership) show at once. The result is a toast: `success`
- * when not empty, or the error.
+ * when not empty, or the error. Leave `success` empty when the result stays on screen, and pass
+ * `savedAt` to the button as its `successKey`.
  */
 export function useOrganizationAction() {
   const { api, refresh } = useAuth();
@@ -23,6 +24,7 @@ export function useOrganizationAction() {
 
   return {
     busy: mutation.isPending,
+    savedAt: mutation.isSuccess ? mutation.submittedAt : null,
     run: (action: Action, success: string, after?: (identity: ConsoleIdentity) => void) =>
       mutation.mutate(action, {
         onSuccess: (identity) => {

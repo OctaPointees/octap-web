@@ -225,6 +225,7 @@ function MemberEditForm({ member }: { member: Member }) {
           className="btn-primary btn-sm"
           disabled={!dirty}
           loading={update.isPending}
+          successKey={update.isSuccess ? update.submittedAt : null}
         >
           Save
         </Button>

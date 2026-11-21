@@ -74,7 +74,7 @@ function MemberFigures({ stats }: { stats: MemberStats }) {
     capped ? 'of sampled members' : `${share(count, counted)} of members`;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="animate-reveal flex flex-col gap-6">
       {capped && (
         <p className="flex items-start gap-2 text-sm opacity-70">
           <Info size={16} className="mt-0.5 shrink-0" aria-hidden />

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FileArrowUp, Plus, Rows, SquaresFour, Ticket } from 'phosphor-react';
-import { Button, createColumnHelper, Table } from '@octap/shared/components';
+import { Button, createColumnHelper, notify, Table, useRowFlash } from '@octap/shared/components';
+import { Segmented } from '@/components/shared/Controls';
 import { EmptyState, ErrorState, PageHeader } from '@/components/shared/Display';
 import { cn } from '@/utils/cn';
 import { fmtDate } from '@/utils/format';
@@ -8,7 +9,12 @@ import { describePoints } from './domain/describe';
 import { duplicateOf, fromReward, type Reward } from './domain/draft';
 import { KINDS } from './domain/kinds';
 import { FILTER_OF, FILTERS, STAGES, stageOf, type Filter } from './domain/stage';
-import { useRewardAction, useRewardPermissions, useRewards } from './hooks/useRewards';
+import {
+  useRewardAction,
+  useRewardPermissions,
+  useRewards,
+  type RewardReport,
+} from './hooks/useRewards';
 import { ImportDialog } from './components/ImportDialog';
 import type { RewardIntent } from './components/intents';
 import { RewardActions, RewardPrimaryAction } from './components/RewardActions';
@@ -39,9 +45,16 @@ const column = createColumnHelper<Reward>();
 export default function RewardsPage() {
   const list = useRewards();
   const permissionsOf = useRewardPermissions();
-  const run = useRewardAction();
   const [filter, setFilter] = useState<Filter>('all');
   const [view, setView] = useState<View>(savedView);
+  const { flashRow, isFlashing } = useRowFlash();
+  // The tint shows the result. If the current filter hides that reward, a toast says it instead.
+  const report: RewardReport = (saved, message) => {
+    flashRow(saved.id);
+    if (filter !== 'all' && FILTER_OF[stageOf(saved)] !== filter)
+      notify.success(message, saved.title);
+  };
+  const run = useRewardAction(report);
   // The panel keeps its last mode while it slides away, so it closes with `panelOpen` only.
   const [panel, setPanelMode] = useState<RewardPanelMode | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -199,28 +212,19 @@ export default function RewardsPage() {
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div
-          role="tablist"
-          aria-label="Filter by stage"
-          className="tabs tabs-box tabs-sm *:min-w-24"
-        >
-          {FILTERS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={filter === value}
-              className={cn(
-                'tab gap-1.5 transition-all',
-                filter === value && 'tab-active bg-primary text-primary-content font-bold',
-              )}
-              onClick={() => setFilter(value)}
-            >
-              {label}
-              <span className="text-xs opacity-60 tabular-nums">{counts[value]}</span>
-            </button>
-          ))}
-        </div>
+        <Segmented
+          value={filter}
+          onValueChange={setFilter}
+          options={FILTERS.map(({ value, label }) => ({
+            value,
+            label: (
+              <>
+                {label}
+                <span className="text-xs opacity-70 tabular-nums">{counts[value]}</span>
+              </>
+            ),
+          }))}
+        />
         <div role="radiogroup" aria-label="Display" className="join">
           {(
             [
@@ -267,13 +271,14 @@ export default function RewardsPage() {
           }
         />
       ) : view === 'cards' ? (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="animate-reveal grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {rewards.map((reward) => (
             <li key={reward.id}>
               <RewardCard
                 reward={reward}
                 permissions={permissionsOf(reward)}
                 busy={busyWith === reward.id}
+                highlighted={isFlashing(reward.id)}
                 onIntent={onIntent}
               />
             </li>
@@ -281,8 +286,10 @@ export default function RewardsPage() {
         </ul>
       ) : (
         <Table
+          className="animate-reveal"
           data={rewards}
           columns={columns}
+          highlightRow={(reward) => isFlashing(reward.id)}
           rowProps={(reward) => ({
             tabIndex: 0,
             className: 'cursor-pointer hover:bg-primary/5',
@@ -298,10 +305,16 @@ export default function RewardsPage() {
         />
       )}
 
-      <RewardPanel open={panelOpen} mode={panel} onClose={() => setPanelOpen(false)} />
-      <RewardConfirm request={confirming} onClose={() => setConfirming(null)} />
+      <RewardPanel
+        open={panelOpen}
+        mode={panel}
+        onSaved={report}
+        onClose={() => setPanelOpen(false)}
+      />
+      <RewardConfirm request={confirming} onDone={report} onClose={() => setConfirming(null)} />
       <AvailabilityDialog
         reward={editingAvailability}
+        onDone={report}
         onClose={() => setEditingAvailability(null)}
       />
       <ImportDialog open={importing} onClose={() => setImporting(false)} />

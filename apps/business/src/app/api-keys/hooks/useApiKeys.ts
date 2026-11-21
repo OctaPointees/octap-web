@@ -46,7 +46,6 @@ export function useRenameApiKey() {
       cache.setQueryData<ConsoleCredential[]>(apiKeyKeys.list(organizationId), (keys) =>
         keys?.map((key) => (key.id === renamed.id ? { ...key, name: renamed.name } : key)),
       );
-      notify.success('API key renamed');
     },
     onError: (cause) => notify.error(cause, 'Could not rename the key'),
   });

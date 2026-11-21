@@ -1,0 +1,61 @@
+/*
+ * Shared motion timings. Things appear a little slower than they leave, so the interface answers
+ * quickly when dismissed. Use them as `ease-enter` and `duration-(--motion-base)`.
+ */
+@theme {
+  /* Entrances and press feedback. */
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Things sliding across the screen. */
+  --ease-move: cubic-bezier(0.25, 1, 0.5, 1);
+  /* Side panels. */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Content replacing a skeleton. Opacity only, so nothing shifts. */
+  --animate-reveal: reveal 150ms ease-out;
+  /* A new page: fades in while floating up into place. */
+  --animate-page-in: page-in 280ms var(--ease-enter);
+  /* The row or card that just changed. It fades back to whatever background it normally has. */
+  --animate-flash-row: flash-row 1400ms var(--ease-move);
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+
+  @keyframes flash-row {
+    from {
+      background-color: color-mix(in oklab, var(--color-primary) 16%, transparent);
+    }
+  }
+}
+
+:root {
+  --motion-press: 120ms;
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 280ms;
+}
+
+/*
+ * Near zero rather than none, so dialogs and toasts still get the end event they wait for before
+ * unmounting. Spinners keep turning, as the only sign that something is still working, and the
+ * row highlight stays because it is a color fade with no movement.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.loading, .animate-flash-row),
+  *:not(.loading, .animate-flash-row)::before,
+  *:not(.loading, .animate-flash-row)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

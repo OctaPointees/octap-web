@@ -156,14 +156,20 @@ export default function MembersPage() {
       {list.error ? (
         <ErrorState error={list.error} onRetry={() => void list.refetch()} />
       ) : !rows ? (
-        <div className="flex flex-col gap-2 rounded-box border border-base-300 p-4" aria-busy>
+        <div
+          className="flex flex-col gap-2 rounded-box border border-base-300 bg-base-100 p-4"
+          aria-busy
+        >
           {Array.from({ length: 6 }, (_, row) => (
             <div key={row} className="skeleton h-10 w-full" />
           ))}
         </div>
       ) : (
         <div
-          className={cn('transition-opacity', list.isPlaceholderData && 'opacity-60')}
+          className={cn(
+            'animate-reveal transition-opacity',
+            list.isPlaceholderData && 'opacity-60',
+          )}
           aria-busy={list.isFetching}
         >
           <Table

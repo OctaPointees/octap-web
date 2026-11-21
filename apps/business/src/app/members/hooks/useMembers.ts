@@ -135,7 +135,6 @@ export function useUpdateMember(member: Member) {
       );
       if (body.status !== undefined || body.externalMemberId !== undefined)
         void cache.invalidateQueries({ queryKey: memberKeys.stats(organizationId) });
-      notify.success('Member saved', member.displayName ?? member.email ?? undefined);
     },
     onError: (cause) => notify.error(cause, 'Could not save the member'),
   });

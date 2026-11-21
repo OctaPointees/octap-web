@@ -19,6 +19,7 @@ function SettingsForm({
   onCancel,
   dirty,
   busy,
+  savedAt,
   submitLabel,
   error,
   readOnly = false,
@@ -28,6 +29,8 @@ function SettingsForm({
   onCancel: () => void;
   dirty: boolean;
   busy: boolean;
+  /** For a change that shows on this form: the Save button confirms it with a check. */
+  savedAt?: number | null;
   submitLabel: string;
   error?: string;
   readOnly?: boolean;
@@ -54,7 +57,13 @@ function SettingsForm({
           >
             Cancel
           </button>
-          <Button type="submit" className="btn-primary btn-sm" disabled={!dirty} loading={busy}>
+          <Button
+            type="submit"
+            className="btn-primary btn-sm"
+            disabled={!dirty}
+            loading={busy}
+            successKey={savedAt}
+          >
             {submitLabel}
           </Button>
         </footer>
@@ -81,7 +90,7 @@ export function OrganizationGeneralForm({
   organization: ConsoleOrganization;
   readOnly?: boolean;
 }) {
-  const { run, busy } = useOrganizationAction();
+  const { run, busy, savedAt } = useOrganizationAction();
   const [name, setName] = useState(organization.name);
   const dirty = name.trim() !== organization.name;
 
@@ -89,6 +98,7 @@ export function OrganizationGeneralForm({
     <SettingsForm
       dirty={dirty}
       busy={busy}
+      savedAt={savedAt}
       readOnly={readOnly}
       submitLabel="Save"
       onCancel={() => setName(organization.name)}
@@ -101,7 +111,7 @@ export function OrganizationGeneralForm({
               body: { name: name.trim() },
             }),
           );
-        }, 'Organization name saved');
+        }, '');
       }}
     >
       <FormField label="Organization name">

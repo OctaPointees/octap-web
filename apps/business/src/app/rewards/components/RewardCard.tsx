@@ -17,11 +17,14 @@ export function RewardCard({
   reward,
   permissions,
   busy,
+  highlighted,
   onIntent,
 }: {
   reward: Reward;
   permissions: RewardPermissions;
   busy: boolean;
+  /** It just changed, so it is tinted for a moment. */
+  highlighted: boolean;
   onIntent: (intent: RewardIntent, reward: Reward) => void;
 }) {
   const draft = fromReward(reward);
@@ -30,7 +33,12 @@ export function RewardCard({
   const open = () => onIntent(permissions.edit ? 'edit' : 'view', reward);
 
   return (
-    <article className="relative flex h-full flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-5 transition-[border-color,box-shadow] hover:border-base-content/25 hover:shadow-sm has-[button[data-open]:focus-visible]:outline-2 has-[button[data-open]:focus-visible]:outline-primary">
+    <article
+      className={cn(
+        'relative flex h-full flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-5 transition-[border-color,box-shadow] hover:border-base-content/25 hover:shadow-sm has-[button[data-open]:focus-visible]:outline-2 has-[button[data-open]:focus-visible]:outline-primary',
+        { 'animate-flash-row': highlighted },
+      )}
+    >
       {/* Behind the content: the whole card opens the reward. */}
       <button
         type="button"

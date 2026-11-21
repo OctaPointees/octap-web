@@ -20,7 +20,7 @@ import { Menu } from '@base-ui/react/menu';
 import { cn } from '../utils';
 
 const CLSS = {
-  wrapper: 'w-full overflow-x-auto rounded-box border border-base-300',
+  wrapper: 'w-full overflow-x-auto rounded-box border border-base-300 bg-base-100',
   table: 'table table-zebra table-pin-rows table-fixed w-full',
   thead: 'bg-base-100 text-primary',
   header: 'relative group',
@@ -75,6 +75,8 @@ interface TableProps<TData extends RowData> {
   initialState?: Partial<TableState>;
   /** Props applied to each visible data row. */
   rowProps?: (item: TData, index: number, row: Row<TData>) => ComponentProps<'tr'>;
+  /** Rows that just changed, tinted for a moment. See `useRowFlash`. */
+  highlightRow?: (item: TData) => boolean;
 }
 
 function ColumnFilter<TData extends RowData>({
@@ -161,6 +163,7 @@ export function Table<TData extends RowData>({
   emptyMessage = 'No results.',
   initialState,
   rowProps,
+  highlightRow,
 }: TableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>(() => initialState?.sorting ?? []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -284,24 +287,37 @@ export function Table<TData extends RowData>({
         </thead>
         <tbody className="z-0">
           {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row, index) => (
-              <tr {...rowProps?.(row.original, index, row)} key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} style={{ width: cell.column.getSize() }} className={CLSS.cell}>
-                    <div
+            table.getRowModel().rows.map((row, index) => {
+              const props = rowProps?.(row.original, index, row);
+              return (
+                <tr
+                  {...props}
+                  key={row.id}
+                  className={cn(props?.className, {
+                    'animate-flash-row': highlightRow?.(row.original),
+                  })}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      style={{ width: cell.column.getSize() }}
                       className={CLSS.cell}
-                      title={
-                        typeof cell.getValue() === 'string'
-                          ? (cell.getValue() as string)
-                          : undefined
-                      }
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </div>
-                  </td>
-                ))}
-              </tr>
-            ))
+                      <div
+                        className={CLSS.cell}
+                        title={
+                          typeof cell.getValue() === 'string'
+                            ? (cell.getValue() as string)
+                            : undefined
+                        }
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              );
+            })
           ) : (
             <tr>
               <td colSpan={table.getVisibleLeafColumns().length} className={CLSS.emptyCell}>

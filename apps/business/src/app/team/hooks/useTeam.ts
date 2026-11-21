@@ -57,7 +57,6 @@ export function useInviteDeveloper() {
         invitation,
         ...list.filter((row) => row.id !== id),
       ]);
-      notify.success('Invitation created', `Send the link to ${email}.`);
     },
     onError: (cause) => notify.error(cause, 'Could not create the invitation'),
   });
@@ -107,7 +106,6 @@ export function useDeveloperAccess() {
       cache.setQueryData<TeamMember[]>(teamKeys.staff(organizationId), (list) =>
         list?.map((row) => (row.id === member.id ? { ...row, status } : row)),
       );
-      notify.success(status === 'SUSPENDED' ? 'Access suspended' : 'Access restored', member.email);
     },
     onError: (cause) => notify.error(cause, 'Could not change access'),
   });

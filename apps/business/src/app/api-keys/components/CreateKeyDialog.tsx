@@ -50,7 +50,16 @@ function CopySecret({ value }: { value: string }) {
  * Creates a key, then shows its secret in the same dialog. The secret can't be shown again, so the
  * dialog stays open until the user confirms they stored it, and is cleared once it has closed.
  */
-export function CreateKeyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CreateKeyDialog({
+  open,
+  onCreated,
+  onClose,
+}: {
+  open: boolean;
+  /** Once the secret has been stored and the dialog is closing. */
+  onCreated: (id: string) => void;
+  onClose: () => void;
+}) {
   const { owner } = useOrganization();
   const create = useCreateApiKey();
   const formId = useId();
@@ -60,11 +69,15 @@ export function CreateKeyDialog({ open, onClose }: { open: boolean; onClose: () 
   const [warned, setWarned] = useState(false);
   const issued = create.data;
 
+  const finish = () => {
+    if (issued) onCreated(issued.id);
+    onClose();
+  };
   const requestClose = () => {
     // Closing now could lose a key that has already been created.
     if (create.isPending) return;
     if (issued && !stored) setWarned(true);
-    else onClose();
+    else finish();
   };
 
   return (
@@ -86,7 +99,7 @@ export function CreateKeyDialog({ open, onClose }: { open: boolean; onClose: () 
       }
       footer={
         issued ? (
-          <Button className="btn-primary" disabled={!stored} onClick={onClose}>
+          <Button className="btn-primary" disabled={!stored} onClick={finish}>
             Done
           </Button>
         ) : (

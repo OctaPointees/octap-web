@@ -11,16 +11,22 @@ import { useInviteDeveloper } from '../hooks/useTeam';
 export function InviteDialog({
   open,
   onOpenChange,
+  onInvited,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Once the link has been shown and the dialog is closing. */
+  onInvited: (id: string) => void;
 }) {
   const invite = useInviteDeveloper();
   const [email, setEmail] = useState('');
   const created = invite.data;
   const link = created ? `${window.location.origin}/?invitation=${created.token}` : '';
 
-  const close = (next: boolean) => onOpenChange(next);
+  const close = (next: boolean) => {
+    if (!next && created) onInvited(created.id);
+    onOpenChange(next);
+  };
   // After the close animation, so the link doesn't flip back to the form as it slides away.
   const reset = () => {
     setEmail('');

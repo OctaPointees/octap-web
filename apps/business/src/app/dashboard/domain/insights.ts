@@ -74,7 +74,7 @@ export function rewardAttention(
       id: 'failed',
       tone: 'error',
       title: `${rewardCount(stages.failed)} failed to publish`,
-      detail: 'Open them in Rewards and activate them again.',
+      detail: 'Open Rewards and try activating again.',
       rewards: true,
     });
   if (stages.pending_approval)
@@ -82,7 +82,7 @@ export function rewardAttention(
       id: 'approval',
       tone: 'warning',
       title: `${rewardCount(stages.pending_approval)} awaiting ${owner ? 'your' : 'the Owner’s'} approval`,
-      detail: 'Members can’t claim them until they are approved.',
+      detail: 'Members can’t claim a reward until it’s approved.',
       rewards: true,
     });
   if (stages.sold_out)

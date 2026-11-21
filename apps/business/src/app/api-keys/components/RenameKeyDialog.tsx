@@ -7,9 +7,11 @@ import { useRenameApiKey } from '../hooks/useApiKeys';
 /** Renames a key. Stays mounted so it can animate; the name is filled in when a key is opened. */
 export function RenameKeyDialog({
   apiKey,
+  onRenamed,
   onClose,
 }: {
   apiKey: ConsoleCredential | null;
+  onRenamed: (id: string) => void;
   onClose: () => void;
 }) {
   const rename = useRenameApiKey();
@@ -53,7 +55,15 @@ export function RenameKeyDialog({
         onSubmit={(event) => {
           event.preventDefault();
           if (canSave && !rename.isPending)
-            rename.mutate({ id: apiKey.id, name: trimmed }, { onSuccess: onClose });
+            rename.mutate(
+              { id: apiKey.id, name: trimmed },
+              {
+                onSuccess: ({ id }) => {
+                  onRenamed(id);
+                  onClose();
+                },
+              },
+            );
         }}
       >
         <label className="flex flex-col gap-1 text-sm">

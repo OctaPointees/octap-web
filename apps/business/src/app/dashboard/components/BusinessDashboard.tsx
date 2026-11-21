@@ -164,7 +164,7 @@ export function BusinessDashboard() {
             />
           </Card>
         ) : (
-          <div className="grid items-start gap-4 xl:grid-cols-5">
+          <div className="animate-reveal grid items-start gap-4 xl:grid-cols-5">
             <Card className="xl:col-span-3" title="Top rewards" actions={allRewards}>
               {summary.top.length ? (
                 <ol className="flex flex-col gap-4">

@@ -3,6 +3,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { EnvelopeSimple } from 'phosphor-react';
 import { Button, ConfirmDialog, useExitValue } from '@octap/shared/components';
 import { StatusBadge } from '@/components/shared/Display';
+import { cn } from '@/utils/cn';
 import { useRevokeInvitation, type Invitation } from '../hooks/useTeam';
 import { TeamCard, TeamCardMessage, TeamCardSkeleton } from './TeamCard';
 
@@ -12,11 +13,13 @@ export function InvitationsCard({
   loading,
   error,
   onRetry,
+  isHighlighted,
 }: {
   invitations?: Invitation[];
   loading: boolean;
   error: Error | null;
   onRetry: () => void;
+  isHighlighted: (id: string) => boolean;
 }) {
   const revoke = useRevokeInvitation();
   const [revoking, setRevoking] = useState<Invitation | null>(null);
@@ -38,11 +41,13 @@ export function InvitationsCard({
               No pending invitations. Invite a Developer to give them access.
             </p>
           ) : (
-            <ul className="divide-y divide-base-300">
+            <ul className="animate-reveal divide-y divide-base-300">
               {pending.map((invite) => (
                 <li
                   key={invite.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3"
+                  className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3', {
+                    'animate-flash-row': isHighlighted(invite.id),
+                  })}
                 >
                   <span
                     aria-hidden
@@ -109,7 +114,7 @@ export function InvitationsCard({
         tone="error"
         loading={revoke.isPending}
         onConfirm={() =>
-          revoking && revoke.mutate(revoking, { onSettled: () => setRevoking(null) })
+          revoking && revoke.mutate(revoking, { onSuccess: () => setRevoking(null) })
         }
       />
     </TeamCard>

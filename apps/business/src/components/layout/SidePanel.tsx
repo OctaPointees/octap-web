@@ -119,7 +119,7 @@ export default function SidePanel({ options, header, footer, className }: Props)
     <aside
       className={cn(
         // Background turned off for now: 'bg-primary'
-        'flex w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-base-300 text-base-content transition-[width] duration-200 max-md:hidden max-lg:w-(--size-sidebar-retract) shadow-md',
+        'flex w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-base-300 bg-base-100 text-base-content transition-[width] duration-200 max-md:hidden max-lg:w-(--size-sidebar-retract) shadow-md',
         retracted && 'w-(--size-sidebar-retract)',
         className,
       )}
@@ -166,7 +166,10 @@ export default function SidePanel({ options, header, footer, className }: Props)
                   <opt.icon
                     size="1.90em"
                     weight={isActive ? 'fill' : 'regular'}
-                    className={cn('shrink-0 transition-all', { 'mr-1': isActive })}
+                    className={cn(
+                      'shrink-0 transition-transform duration-(--motion-base) ease-enter',
+                      { '-translate-x-1': isActive },
+                    )}
                   />
                 </span>
               );
@@ -177,7 +180,7 @@ export default function SidePanel({ options, header, footer, className }: Props)
 
       <div className="flex-1 flex items-end">
         <div
-          className="bg-pattern-grid size-full max-h-36 transition-all"
+          className="bg-pattern-grid size-full max-h-36 transition-opacity"
           style={{ backgroundSize: '29px 29px', opacity: retracted ? 0.03 : 0.05 }}
         />
       </div>
@@ -226,8 +229,6 @@ export default function SidePanel({ options, header, footer, className }: Props)
           <CaretDoubleLeft size="1.2em" className="shrink-0" aria-hidden />
         )}
       </button>
-
-      <div className="h-1 w-full bg-base-300"></div>
     </aside>
   );
 }

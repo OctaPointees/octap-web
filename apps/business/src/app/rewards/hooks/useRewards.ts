@@ -30,13 +30,41 @@ function useRewardCache() {
     );
 }
 
+/** Tells the page which reward just changed, so it can point at it. */
+export type RewardReport = (saved: Reward, message: string) => void;
+
+/**
+ * Says how a publish ended. It can finish long after the click, and this is the moment Core
+ * confirms it, so success is never announced earlier.
+ */
+function announcePublished(before: Reward[] | undefined, after: Reward[]) {
+  for (const reward of after) {
+    const previous = before?.find((candidate) => candidate.id === reward.id);
+    if (previous?.publishStatus !== 'PUBLISHING' || reward.publishStatus === 'PUBLISHING') continue;
+    const stage = stageOf(reward);
+    if (stage === 'failed')
+      notify.error(
+        new Error('Open the reward and activate it again.'),
+        `Could not publish ${reward.title}`,
+      );
+    else notify.success('Published on-chain', `${reward.title}: ${STAGES[stage].label}`);
+  }
+}
+
 /** The catalog, read again every few seconds while any reward is publishing. */
 export function useRewards() {
   const { api } = useAuth();
   const { organizationId } = useOrganization();
+  const cache = useQueryClient();
+  const queryKey = rewardKeys.list(organizationId);
   return useQuery({
-    queryKey: rewardKeys.list(organizationId),
-    queryFn: () => unwrap(api.console.listRewards({ organizationId })),
+    queryKey,
+    queryFn: async () => {
+      const before = cache.getQueryData<Reward[]>(queryKey);
+      const after = await unwrap(api.console.listRewards({ organizationId }));
+      announcePublished(before, after);
+      return after;
+    },
     refetchInterval: (query) =>
       query.state.data?.some((reward) => reward.publishStatus === 'PUBLISHING')
         ? PUBLISH_POLL_MS
@@ -52,7 +80,7 @@ export function useRewardPermissions() {
 }
 
 /** Creates a draft, or saves an edited one. Errors stay with the form, which shows them by field. */
-export function useSaveReward(editing?: Reward) {
+export function useSaveReward(editing: Reward | undefined, report: RewardReport) {
   const { api } = useAuth();
   const { organizationId } = useOrganization();
   const store = useRewardCache();
@@ -70,7 +98,7 @@ export function useSaveReward(editing?: Reward) {
       ),
     onSuccess: (saved) => {
       store(saved);
-      notify.success(editing ? 'Draft saved' : 'Draft created', saved.title);
+      report(saved, editing ? 'Draft saved' : 'Draft created');
     },
   });
 }
@@ -101,7 +129,7 @@ const DONE: Record<RewardAction, string> = {
 };
 
 /** Moves a reward through its life: activate, pause and resume, and the approval steps. */
-export function useRewardAction() {
+export function useRewardAction(report: RewardReport) {
   const { api } = useAuth();
   const { organizationId } = useOrganization();
   const store = useRewardCache();
@@ -128,18 +156,14 @@ export function useRewardAction() {
     },
     onSuccess: (saved, { action }) => {
       store(saved);
-      const stage = stageOf(saved);
-      notify.success(
-        stage === 'publishing' ? 'Publishing on-chain' : DONE[action],
-        `${saved.title}: ${STAGES[stage].label}`,
-      );
+      report(saved, stageOf(saved) === 'publishing' ? 'Publishing on-chain' : DONE[action]);
     },
     onError: (error) => notify.error(new Error(coreMessage(error)), 'Could not update the reward'),
   });
 }
 
 /** Changes a published reward's number available and per-member limit. */
-export function useRewardAvailability() {
+export function useRewardAvailability(report: RewardReport) {
   const { api } = useAuth();
   const { organizationId } = useOrganization();
   const store = useRewardCache();
@@ -163,7 +187,7 @@ export function useRewardAvailability() {
       ),
     onSuccess: (saved) => {
       store(saved);
-      notify.success('Availability saved', saved.title);
+      report(saved, 'Availability saved');
     },
     onError: (error) => notify.error(new Error(coreMessage(error)), 'Could not save availability'),
   });

@@ -43,7 +43,7 @@ const routes: RouteObject[] = [
   { path: '/', element: <AuthenticationEntryPoint /> },
   { path: '/login', element: <Navigate to="/" /> },
   {
-    element: <RequireSignIn />,
+    element: <RequireSignIn loginPath="/" keepState />,
     children: [
       {
         element: <OrganizationLayout />,

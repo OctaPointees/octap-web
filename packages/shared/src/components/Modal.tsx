@@ -6,10 +6,10 @@ import { Button } from './Button';
 import { cn } from '../utils';
 
 const backdrop =
-  'fixed inset-0 z-50 bg-black/40 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0';
+  'fixed inset-0 z-50 bg-black/40 transition-opacity duration-(--motion-base) ease-enter data-ending-style:duration-(--motion-fast) data-starting-style:opacity-0 data-ending-style:opacity-0';
 /** Capped by its size on smaller screens; half the window on wide ones (`xl` and up). */
 const popup =
-  'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-3rem)] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-box bg-base-100 shadow-2xl outline-none transition-[scale,opacity] duration-150 xl:w-1/2 xl:max-w-none data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0';
+  'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-3rem)] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-box bg-base-100 shadow-2xl outline-none transition-[scale,opacity] duration-(--motion-base) ease-enter data-ending-style:duration-(--motion-fast) xl:w-1/2 xl:max-w-none data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0';
 
 type ModalProps = {
   open: boolean;
@@ -82,7 +82,7 @@ export function Modal({
 }
 
 const panel =
-  'fixed inset-y-0 right-0 z-50 flex h-dvh w-full flex-col bg-base-100 shadow-2xl outline-none transition-transform duration-200 ease-out data-starting-style:translate-x-full data-ending-style:translate-x-full';
+  'fixed inset-y-0 right-0 z-50 flex h-dvh w-full flex-col bg-base-100 shadow-2xl outline-none transition-transform duration-(--motion-slow) ease-drawer data-ending-style:duration-(--motion-base) data-starting-style:translate-x-full data-ending-style:translate-x-full';
 
 /**
  * A dialog that slides in from the right and takes the full height, for forms too large for a

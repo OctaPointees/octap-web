@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LockSimple, Plus } from 'phosphor-react';
-import { Button } from '@octap/shared/components';
+import { Button, useRowFlash } from '@octap/shared/components';
 import { EmptyState, PageHeader } from '@/components/shared/Display';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { useTeam } from './hooks/useTeam';
@@ -16,6 +16,7 @@ export default function TeamPage() {
   const { owner } = useOrganization();
   const { staff, invitations } = useTeam();
   const [inviting, setInviting] = useState(false);
+  const { flashRow, isFlashing } = useRowFlash();
 
   return (
     <>
@@ -44,8 +45,9 @@ export default function TeamPage() {
             loading={invitations.isPending}
             error={invitations.error}
             onRetry={() => void invitations.refetch()}
+            isHighlighted={isFlashing}
           />
-          <InviteDialog open={inviting} onOpenChange={setInviting} />
+          <InviteDialog open={inviting} onOpenChange={setInviting} onInvited={flashRow} />
         </div>
       ) : (
         <EmptyState

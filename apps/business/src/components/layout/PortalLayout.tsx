@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 import { cn } from '../../utils/cn';
 import MainToolbar, { type SearchResult } from './MainToolbar';
 import SidePanel, { type NavOption } from './SidePanel';
@@ -15,6 +15,8 @@ type Props = {
   sideFooter?: ReactNode;
   /** Full-width pages such as the organization picker: no side panel, centered content. */
   hideSidebar?: boolean;
+  /** The bar along the bottom of the window. */
+  statusBar: ReactNode;
 };
 
 export default function PortalLayout({
@@ -25,9 +27,13 @@ export default function PortalLayout({
   sideHeader,
   sideFooter,
   hideSidebar = false,
+  statusBar,
 }: Props) {
+  // `/organizations/:slug/<feature>`: a new feature fades in, its own sub-pages don't.
+  const feature = useLocation().pathname.split('/').slice(0, 4).join('/');
+
   return (
-    <div className="flex flex-col bg-base-100">
+    <div className="flex min-h-dvh flex-col bg-base-200">
       <header className="sticky top-0 z-30 select-none">
         <MainToolbar
           nav={nav}
@@ -44,16 +50,21 @@ export default function PortalLayout({
             options={nav}
             header={sideHeader}
             footer={sideFooter}
-            className="sticky top-(--size-main-toolbar) h-[calc(100dvh-var(--size-main-toolbar))]"
+            className="sticky top-(--size-main-toolbar) h-[calc(100dvh-var(--size-main-toolbar)-var(--size-status-bar))]"
           />
         )}
 
-        <main className={cn('min-w-0 flex-1 p-4', !hideSidebar && 'md:pl-6')}>
-          <div className="flex max-w-(--size-article) flex-col gap-4 mx-auto">
+        <main className={cn('min-w-0 flex-1 p-4 bg-pattern-top-glow', !hideSidebar && 'md:pl-6')}>
+          <div
+            key={feature}
+            className="animate-page-in flex max-w-(--size-article) flex-col gap-4 mx-auto"
+          >
             <Outlet />
           </div>
         </main>
       </div>
+
+      {statusBar}
     </div>
   );
 }

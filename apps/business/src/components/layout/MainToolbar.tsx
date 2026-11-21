@@ -96,10 +96,7 @@ export default function MainToolbar({
   };
 
   return (
-    <div
-      className="shadow-xs flex h-(--size-main-toolbar) items-center gap-2 border-b border-base-300 bg-base-100 pr-4 pl-1 bg-pattern-left-corner-grid"
-      style={{ backgroundSize: '20px 20px' }}
-    >
+    <div className="shadow-xs flex h-(--size-main-toolbar) items-center gap-2 border-b border-base-300 bg-base-100 pr-4 pl-1 bg-pattern-left-corner-grid [--pattern-size:20px]">
       <Menu.Root>
         <Menu.Trigger
           className="btn btn-ghost btn-square btn-sm -ml-1 md:hidden"

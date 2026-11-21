@@ -93,7 +93,7 @@ export function DeveloperDashboard() {
     {
       state: !keySummary ? 'unknown' : keySummary.latest ? 'done' : 'todo',
       title: 'Make your first API call',
-      detail: 'This completes as soon as Core sees a key being used.',
+      detail: 'This completes as soon as OctaP sees a key being used.',
     },
     {
       state: budgetState,
@@ -194,7 +194,7 @@ export function DeveloperDashboard() {
                   value={done}
                   max={checkable.length || 1}
                 />
-                <ol className="mt-4 flex flex-col gap-4">
+                <ol className="animate-reveal mt-4 flex flex-col gap-4">
                   {steps.map((step) => (
                     <Step key={step.title} {...step} />
                   ))}
@@ -265,7 +265,7 @@ export function DeveloperDashboard() {
                     {fmtNumber(activeEndpoints ?? 0)} of {fmtNumber(endpoints.data.length)}{' '}
                     endpoints active
                     {delivery?.retrying
-                      ? `, ${fmtNumber(delivery.retrying)} deliveries retrying`
+                      ? `, ${fmtNumber(delivery.retrying)} ${delivery.retrying === 1 ? 'delivery' : 'deliveries'} retrying`
                       : ''}
                   </p>
                   {delivery?.failed.length ? (

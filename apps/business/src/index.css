@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 
 @import 'tailwindcss';
+@import '@octap/shared/styles/motion.css';
 @source "../../../packages/shared/src/authentication";
 @source "../../../packages/shared/src/components";
 @plugin "daisyui";
@@ -15,6 +16,9 @@
 
   /* Height of the main toolbar (top navigation bar). */
   --size-main-toolbar: 3.67rem;
+
+  /* Height of the status bar along the bottom of the window. */
+  --size-status-bar: 1.75rem;
 
   --size-sidebar-thumb: 4Q;
 }
@@ -94,14 +98,41 @@ body {
   );
 }
 
+/*
+ * A soft glow from the top center. It is the element's own background, so it needs no extra layer
+ * or z-index, and a fixed height keeps it the same size on short and long pages.
+ */
+@utility bg-pattern-top-glow {
+  background-image: radial-gradient(
+    ellipse 70% 100% at 50% 0%,
+    color-mix(in oklab, var(--color-primary) 5%, transparent),
+    transparent 75%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 28rem;
+}
+
+/*
+ * A diagonal grid that fades out from a corner. It sits on a layer behind the element, because a
+ * mask on the element itself would fade its content too. `--pattern-size` sets the grid's scale.
+ */
 @utility bg-pattern-left-corner-grid {
   --c: var(--color-base-200);
 
-  background-image:
-    linear-gradient(45deg, transparent 49%, var(--c) 49%, var(--c) 51%, transparent 51%),
-    linear-gradient(-45deg, transparent 49%, var(--c) 49%, var(--c) 51%, transparent 51%);
-  background-size: '40px 40px';
+  position: relative;
+  isolation: isolate;
 
-  -webkit-mask-image: 'radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%)';
-  mask-image: 'radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%)';
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(45deg, transparent 49%, var(--c) 49%, var(--c) 51%, transparent 51%),
+      linear-gradient(-45deg, transparent 49%, var(--c) 49%, var(--c) 51%, transparent 51%);
+    background-size: var(--pattern-size, 40px) var(--pattern-size, 40px);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%);
+    mask-image: radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%);
+  }
 }

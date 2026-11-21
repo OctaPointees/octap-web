@@ -77,8 +77,8 @@ export function useFocus(): Focus {
 }
 
 /**
- * Switches the focus from a control. The page stays if the new menu lists it; otherwise the user
- * goes to the dashboard, so they never sit on a page their menu no longer shows.
+ * Switches the focus from a control and opens that focus's dashboard. The dashboard route follows
+ * the focus, so someone already on it stays put and adds no history entry.
  */
 export function useSwitchFocus() {
   const { slug } = useOrganization();
@@ -88,7 +88,6 @@ export function useSwitchFocus() {
   return (next: Focus) => {
     if (next === focus) return;
     setFocus(next);
-    const page = pathname.split('/')[3] ?? '';
-    if (!FOCUS_PAGES[next].some((listed) => listed === page)) navigate(organizationPath(slug));
+    if (pathname.split('/')[3]) navigate(organizationPath(slug));
   };
 }

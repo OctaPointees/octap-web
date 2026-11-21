@@ -13,7 +13,7 @@ import {
 } from '../domain/describe';
 import { fromReward, type Reward } from '../domain/draft';
 import { KINDS } from '../domain/kinds';
-import { useRewardAction, useRewardAvailability } from '../hooks/useRewards';
+import { useRewardAction, useRewardAvailability, type RewardReport } from '../hooks/useRewards';
 
 export type RewardConfirmRequest = {
   action: 'activate' | 'approve' | 'pause' | 'reject';
@@ -29,12 +29,14 @@ const ACTIVATION =
  */
 export function RewardConfirm({
   request,
+  onDone,
   onClose,
 }: {
   request: RewardConfirmRequest | null;
+  onDone: RewardReport;
   onClose: () => void;
 }) {
-  const run = useRewardAction();
+  const run = useRewardAction(onDone);
   const shown = useExitValue(request);
   const [reason, setReason] = useState('');
   const [session, setSession] = useState(request);
@@ -194,13 +196,15 @@ const asText = (value: number | null | undefined) => (value == null ? '' : Strin
  */
 export function AvailabilityDialog({
   reward: requested,
+  onDone,
   onClose,
 }: {
   reward: Reward | null;
+  onDone: RewardReport;
   onClose: () => void;
 }) {
   const reward = useExitValue(requested);
-  const save = useRewardAvailability();
+  const save = useRewardAvailability(onDone);
   const [supply, setSupply] = useState(asText(requested?.totalSupply));
   const [limit, setLimit] = useState(asText(requested?.perMemberLimit));
   const [session, setSession] = useState(requested);

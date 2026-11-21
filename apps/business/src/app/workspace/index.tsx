@@ -7,6 +7,7 @@ import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { organizationPath, type OrganizationPage } from '@/app/organization/utils';
 import { FOCUS_PAGES, useFocus } from './focus';
 import { FocusToggle } from './FocusToggle';
+import { WorkspaceStatusBar } from './WorkspaceStatusBar';
 
 const PAGES: Record<OrganizationPage | '', { label: string; icon: Icon }> = {
   '': { label: 'Dashboard', icon: Layout },
@@ -43,6 +44,7 @@ export default function WorkspaceLayout() {
       sideHeader={(retracted) => <FocusToggle compact={retracted} />}
       useSearch={noSearch}
       searchPlaceholder="Search pages…"
+      statusBar={<WorkspaceStatusBar />}
     />
   );
 }

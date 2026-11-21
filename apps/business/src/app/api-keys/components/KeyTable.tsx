@@ -21,12 +21,14 @@ export function KeyTable({
   keys,
   owner,
   emptyMessage,
+  isHighlighted,
   onRename,
   onRevoke,
 }: {
   keys: ConsoleCredential[];
   owner: boolean;
   emptyMessage: string;
+  isHighlighted: (id: string) => boolean;
   onRename: (key: ConsoleCredential) => void;
   onRevoke: (key: ConsoleCredential) => void;
 }) {
@@ -136,6 +138,7 @@ export function KeyTable({
       data={keys}
       columns={columns}
       emptyMessage={emptyMessage}
+      highlightRow={(key) => isHighlighted(key.id)}
       initialState={{ sorting: [{ id: 'lastUsed', desc: true }] }}
     />
   );

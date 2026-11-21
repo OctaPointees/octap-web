@@ -25,7 +25,7 @@ import {
 import { coreErrors } from '../domain/errors';
 import { hasDiscountType, KIND_ORDER, KINDS, MAX_VALID_FOR_DAYS } from '../domain/kinds';
 import { isLocked } from '../domain/stage';
-import { useSaveReward } from '../hooks/useRewards';
+import { useSaveReward, type RewardReport } from '../hooks/useRewards';
 
 /** What the panel is for: a new reward (maybe from a copy), editing a draft, or viewing one. */
 export type RewardPanelMode =
@@ -111,10 +111,12 @@ const initialDraft = (mode: RewardPanelMode) =>
 export function RewardPanel({
   open,
   mode: current,
+  onSaved,
   onClose,
 }: {
   open: boolean;
   mode: RewardPanelMode | null;
+  onSaved: RewardReport;
   onClose: () => void;
 }) {
   const mode = current ?? CREATE;
@@ -128,7 +130,7 @@ export function RewardPanel({
     !!reward || (mode.type === 'create' && !!mode.from),
   );
   const [localErrors, setLocalErrors] = useState<DraftErrors>({});
-  const save = useSaveReward(mode.type === 'edit' ? reward : undefined);
+  const save = useSaveReward(mode.type === 'edit' ? reward : undefined, onSaved);
 
   // A new session (another reward, or New reward again): start the form from it.
   const [session, setSession] = useState(mode);
