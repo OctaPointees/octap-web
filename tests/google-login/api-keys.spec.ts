@@ -179,6 +179,6 @@ test('scopes sent as a string and missing dates still render', async ({ page }) 
   await openApiKeys(page, 'BUSINESS_OWNER', store);
   const row = page.getByRole('row', { name: /POS terminal/ });
   await expect(row).toContainText('write');
-  await expect(row).toContainText('—');
+  await expect(row).toContainText('Unknown');
   await expect(row).not.toContainText('Invalid');
 });

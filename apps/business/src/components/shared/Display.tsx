@@ -1,7 +1,6 @@
 import { ArrowDownRight, ArrowUpRight, Warning, type Icon } from 'phosphor-react';
 import type { ReactNode } from 'react';
 import { cn } from '../../utils/cn';
-import type { MemberTier } from '../../types/domain';
 import { fmtPercent, toTitle } from '../../utils/format';
 import { Sparkline } from '../charts/Sparkline';
 import { Button } from './Button';
@@ -225,21 +224,4 @@ export function UsageBar({
   const pct = max ? Math.min(1, value / max) : 0;
   const tone = pct > 0.9 ? 'progress-error' : pct > 0.7 ? 'progress-warning' : 'progress-primary';
   return <progress className={cn('progress h-1.5', tone, className)} value={pct * 100} max={100} />;
-}
-
-/* --------------------------------------------------------------- TierBadge */
-
-const TIER_BADGE: Record<MemberTier, string> = {
-  bronze: 'bg-[#b0793f]/15 text-[#8a5a2b]',
-  silver: 'bg-[#9aa4b1]/20 text-[#5d6673]',
-  gold: 'bg-[#e0b53f]/20 text-[#8a6a10]',
-  platinum: 'bg-secondary/15 text-secondary',
-};
-
-export function TierBadge({ tier }: { tier: MemberTier }) {
-  return (
-    <span className={cn('badge badge-sm border-0 font-semibold', TIER_BADGE[tier])}>
-      {toTitle(tier)}
-    </span>
-  );
 }

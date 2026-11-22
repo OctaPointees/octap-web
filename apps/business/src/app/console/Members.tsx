@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { PageHeader } from '@/components/shared/Display';
 
 export default function ConnectedMembers() {
-  const auth = useConsoleAuth()!;
+  const auth = useAuth();
+  const organization = useOrganization();
   const cache = useQueryClient();
   const [filters, setFilters] = useState({ q: '', status: '', externalMemberId: '' });
   const [cursors, setCursors] = useState<string[]>(['']);
   const [selected, setSelected] = useState('');
   const [formError, setFormError] = useState('');
-  const orgId = auth.organizationId;
+  const orgId = organization.organizationId;
   const prefix = ['console-members', orgId];
   const list = useQuery({
     queryKey: [...prefix, filters, cursors.at(-1)],
@@ -20,7 +22,6 @@ export default function ConnectedMembers() {
       if (cursors.at(-1)) query.set('cursor', cursors.at(-1)!);
       return auth.client().listMembers(orgId, query, signal);
     },
-    enabled: Boolean(auth.data.organization),
   });
   const detail = useQuery({
     queryKey: [...prefix, 'detail', selected],
@@ -150,7 +151,7 @@ export default function ConnectedMembers() {
               ? 'Pending transactions may change this balance.'
               : 'No pending transactions.'}
           </p>
-          {auth.owner && (
+          {organization.owner && (
             <form
               className="flex flex-wrap gap-4 mt-4"
               onSubmit={(event) => {

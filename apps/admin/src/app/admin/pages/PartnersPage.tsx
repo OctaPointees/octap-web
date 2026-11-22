@@ -1,4 +1,4 @@
-import { ConsoleScreen } from '@octap/shared/google-auth';
+import { OrganizationRequestReview } from '../OrganizationRequestReview';
 import { Form } from '@base-ui/react/form';
 import { columnHelper } from '../../../components/shared/table';
 import { Plus, Storefront } from 'phosphor-react';
@@ -14,7 +14,7 @@ import {
   StatusBadge,
   UsageBar,
 } from '../../../components/shared/Display';
-import { Modal } from '../../../components/shared/Modal';
+import { Modal } from '@octap/shared/components';
 import { Select } from '../../../components/shared/Select';
 import { useCreateTenant, useTenants } from '../../../queries/admin';
 import type { CreateTenantInput, TenantRow } from '../../../services/admin.service';
@@ -302,6 +302,6 @@ export default function PartnersPage() {
   return import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true' ? (
     <DemoPartnersPage />
   ) : (
-    <ConsoleScreen />
+    <OrganizationRequestReview />
   );
 }

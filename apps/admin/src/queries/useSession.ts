@@ -1,28 +1,25 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
 import { useMemo } from 'react';
+import { useAuth } from '@octap/shared/authentication';
 import type { Session } from '../types/domain';
-import { useSyncExternalStore } from 'react';
-import { sessionStore } from '../services/session';
-export function useSession() {
-  const auth = useConsoleAuth();
-  const legacy = useSyncExternalStore(sessionStore.subscribe, sessionStore.get);
-  const mapped = useMemo<Session | null>(
+
+/** The signed-in admin in the `Session` shape the older dashboard pages read. */
+export function useSession(): Session | null {
+  const { identity } = useAuth();
+  return useMemo<Session | null>(
     () =>
-      auth?.identity
+      identity
         ? {
             token: '',
-            expiresAt: auth.identity.expiresAt,
+            expiresAt: identity.expiresAt,
             user: {
-              id: auth.identity.user.id,
-              email: auth.identity.user.email,
-              displayName: auth.identity.user.fullName,
-              avatarUrl: auth.identity.user.avatarUrl ?? '',
+              id: identity.user.id,
+              email: identity.user.email,
+              displayName: identity.user.fullName,
+              avatarUrl: identity.user.avatarUrl ?? '',
               role: 'admin',
-              tenantId: auth.selected?.organizationId,
             },
           }
         : null,
-    [auth],
+    [identity],
   );
-  return auth ? mapped : legacy;
 }

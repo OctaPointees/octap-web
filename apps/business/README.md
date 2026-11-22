@@ -1,8 +1,7 @@
 # OctaP Business / Developer dashboard
 
-The app reuses the existing Owner/Developer layouts, navigation and page components.
-Google login and supported organization workflows call Core directly by default. The
-original sample dashboards and password login require explicit demo mode.
+Owner and Developer dashboards for an OctaP organization. Sign-in is Google only, and every
+page reads and writes Core directly. There is no demo mode or sample data.
 
 ## Run locally
 
@@ -18,7 +17,7 @@ public Google client ID and Core target, authorize the browser origin in Google,
 start Core with its migrations applied. See
 [the portal guide](../../docs/google-login.md) for full configuration.
 
-## Default Google/Core mode
+## How it works
 
 - Google verifies identity/email. Core owns system roles and active memberships. The same
   account may be an Owner in one organization and a Developer in another. System Admin
@@ -30,13 +29,17 @@ start Core with its migrations applied. See
 - Users already in organizations can skip setup. Core permissions are refreshed first:
   one organization opens directly, multiple organizations lead to `/organizations`, and
   no active memberships stays in onboarding. Skipping grants no new privileges.
-- Owners enter `/merchant`. `/merchant/settings` updates permitted profile fields and
-  optional CCCD; `/merchant/team` lists staff and creates/revokes Developer invitations.
+- Every dashboard page has the organization in its URL: `/organizations/:id/merchant/…`
+  (Business panel, Owners only) and `/organizations/:id/developer/…` (Developer panel).
+  `/organizations/:id` opens the panel for your role, and links can be bookmarked or shared
+  with other members. Old `/merchant` and `/developer` links go to the organization list.
+- Owners enter `merchant`. `merchant/settings` updates permitted profile fields and
+  optional CCCD; `merchant/team` lists staff and creates/revokes Developer invitations.
   CCCD responses are masked and Core encrypts the stored value.
-- Developers enter `/developer`; `/developer/api-keys` lists safe credential metadata.
+- Developers enter `developer`; `developer/api-keys` lists safe credential metadata.
   They cannot manage organization profiles or invitations.
-- Owners use `/merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `/developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
-- Owners manage the reward catalog at `/merchant/rewards`, Developers at `/developer/rewards`.
+- Owners use `merchant/members` for paginated customer search, balance detail and profile/status edits; Developers have read-only `developer/members`. External IDs are bound after enrollment. These are loyalty customers, separate from staff.
+- Owners manage the reward catalog at `merchant/rewards`, Developers at `developer/rewards`.
   A reward is saved as a draft, then activated as a separate, confirmed step: Core publishes its
   terms on-chain through the worker (`Publishing…`, then `Live`, or `Publish failed` with a
   retry), after which its title, type, points, conditions and dates can never change; only the
@@ -44,7 +47,7 @@ start Core with its migrations applied. See
   can start from a template, duplicate a reward, or import a CSV (template in the import dialog)
   of drafts.
 - Approval (OCT-292, Core OCT-59): an Owner can turn on "Require approval before publishing" in
-  `/merchant/settings`. A Developer then submits a draft instead of activating it; it shows as
+  `merchant/settings`. A Developer then submits a draft instead of activating it; it shows as
   `Pending approval`, locked, until they withdraw it or an Owner reviews it. The Owner's
   Rewards menu counts what waits; Review shows what approving freezes, then Approve and publish
   or Reject with a reason, which the Developer reads on the draft. Owners always publish
@@ -55,32 +58,16 @@ start Core with its migrations applied. See
   `{ schema: 'octap.benefit.v1', kind, … }` (see `src/app/console/rewards/benefit.ts`).
   Core publishes `terms` but does not enforce it: the merchant applies it at checkout.
 - Invite links require the addressed Google identity and explicit one-time acceptance.
-- Dashboard modules without live adapters report that they are not connected. They do
-  not run against sample data after real Google login.
+- Dashboard modules without live adapters report that they are not connected.
 - Provider credentials stay in memory, not localStorage/sessionStorage. Reloading requires
-  sign-in again. Organization switches and sign-out clear query caches. The real portal
+  sign-in again. Each organization's data is cached under its own ID; sign-out clears the cache. The real portal
   uses no OctaP SDK or custom Redis session.
 
 Core enforces permissions independently of UI guards. Organization approval creates portal
 access, not an on-chain program. The member directory and the reward catalog are connected to
 Core. Live analytics, points, campaigns and full governance remain separate work.
 
-## Optional browser-local demo
-
-Set `VITE_ENABLE_DEMO_AUTH=true` in this app's `.env.local` and restart Vite. The original
-password login and sample dashboards return. Example accounts use password `octap123`:
-
-| Account   | Email                    | Purpose                                                 |
-| --------- | ------------------------ | ------------------------------------------------------- |
-| Owner     | `owner@lotusmart.vn`     | Sample business operations, settings and Developer mode |
-| Developer | `developer@lotusmart.vn` | Sample API keys, webhooks and MCP tools                 |
-| Cashier   | `cashier@lotusmart.vn`   | Legacy prototype role demonstration                     |
-
-Manager/Cashier/Viewer are legacy demo roles; the real tenant personas are Owner and
-Developer. The Mock API console can simulate latency/failures and reset sample data.
-`octap.mockdb` initializes lazily on first demo use, and `octap.session` stores only demo
-sessions. Real mode never reads, creates, resets or commits that database. Existing demo
-data is retained without being read or rewritten in real mode.
+## System Admin
 
 The System Admin app is separate at http://localhost:5000/admin. Configure
 `VITE_ADMIN_PORTAL_URL` for its link. System Admin accounts still need explicit tenant
@@ -93,11 +80,8 @@ From the repository root:
 ```sh
 npm run build
 npm run lint
-npm test -w @octap/admin
 npm run test:google-login
 ```
 
-The shared Node regression suite checks real-mode mock isolation in this app as well as
-admin. Browser tests check real-mode routing and the original opt-in demo with controlled
-Google/Core responses. Actual OAuth configuration still requires real Google sign-in;
+Browser tests check routing with controlled Google/Core responses. Actual OAuth configuration still requires real Google sign-in;
 Core's integration suite covers API/database behavior.

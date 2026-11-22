@@ -93,10 +93,10 @@ type FieldProps = {
 };
 
 /**
- * Base UI Field wrapper; server-side (mock) errors are shown via `error`.
+ * Base UI Field wrapper; server-side errors are shown via `error`.
  * We deliberately don't set `invalid` on Field.Root: Base UI's Form blocks
  * submission while a field is invalid, which would prevent resubmitting
- * after the (mock) API rejects a value.
+ * after the API rejects a value.
  */
 export function FormField({ label, error, hint, children, className, name }: FieldProps) {
   return (

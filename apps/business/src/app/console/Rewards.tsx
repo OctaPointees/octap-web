@@ -2,7 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Copy, FileArrowUp, PencilSimple, Plus, Ticket, Warning } from 'phosphor-react';
 import { useState } from 'react';
 import type { ConsoleVoucher } from '@octap/services';
-import { ConsoleApiError, useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { ConsoleApiError } from '@octap/shared/console-api';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { organizationKeys } from '@/app/organization/utils';
 import { Button } from '@/components/shared/Button';
 import { FormField, Segmented, TextInput } from '@/components/shared/Controls';
 import {
@@ -12,7 +15,7 @@ import {
   PageHeader,
   UsageBar,
 } from '@/components/shared/Display';
-import { ConfirmDialog, Modal } from '@/components/shared/Modal';
+import { ConfirmDialog, Modal } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { fmtNumber } from '@/utils/format';
 import { notify } from '@/utils/toast';
@@ -86,15 +89,14 @@ const DECIDED: Record<Decision['action'], string> = {
 };
 
 export default function ConnectedRewards() {
-  const auth = useConsoleAuth()!;
-  const orgId = auth.organizationId;
-  const owner = auth.owner;
-  // Read here, not only at sign-in: an Owner may turn approval on while a Developer has this open.
+  const auth = useAuth();
+  const { organizationId: orgId, owner, organization: current } = useOrganization();
+  // The provider's query, read fresh here: an Owner may turn approval on while a Developer has this
+  // open, and the app's 30 s default would keep the old setting. Same key, so the whole app sees it.
   const organization = useQuery({
-    queryKey: ['console-organization', orgId],
+    queryKey: organizationKeys.detail(orgId),
     queryFn: ({ signal }) => auth.client().getConsoleOrganization(orgId, signal),
-    initialData: auth.data.organization?.id === orgId ? auth.data.organization : undefined,
-    // Unlike the app's 30 s default: read again on every visit and when the tab is back in focus.
+    initialData: current,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
@@ -176,7 +178,7 @@ export default function ConnectedRewards() {
   });
   // Only an Owner may list the team, so a Business Developer reads "an Owner" instead of a name.
   const staff = useQuery({
-    queryKey: ['console-staff', orgId],
+    queryKey: organizationKeys.staff(orgId),
     queryFn: ({ signal }) => auth.client().listConsoleStaff(orgId, signal),
     enabled: owner,
   });
@@ -663,8 +665,9 @@ function AvailabilityDialog({
   voucher: ConsoleVoucher;
   onClose: () => void;
 }) {
-  const auth = useConsoleAuth()!;
-  const orgId = auth.organizationId;
+  const auth = useAuth();
+  const organization = useOrganization();
+  const orgId = organization.organizationId;
   const current = useQuery({
     queryKey: ['console-reward', orgId, voucher.id],
     queryFn: ({ signal }) => rewardsApi(auth).get(orgId, voucher.id, signal),

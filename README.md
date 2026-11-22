@@ -15,9 +15,9 @@ calls Core directly for identity, tenant membership, onboarding, invitations, pe
 profile updates and credential metadata. Other dashboard modules report that they are
 not connected yet instead of silently using sample data.
 
-The original sample dashboards and password login require `VITE_ENABLE_DEMO_AUTH=true`.
-They are demonstrations, not production authentication. Real mode neither initializes
-nor reads, resets or writes their browser-local mock databases.
+Password demo sign-in has been removed: both portals sign in with Google only.
+`VITE_ENABLE_DEMO_AUTH=true` still switches a few pages to their old sample data. That
+leftover demo code is due for removal.
 
 ## Getting started
 
@@ -62,7 +62,8 @@ business app's default port. Explicit CLI port overrides take precedence.
   Google identity to accept and are one-time.
 - CCCD can be saved or updated by an Owner and is encrypted by Core. Responses are masked;
   CCCD and business registration verification are not implemented.
-- Google credentials stay in memory. Reloading requires sign-in again; account/organization
+- Google credentials stay in memory. A reload signs in again silently through Google's
+  automatic sign-in when it can (otherwise the login page shows); account/organization
   changes clear query caches. The real Web flows do not use the OctaP SDK.
 
 | Setting                    | App            | Purpose                                                                 |
@@ -70,7 +71,7 @@ business app's default port. Explicit CLI port overrides take precedence.
 | `VITE_GOOGLE_CLIENT_ID`    | business/admin | Public Google OAuth Web client ID                                       |
 | `CORE_API_URL`             | business/admin | Development proxy target, default `http://127.0.0.1:3000`               |
 | `VITE_CORE_API_URL`        | business/admin | Optional direct API origin; otherwise use the proxy                     |
-| `VITE_ENABLE_DEMO_AUTH`    | business/admin | Exact value `true` enables mock/password demo mode; disabled by default |
+| `VITE_ENABLE_DEMO_AUTH`    | business/admin | Exact value `true` shows sample data on a few pages; no demo sign-in    |
 | `VITE_ADMIN_PORTAL_URL`    | business       | System Admin application URL                                            |
 | `VITE_BUSINESS_PORTAL_URL` | admin          | Business application URL; link appears only for tenant members          |
 

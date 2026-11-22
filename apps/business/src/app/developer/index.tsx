@@ -1,54 +1,32 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
-import { useMemo } from 'react';
-import { House, Key, PlugsConnected, ShareNetwork, Ticket, UsersThree } from 'phosphor-react';
+import { useAuth } from '@octap/shared/authentication';
+import { House, Key, Ticket, UsersThree } from 'phosphor-react';
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
-import { useMerchantTenant } from '@/queries/merchant';
+import { platformAdminLinks } from '@/components/layout/nav';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { organizationPath } from '@/app/organization/utils';
 
+const noSearch = () => ({ data: [], isFetching: false });
+
+/** The Developer panel of the organization in the URL, for its Owners and Developers. */
 export default function DeveloperLayout() {
-  const auth = useConsoleAuth();
-  const tenant = useMerchantTenant(!auth).data;
+  const { identity } = useAuth();
+  const { organizationId, membership } = useOrganization();
+  const path = (page?: string) => organizationPath(organizationId, 'developer', page);
 
-  const nav = useMemo<NavOption[]>(
-    () => [
-      { label: 'Dashboard', path: '/developer', icon: House, end: true },
-      { label: 'Members', path: '/developer/members', icon: UsersThree },
-      { label: 'Rewards', path: '/developer/rewards', icon: Ticket },
-      { label: 'API keys', path: '/developer/api-keys', icon: Key },
-      { label: 'Webhooks', path: '/developer/webhooks', icon: ShareNetwork },
-      { label: 'MCP tools', path: '/developer/mcp', icon: PlugsConnected },
-    ],
-    [],
-  );
-
-  const noSearch = () => ({ data: [], isFetching: false });
+  const nav: NavOption[] = [
+    { label: 'Dashboard', path: path(), icon: House, end: true },
+    { label: 'Members', path: path('members'), icon: UsersThree },
+    { label: 'Rewards', path: path('rewards'), icon: Ticket },
+    { label: 'API keys', path: path('api-keys'), icon: Key },
+  ];
 
   return (
     <PortalLayout
-      subtitle={auth?.selected?.name ?? tenant?.name ?? 'Business'}
-      roleLabel="Business"
-      nav={
-        auth
-          ? [
-              ...nav,
-              { label: 'Organizations', path: '/organizations', icon: House },
-              { label: 'Organization onboarding', path: '/onboarding', icon: House },
-              ...(auth.identity?.user.systemRole === 'SYSTEM_ADMIN'
-                ? [
-                    {
-                      label: 'Platform administration',
-                      path:
-                        import.meta.env.VITE_ADMIN_PORTAL_URL ||
-                        (import.meta.env.DEV ? 'http://localhost:5000/admin' : '/admin'),
-                      icon: House,
-                    },
-                  ]
-                : []),
-            ]
-          : nav
-      }
+      subtitle={membership.name}
+      nav={[...nav, ...platformAdminLinks(identity)]}
       useSearch={noSearch}
-      searchPlaceholder="Search developer pages…"
+      searchPlaceholder="Search pages…"
     />
   );
 }

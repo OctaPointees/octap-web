@@ -560,12 +560,12 @@ test('a Developer sent to the settings page lands on their own dashboard, withou
     voucherApprovalRequired: true,
   });
   // In-app navigation: a reload would sign out, since the Google token is kept in memory only.
-  await page.evaluate(() => {
-    history.pushState({}, '', '/merchant/settings');
+  await page.evaluate((org) => {
+    history.pushState({}, '', `/organizations/${org}/merchant/settings`);
     dispatchEvent(new PopStateEvent('popstate'));
-  });
-  // The console sends a Developer away from every /merchant page, settings included.
-  await expect(page).toHaveURL(/\/developer$/);
+  }, ORG);
+  // `RequireOwner` sends a Developer away from every merchant page, settings included.
+  await expect(page).toHaveURL(new RegExp(`/organizations/${ORG}/developer$`));
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toHaveCount(0);
   await expect(page.getByRole('switch', { name: /Require approval/ })).toHaveCount(0);
 });

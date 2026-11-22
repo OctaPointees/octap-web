@@ -1,71 +1,37 @@
-import { useConsoleAuth } from '@octap/shared/google-auth';
-import { Gear, Layout, Megaphone, Receipt, Storefront, Ticket, UsersThree } from 'phosphor-react';
+import { useAuth } from '@octap/shared/authentication';
+import { Gear, Layout, Ticket, UsersFour, UsersThree } from 'phosphor-react';
 
 import PortalLayout from '@/components/layout/PortalLayout';
-import type { SearchResult } from '@/components/layout/MainToolbar';
 import type { NavOption } from '@/components/layout/SidePanel';
+import { platformAdminLinks } from '@/components/layout/nav';
 import { usePendingApprovalCount } from '@/app/console/rewards/pending';
-import { useMembers, useMerchantTenant } from '@/queries/merchant';
-import { toTitle } from '@/utils/format';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { organizationPath } from '@/app/organization/utils';
 
-function useMerchantSearch(q: string) {
-  const auth = useConsoleAuth();
-  const active = !auth && q.trim().length >= 2;
-  const members = useMembers(q, active);
-  const data: SearchResult[] | undefined = active
-    ? members.data?.slice(0, 8).map((m) => ({
-        id: m.id,
-        type: 'member',
-        title: m.displayName,
-        subtitle: `${m.phone} · ${toTitle(m.tier)} · ${m.balance.toLocaleString()} pts`,
-        to: `/merchant/members?member=${m.id}`,
-      }))
-    : [];
-  return { data, isFetching: active && members.isFetching };
-}
+// Core has no member search yet.
+const noSearch = () => ({ data: [], isFetching: false });
 
+/** The Business panel of the organization in the URL, for its Owners. */
 export default function MerchantLayout() {
-  const auth = useConsoleAuth();
-  const tenant = useMerchantTenant(!auth).data;
+  const { identity } = useAuth();
+  const { organizationId, membership } = useOrganization();
+  const path = (page?: string) => organizationPath(organizationId, 'merchant', page);
   const pending = usePendingApprovalCount();
 
   const nav: NavOption[] = [
-    { label: 'Dashboard', path: '/merchant', icon: Layout, end: true },
-    { label: 'Issue points', path: '/merchant/pos', icon: Storefront },
-    { label: 'Campaigns', path: '/merchant/campaigns', icon: Megaphone },
-    { label: 'Rewards', path: '/merchant/rewards', icon: Ticket, badge: pending },
-    { label: 'Members', path: '/merchant/members', icon: UsersThree },
-    { label: 'Transactions', path: '/merchant/transactions', icon: Receipt },
-    { label: 'Settings', path: '/merchant/settings', icon: Gear },
-    ...(auth ? [{ label: 'Team and invitations', path: '/merchant/team', icon: UsersThree }] : []),
+    { label: 'Dashboard', path: path(), icon: Layout, end: true },
+    { label: 'Rewards', path: path('rewards'), icon: Ticket, badge: pending },
+    { label: 'Members', path: path('members'), icon: UsersThree },
+    { label: 'Settings', path: path('settings'), icon: Gear },
+    { label: 'Team and invitations', path: path('team'), icon: UsersFour },
   ];
 
   return (
     <PortalLayout
-      subtitle={auth?.selected?.name ?? tenant?.name ?? 'Business'}
-      roleLabel="Business"
-      nav={
-        auth
-          ? [
-              ...nav,
-              { label: 'Organizations', path: '/organizations', icon: Gear },
-              { label: 'Organization onboarding', path: '/onboarding', icon: Gear },
-              ...(auth.identity?.user.systemRole === 'SYSTEM_ADMIN'
-                ? [
-                    {
-                      label: 'Platform administration',
-                      path:
-                        import.meta.env.VITE_ADMIN_PORTAL_URL ||
-                        (import.meta.env.DEV ? 'http://localhost:5000/admin' : '/admin'),
-                      icon: Gear,
-                    },
-                  ]
-                : []),
-            ]
-          : nav
-      }
-      useSearch={useMerchantSearch}
-      searchPlaceholder="Search members by name, phone or address…"
+      subtitle={membership.name}
+      nav={[...nav, ...platformAdminLinks(identity)]}
+      useSearch={noSearch}
+      searchPlaceholder="Search members…"
     />
   );
 }
