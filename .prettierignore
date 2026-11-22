@@ -14,3 +14,6 @@ sources/
 
 # Exclude partner-website
 apps/partner-website/
+
+# Vendored reference docs and the upstream OpenAPI spec
+packages/internal/docs/

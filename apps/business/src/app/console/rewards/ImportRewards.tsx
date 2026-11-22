@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Button } from '@/components/shared/Button';
-import { Modal } from '@/components/shared/Modal';
+import { Modal } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { notify } from '@/utils/toast';
 import { rewardsApi } from './api';
@@ -13,7 +14,8 @@ type Outcome = { state: 'created' } | { state: 'failed'; message: string };
 
 /** Reads a CSV of rewards, checks every row, then creates each valid row as a draft. */
 export default function ImportRewards({ onClose }: { onClose: () => void }) {
-  const auth = useConsoleAuth()!;
+  const auth = useAuth();
+  const organization = useOrganization();
   const [rows, setRows] = useState<ImportRow[]>([]);
   const [fileError, setFileError] = useState('');
   const [outcomes, setOutcomes] = useState<Record<number, Outcome>>({});
@@ -37,7 +39,7 @@ export default function ImportRewards({ onClose }: { onClose: () => void }) {
     // One at a time: rows share an organization, and Core reports each code conflict on its own row.
     for (const row of ready) {
       try {
-        await rewardsApi(auth).create(auth.organizationId, row.input!);
+        await rewardsApi(auth).create(organization.organizationId, row.input!);
         created += 1;
         setOutcomes((current) => ({ ...current, [row.line]: { state: 'created' } }));
       } catch (error) {

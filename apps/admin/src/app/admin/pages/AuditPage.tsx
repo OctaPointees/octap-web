@@ -6,7 +6,7 @@ import { Button } from '../../../components/shared/Button';
 import { ChainRef, Switch } from '../../../components/shared/Controls';
 import { DataTable } from '../../../components/shared/DataTable';
 import { ErrorState, PageHeader, StatusBadge } from '../../../components/shared/Display';
-import { Modal } from '../../../components/shared/Modal';
+import { Modal } from '@octap/shared/components';
 import { Select } from '../../../components/shared/Select';
 import { useAudit, useTenants, useVerifyAudit } from '../../../queries/admin';
 import type { AuditFilters } from '../../../services/admin.service';

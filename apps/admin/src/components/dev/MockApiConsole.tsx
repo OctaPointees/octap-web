@@ -6,7 +6,7 @@ import { resetDb } from '../../services/mock/db';
 import { networkLog, settings, type NetworkEntry } from '../../services/mock/http';
 import { cn } from '../../utils/cn';
 import { notify } from '../../utils/toast';
-import { ConfirmDialog } from '../shared/Modal';
+import { ConfirmDialog } from '@octap/shared/components';
 
 const METHOD_TONE: Record<string, string> = {
   GET: 'text-info',

@@ -1,26 +1,15 @@
 @import 'tailwindcss';
-@source "../../../packages/shared/src/google-auth";
+@source "../../../packages/shared/src/authentication";
+@source "../../../packages/shared/src/components";
 @plugin "daisyui";
 
 :root {
-  --brand: #9f0261;
-  --brand-wash: rgba(159, 2, 97, 0.06);
-  --brand-soft: rgba(159, 2, 97, 0.1);
-  --brand-hover: #830250;
-  --secondary: #002b49;
-  --ground: #faf7f9;
-  --surface: #ffffff;
-  --surface-2: #f3eef1;
-  --ink: #17111a;
-  --ink-2: #4a3f4c;
-  --muted: #7b6e7c;
-  --line: #e7dfe4;
-  --line-2: #d6cad1;
-  --font-sans:
-    'Figtree', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    sans-serif;
-  --font-display: 'Archivo', 'Figtree', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-sans: 'Host Grotesk', 'Google Sans';
+  --font-mono: 'Space Mono';
+
+  --size-article: 1600px;
+  /* Width of the side panel when it is retracted to an icon rail. */
+  --size-sidebar-retract: 4.5rem;
 }
 
 html,
@@ -46,6 +35,39 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Focused inputs and textareas show a ring instead of daisyUI's outline. The outline sits 2px
+ * outside the field, so any ancestor with overflow hidden cuts it off; this ring is drawn inside
+ * the border, so nothing can clip it. It keeps daisyUI's focus colour (`--input-color`, set by
+ * `input-primary`, `input-error` and the rest). daisyUI's rules live in sublayers of
+ * `utilities`, so a rule directly in `utilities` takes precedence over them.
+ */
+@layer utilities {
+  .input:focus,
+  .input:focus-within,
+  .textarea:focus,
+  .textarea:focus-within {
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--input-color);
+  }
+}
+
 @utility app-wrapper {
   @apply w-full h-full;
+}
+
+@utility place-center {
+  @apply items-center justify-center;
+}
+
+@utility bg-pattern-dots {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 1) 1Q, transparent 1Q);
+  background-size: 50px 50px;
+}
+
+@utility bg-pattern-grid {
+  background-image:
+    linear-gradient(to right, #000 1Q, transparent 1Q),
+    linear-gradient(to bottom, #000 1Q, transparent 1Q);
+  background-size: 40px 40px;
 }

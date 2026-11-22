@@ -1,0 +1,26 @@
+{
+  "name": "@octap/internal-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser SDK for the OctaP API",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint --config ../../apps/business/eslint.config.js src",
+    "generate": "node scripts/generate-sdk.mjs && prettier --write src/generated"
+  }
+}

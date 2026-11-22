@@ -33,17 +33,11 @@ Core must be running with its migrations applied. See
 - Provider credentials stay in memory; reloading requires Google sign-in again. The real
   portal uses no OctaP SDK, password authentication or custom Redis session.
 
-## Optional demo mode
+## Demo mode
 
-Set `VITE_ENABLE_DEMO_AUTH=true` in this app's `.env.local` and restart Vite. Sign in with
-`admin@octap.io` / `octap123`. The original overview, metrics, partner management, voucher
-moderation, audit, sample search and Mock API console use simulated services.
-
-Demo data and sessions use `octap.admin.mockdb` and `octap.admin.session`, isolated from
-business data. The mock database is loaded/created lazily when first used in demo mode,
-not on module import. Real mode rejects mock reads/resets and never commits mock storage.
-Existing demo data is retained without being read or rewritten in real mode. Demo login
-is not production authentication.
+Password demo sign-in has been removed: both portals sign in with Google only.
+`VITE_ENABLE_DEMO_AUTH=true` still switches a few pages to their old sample data. That
+leftover demo code is due for removal.
 
 ## Validate
 

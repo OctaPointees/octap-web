@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Copy, FileArrowUp, PencilSimple, Plus, Ticket, Warning } from 'phosphor-react';
 import { useState } from 'react';
 import type { ConsoleVoucher } from '@octap/services';
-import { useConsoleAuth } from '@octap/shared/google-auth';
+import { useAuth } from '@octap/shared/authentication';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { Button } from '@/components/shared/Button';
 import { FormField, Segmented, TextInput } from '@/components/shared/Controls';
 import {
@@ -12,7 +13,7 @@ import {
   PageHeader,
   UsageBar,
 } from '@/components/shared/Display';
-import { ConfirmDialog, Modal } from '@/components/shared/Modal';
+import { ConfirmDialog, Modal } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { fmtNumber } from '@/utils/format';
 import { notify } from '@/utils/toast';
@@ -70,9 +71,10 @@ const PUBLISHED: Stage[] = ['scheduled', 'live', 'claims_closed', 'paused', 'sol
 const PUBLISH_POLL_MS = 3000;
 
 export default function ConnectedRewards() {
-  const auth = useConsoleAuth()!;
-  const orgId = auth.organizationId;
-  const owner = auth.owner;
+  const auth = useAuth();
+  const organization = useOrganization();
+  const orgId = organization.organizationId;
+  const owner = organization.owner;
   const cache = useQueryClient();
   const key = ['console-rewards', orgId];
   const [filter, setFilter] = useState<Filter>('all');
@@ -409,8 +411,9 @@ function AvailabilityDialog({
   voucher: ConsoleVoucher;
   onClose: () => void;
 }) {
-  const auth = useConsoleAuth()!;
-  const orgId = auth.organizationId;
+  const auth = useAuth();
+  const organization = useOrganization();
+  const orgId = organization.organizationId;
   const current = useQuery({
     queryKey: ['console-reward', orgId, voucher.id],
     queryFn: ({ signal }) => rewardsApi(auth).get(orgId, voucher.id, signal),
