@@ -107,6 +107,14 @@ test('read returns real balance and history and masks upstream server failures',
     );
   const response = await POST(request({ action: 'read', organizationEndUserId: member }));
   assert.equal((await response.json()).balance.confirmedBalance, 12);
+  globalThis.fetch = async (url) =>
+    Response.json(
+      url.includes('/balance')
+        ? { confirmedBalance: 12 }
+        : { items: [{ id: 'paged', status: 'CONFIRMED' }], nextCursor: null },
+    );
+  const paged = await (await POST(request({ action: 'read', organizationEndUserId: member }))).json();
+  assert.deepEqual(paged.transactions, [{ id: 'paged', status: 'CONFIRMED' }]);
   globalThis.fetch = async () =>
     Response.json({ message: 'sensitive internal details' }, { status: 500 });
   const failure = await POST(request({ action: 'read', organizationEndUserId: member }));

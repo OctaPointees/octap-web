@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
         { message: 'Could not load your points. Please try again.' },
         { status: 502 },
       );
-    const [balance, transactions] = await Promise.all(responses.map((response) => response.json()));
+    const [balance, history] = await Promise.all(responses.map((response) => response.json()));
+    // Core now returns a page ({ items, nextCursor }); older Core returned a bare array.
+    const transactions = Array.isArray(history) ? history : (history?.items ?? []);
     return NextResponse.json(
       {
         confirmedBalance: balance.confirmedBalance,
