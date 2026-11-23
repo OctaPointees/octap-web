@@ -413,12 +413,15 @@ export type Stage =
   | 'live'
   | 'claims_closed'
   | 'paused'
-  | 'sold_out';
+  | 'sold_out'
+  | 'archived';
 
 export function stageOf(
   voucher: Pick<ConsoleVoucher, 'status' | 'publishStatus' | 'startsAt' | 'expiresAt'>,
   now = Date.now(),
 ): Stage {
+  // Left with an archived import batch: frozen until its code is imported again.
+  if (voucher.status === 'ARCHIVED') return 'archived';
   if (voucher.status === 'DEPLETED') return 'sold_out';
   // Never published yet, so neither live nor pausable: an Owner approves or rejects it.
   if (voucher.status === 'PENDING_APPROVAL') return 'pending';

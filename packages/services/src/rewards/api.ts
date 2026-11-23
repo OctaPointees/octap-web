@@ -1,4 +1,13 @@
-import type { ConsoleVoucher, ConsoleVoucherInput, ConsoleVoucherPatch } from './types';
+import type {
+  ConsoleVoucher,
+  ConsoleVoucherInput,
+  ConsoleVoucherPatch,
+  CreateVoucherBatchResponse,
+  VoucherBatch,
+  VoucherBatchActionResponse,
+  VoucherBatchDetail,
+  VoucherBatchItem,
+} from './types';
 
 /**
  * Sends one request to Core and returns its JSON body, or throws on a non-2xx answer.
@@ -42,4 +51,46 @@ export function createRewardsApi(request: CoreRequest) {
   };
 }
 
+/**
+ * Import batches through Core's console batch routes (OCT-303): rows checked with `dryRun`, created
+ * as one DRAFT batch, then activated, paused, resumed or archived together. Every action answers
+ * with each reward's outcome.
+ */
+export function createVoucherBatchesApi(request: CoreRequest) {
+  const batches = (organizationId: string) =>
+    `/v1/console/organizations/${encodeURIComponent(organizationId)}/voucher-batches`;
+  const batch = (organizationId: string, batchId: string) =>
+    `${batches(organizationId)}/${encodeURIComponent(batchId)}`;
+  const action =
+    (name: 'activate' | 'pause' | 'resume' | 'archive') =>
+    (organizationId: string, batchId: string) =>
+      request<VoucherBatchActionResponse>(`${batch(organizationId, batchId)}/${name}`, 'POST');
+  return {
+    /** `dryRun` checks every row and writes nothing. */
+    create: (
+      organizationId: string,
+      body: { items: VoucherBatchItem[]; name?: string; dryRun?: boolean },
+      signal?: AbortSignal,
+    ) => request<CreateVoucherBatchResponse>(batches(organizationId), 'POST', body, signal),
+    list: (organizationId: string, includeArchived: boolean, signal?: AbortSignal) =>
+      request<VoucherBatch[]>(
+        `${batches(organizationId)}${includeArchived ? '?includeArchived=true' : ''}`,
+        'GET',
+        undefined,
+        signal,
+      ),
+    get: (organizationId: string, batchId: string, signal?: AbortSignal) =>
+      request<VoucherBatchDetail>(batch(organizationId, batchId), 'GET', undefined, signal),
+    /** An Owner's activation also approves the rewards waiting for approval. */
+    activate: action('activate'),
+    /** Owner only. */
+    pause: action('pause'),
+    /** Owner only. */
+    resume: action('resume'),
+    /** Its never-live rewards become ARCHIVED; live ones stay live. */
+    archive: action('archive'),
+  };
+}
+
 export type RewardsApi = ReturnType<typeof createRewardsApi>;
+export type VoucherBatchesApi = ReturnType<typeof createVoucherBatchesApi>;

@@ -1,6 +1,6 @@
 import { emptyDraft, suggestCode, type BenefitKind, type RewardDraft } from './benefit';
 
-/** At most this many rows per file: each one is a separate create request. */
+/** At most this many rows per file: Core takes at most this many in one import batch. */
 export const MAX_IMPORT_ROWS = 100;
 
 const COLUMNS: { header: string; field: keyof RewardDraft }[] = [

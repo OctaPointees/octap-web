@@ -1,6 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Copy, FileArrowUp, PencilSimple, Plus, Ticket, Warning } from 'phosphor-react';
+import {
+  ClockCounterClockwise,
+  Copy,
+  FileArrowUp,
+  PencilSimple,
+  Plus,
+  Stack,
+  Ticket,
+  Warning,
+} from 'phosphor-react';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import type { ConsoleVoucher } from '@octap/services';
 import { useAuth } from '@octap/shared/authentication';
 import { ConsoleApiError } from '@octap/shared/console-api';
@@ -19,7 +29,8 @@ import { ConfirmDialog, Modal } from '@octap/shared/components';
 import { cn } from '@/utils/cn';
 import { fmtNumber } from '@/utils/format';
 import { notify } from '@/utils/toast';
-import { rewardsApi } from './rewards/api';
+import { batchesApi, rewardsApi } from './rewards/api';
+import { batchTitle } from './rewards/batches';
 import {
   availabilityPatch,
   claimsClosed,
@@ -37,20 +48,9 @@ import ImportRewards from './rewards/ImportRewards';
 import { coreErrors } from './rewards/errors';
 import { KIND_ICONS } from './rewards/kindIcons';
 import RewardForm, { type RewardFormMode } from './rewards/RewardForm';
+import { STAGES } from './rewards/stages';
 
-const STAGES: Record<Stage, { label: string; tone: string }> = {
-  draft: { label: 'Draft', tone: 'badge-ghost' },
-  pending: { label: 'Pending approval', tone: 'badge-secondary' },
-  publishing: { label: 'Publishing…', tone: 'badge-info' },
-  failed: { label: 'Publish failed', tone: 'badge-error' },
-  scheduled: { label: 'Scheduled', tone: 'badge-info' },
-  live: { label: 'Live', tone: 'badge-success' },
-  claims_closed: { label: 'Claims closed', tone: 'badge-neutral' },
-  paused: { label: 'Paused', tone: 'badge-warning' },
-  sold_out: { label: 'Sold out', tone: 'badge-neutral' },
-};
-
-type Filter = 'all' | 'draft' | 'pending' | 'live' | 'paused' | 'sold_out';
+type Filter = 'all' | 'draft' | 'pending' | 'live' | 'paused' | 'sold_out' | 'archived';
 const FILTERS: { label: string; value: Filter }[] = [
   { label: 'All', value: 'all' },
   { label: 'Drafts', value: 'draft' },
@@ -58,6 +58,7 @@ const FILTERS: { label: string; value: Filter }[] = [
   { label: 'Live', value: 'live' },
   { label: 'Paused', value: 'paused' },
   { label: 'Sold out', value: 'sold_out' },
+  { label: 'Archived', value: 'archived' },
 ];
 /** Publishing and failed rewards are still drafts; scheduled and closed ones are published. */
 const FILTER_OF: Record<Stage, Filter> = {
@@ -70,6 +71,7 @@ const FILTER_OF: Record<Stage, Filter> = {
   claims_closed: 'live',
   paused: 'paused',
   sold_out: 'sold_out',
+  archived: 'archived',
 };
 const PUBLISHED: Stage[] = ['scheduled', 'live', 'claims_closed', 'paused', 'sold_out'];
 
@@ -118,6 +120,14 @@ export default function ConnectedRewards() {
   const [pausing, setPausing] = useState<ConsoleVoucher | null>(null);
   const [availability, setAvailability] = useState<ConsoleVoucher | null>(null);
   const [importing, setImporting] = useState(false);
+  const navigate = useNavigate();
+  // Open imports with drafts left, for the banner that leads back to them.
+  const batches = useQuery({
+    queryKey: ['console-voucher-batches', orgId, false],
+    queryFn: ({ signal }) => batchesApi(auth).list(orgId, false, signal),
+  });
+  const waitingBatches = batches.data?.filter((batch) => (batch.statusCounts.DRAFT ?? 0) > 0) ?? [];
+  const waitingDrafts = waitingBatches.reduce((n, batch) => n + (batch.statusCounts.DRAFT ?? 0), 0);
 
   const list = useQuery({
     queryKey: key,
@@ -193,10 +203,15 @@ export default function ConnectedRewards() {
     return by.type === 'API_CREDENTIAL' ? 'an API key' : nameOf(by.id, 'a Business Developer');
   };
 
-  const counts = { all: 0, draft: 0, pending: 0, live: 0, paused: 0, sold_out: 0 } as Record<
-    Filter,
-    number
-  >;
+  const counts = {
+    all: 0,
+    draft: 0,
+    pending: 0,
+    live: 0,
+    paused: 0,
+    sold_out: 0,
+    archived: 0,
+  } as Record<Filter, number>;
   for (const voucher of list.data ?? []) {
     counts.all += 1;
     counts[FILTER_OF[stageOf(voucher)]] += 1;
@@ -221,7 +236,10 @@ export default function ConnectedRewards() {
             : 'Vouchers your members claim with points. Drafts stay private until an Owner approves them.'
         }
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link to="batches" className="btn btn-ghost">
+              <ClockCounterClockwise /> Import history
+            </Link>
             <Button className="btn-outline" onClick={() => setImporting(true)}>
               <FileArrowUp /> Import CSV
             </Button>
@@ -242,12 +260,30 @@ export default function ConnectedRewards() {
           </span>
         </div>
       )}
+      {waitingBatches.length > 0 && (
+        <div role="status" className="alert alert-info alert-soft text-sm">
+          <Stack size={18} />
+          <span>
+            {waitingBatches.length === 1
+              ? `“${batchTitle(waitingBatches[0])}” has ${waitingDrafts} draft${waitingDrafts === 1 ? '' : 's'} waiting to go live.`
+              : `${waitingBatches.length} imports have ${waitingDrafts} drafts waiting to go live.`}
+          </span>
+          <Link
+            className="btn btn-ghost btn-xs"
+            to={waitingBatches.length === 1 ? `batches/${waitingBatches[0].id}` : 'batches'}
+          >
+            Open
+          </Link>
+        </div>
+      )}
       <Segmented
         value={filter}
         onValueChange={setFilter}
         // The approval tab shows while approval is on, and while rewards still wait after it is off.
         options={FILTERS.filter(
-          ({ value }) => value !== 'pending' || approvalRequired || counts.pending > 0,
+          ({ value }) =>
+            (value !== 'pending' || approvalRequired || counts.pending > 0) &&
+            (value !== 'archived' || counts.archived > 0),
         ).map(({ label, value }) => ({
           value,
           label: list.data ? `${label} (${counts[value]})` : label,
@@ -319,6 +355,11 @@ export default function ConnectedRewards() {
                   Submitted by {submitterOf(voucher)}. An Owner approves it before it goes live.
                 </p>
               )}
+              {stage === 'archived' && (
+                <p className="text-xs opacity-70">
+                  Its import was archived. Import its code again to use it.
+                </p>
+              )}
               {rejection && (
                 <p role="note" className="alert alert-warning alert-soft text-xs">
                   <span>
@@ -330,7 +371,7 @@ export default function ConnectedRewards() {
                 </p>
               )}
               <div className="mt-auto flex flex-wrap items-center justify-end gap-1 border-t border-base-300 pt-3">
-                {stage === 'publishing' ? (
+                {stage === 'publishing' || stage === 'archived' ? (
                   <Button className="btn-ghost btn-xs" onClick={view}>
                     View
                   </Button>
@@ -462,6 +503,7 @@ export default function ConnectedRewards() {
             setImporting(false);
             refresh();
           }}
+          onOpenBatch={(id) => navigate(`batches/${id}`)}
         />
       )}
       {availability && (

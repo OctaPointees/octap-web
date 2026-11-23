@@ -18,6 +18,8 @@ import DeveloperApiKeysPage from './developer/pages/ApiKeysPage';
 import Dashboard from './console/Dashboard';
 import Members from './console/Members';
 import Rewards from './console/Rewards';
+import BatchDetail from './console/rewards/BatchDetail';
+import ImportHistory from './console/rewards/ImportHistory';
 
 /** Pages of one organization, under `/organizations/:organizationId`. */
 const organizationRoutes: RouteObject[] = [
@@ -31,6 +33,8 @@ const organizationRoutes: RouteObject[] = [
         children: [
           { index: true, element: <Dashboard /> },
           { path: 'rewards', element: <Rewards /> },
+          { path: 'rewards/batches', element: <ImportHistory /> },
+          { path: 'rewards/batches/:batchId', element: <BatchDetail /> },
           { path: 'members', element: <Members /> },
           { path: 'settings', element: <OrganizationSettings view="profile" /> },
           { path: 'team', element: <OrganizationSettings view="team" /> },
@@ -46,6 +50,8 @@ const organizationRoutes: RouteObject[] = [
       { path: 'api-keys', element: <DeveloperApiKeysPage /> },
       { path: 'members', element: <Members /> },
       { path: 'rewards', element: <Rewards /> },
+      { path: 'rewards/batches', element: <ImportHistory /> },
+      { path: 'rewards/batches/:batchId', element: <BatchDetail /> },
     ],
   },
 ];
