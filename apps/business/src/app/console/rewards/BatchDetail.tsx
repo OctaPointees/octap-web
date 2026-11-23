@@ -34,6 +34,8 @@ type Action = 'activate' | 'pause' | 'resume' | 'archive';
 const PUBLISH_POLL_MS = 3000;
 
 const plural = (n: number, word: string) => `${fmtNumber(n)} ${word}${n === 1 ? '' : 's'}`;
+/** The verb that agrees with `n`: `verb(1, 'is', 'are')` is "is". */
+const verb = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 /**
  * One import batch (OCT-304): its rewards, and what can be done to all of them at once. Buttons
@@ -197,8 +199,8 @@ export default function BatchDetail() {
       )}
       {!submits && owner && counts.waiting > 0 && !archived && (
         <p role="status" className="alert alert-info alert-soft mb-4 text-sm">
-          {plural(counts.waiting, 'reward')} wait for your approval. Activate all approves and
-          publishes them with the drafts.
+          {plural(counts.waiting, 'reward')} {verb(counts.waiting, 'waits', 'wait')} for your
+          approval. Activate all approves and publishes them with the drafts.
         </p>
       )}
       <ul className="flex flex-col divide-y divide-base-300 rounded-box border border-base-300 bg-base-100">
@@ -281,7 +283,11 @@ export default function BatchDetail() {
               {plural(counts.waiting, 'reward')} waiting for approval will be approved and published
             </li>
           )}
-          {counts.live > 0 && <li>{plural(counts.live, 'reward')} already live are skipped</li>}
+          {counts.live > 0 && (
+            <li>
+              {plural(counts.live, 'reward')} already live {verb(counts.live, 'is', 'are')} skipped
+            </li>
+          )}
           {!submits && (
             <li className="opacity-70">
               Publishing runs a few at a time: the whole batch takes a few minutes.
@@ -300,13 +306,21 @@ export default function BatchDetail() {
         onConfirm={() => run.mutate('archive')}
       >
         <ul className="flex flex-col gap-1 text-sm">
-          {counts.drafts > 0 && <li>Its {plural(counts.drafts, 'draft')} are frozen.</li>}
+          {counts.drafts > 0 && (
+            <li>
+              Its {plural(counts.drafts, 'draft')} {verb(counts.drafts, 'is', 'are')} frozen.
+            </li>
+          )}
           {counts.waiting > 0 && (
-            <li>Its {plural(counts.waiting, 'reward')} waiting for approval are withdrawn.</li>
+            <li>
+              Its {plural(counts.waiting, 'reward')} waiting for approval{' '}
+              {verb(counts.waiting, 'is', 'are')} withdrawn.
+            </li>
           )}
           {counts.live > 0 && (
             <li>
-              Its {plural(counts.live, 'live reward')} stay live: use Pause all to stop claims.
+              Its {plural(counts.live, 'live reward')} {verb(counts.live, 'stays', 'stay')} live:
+              use Pause all to stop claims.
             </li>
           )}
           <li className="opacity-70">

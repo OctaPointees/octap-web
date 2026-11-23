@@ -267,7 +267,7 @@ test('an Owner activates a batch, which also approves what waits, and sees each 
     batchRoutes(core),
   );
   await openBatch(page, /rewards\.csv/);
-  await expect(page.getByText('1 reward wait for your approval.', { exact: false })).toBeVisible();
+  await expect(page.getByText('1 reward waits for your approval.', { exact: false })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Pause all (1)' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Activate all (3)' }).click();
@@ -276,7 +276,7 @@ test('an Owner activates a batch, which also approves what waits, and sees each 
   await expect(
     dialog.getByText('1 reward waiting for approval will be approved and published'),
   ).toBeVisible();
-  await expect(dialog.getByText('1 reward already live are skipped')).toBeVisible();
+  await expect(dialog.getByText('1 reward already live is skipped')).toBeVisible();
   await dialog.getByRole('button', { name: 'Activate 3' }).click();
   await expect.poll(() => core.actions).toEqual(['activate']);
   const soon = page.getByRole('listitem', { name: 'SOON' });
@@ -323,9 +323,9 @@ test('archiving says what is frozen and what stays live, then hides Activate', a
   await openBatch(page, /rewards\.csv/);
   await page.getByRole('button', { name: 'Archive' }).click();
   const dialog = page.getByRole('alertdialog');
-  await expect(dialog.getByText('Its 1 draft are frozen.')).toBeVisible();
+  await expect(dialog.getByText('Its 1 draft is frozen.')).toBeVisible();
   await expect(
-    dialog.getByText('Its 1 live reward stay live: use Pause all to stop claims.'),
+    dialog.getByText('Its 1 live reward stays live: use Pause all to stop claims.'),
   ).toBeVisible();
   // Core now answers with the batch archived and its draft ARCHIVED.
   core.batches = [
