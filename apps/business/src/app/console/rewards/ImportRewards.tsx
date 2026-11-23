@@ -32,6 +32,7 @@ import {
 import { describeBenefit, toVoucherInput, type RewardDraft } from './benefit';
 import { CSV_TEMPLATE, MAX_IMPORT_ROWS, columnOf, draftsFromCsv } from './csv';
 import { coreErrors } from './errors';
+import { buildXlsxTemplate } from './xlsxTemplate';
 
 /** A row of the file after the checks made in the browser: `input` is what Core is sent. */
 interface FileRow {
@@ -72,6 +73,19 @@ function checkRows(text: string): { rows: FileRow[]; error?: string } {
       : { ...row, input };
   });
   return { rows, error: parsed.error };
+}
+
+/** Saves the Excel template, built in the browser from the CSV template. */
+function downloadXlsxTemplate() {
+  const blob = new Blob([buildXlsxTemplate() as BlobPart], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'octap-rewards-template.xlsx';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /** The batch is named after the file, so the merchant recognizes it in Import history. */
@@ -304,13 +318,25 @@ function Upload({
           At most {MAX_IMPORT_ROWS} rewards. From Excel: File › Save as › CSV UTF-8.
         </span>
       </label>
-      <a
-        className="link self-start text-sm"
-        download="octap-rewards-template.csv"
-        href={`data:text/csv;charset=utf-8,${encodeURIComponent(CSV_TEMPLATE)}`}
-      >
-        Download the template
-      </a>
+      <div className="flex flex-col gap-1 text-sm">
+        <span className="flex flex-wrap gap-x-4 gap-y-1">
+          <button type="button" className="link" onClick={downloadXlsxTemplate}>
+            Download the Excel template
+          </button>
+          <a
+            className="link"
+            download="octap-rewards-template.csv"
+            href={`data:text/csv;charset=utf-8,${encodeURIComponent(CSV_TEMPLATE)}`}
+          >
+            Download the template
+          </a>
+        </span>
+        <span className="text-xs opacity-60">
+          The Excel template has a drop-down for the type and checks dates and numbers as you type;
+          its Guide sheet says which columns each type needs. Fill it in Excel or Google Sheets,
+          then save it as CSV and choose that file here.
+        </span>
+      </div>
       {file?.error && (
         <p role="alert" className="alert alert-error alert-soft text-sm">
           {file.error}

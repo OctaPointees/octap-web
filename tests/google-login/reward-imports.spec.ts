@@ -201,6 +201,25 @@ test('the downloadable template has one cell per column on every row', async ({ 
   expect(text.split('\n')[0]).toContain('claims_close_on');
 });
 
+test('the Excel template has a type drop-down and checks dates and numbers', async ({ page }) => {
+  await openRewards(page, 'BUSINESS_OWNER', catalog([], []), {}, batchRoutes(newCore()));
+  await page.getByRole('button', { name: 'Import CSV' }).click();
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download the Excel template' }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toBe('octap-rewards-template.xlsx');
+  // Stored without compression, so the sheets read as text inside the zip.
+  const path = await file.path();
+  const text = (await import('node:fs')).readFileSync(path).toString('utf8');
+  expect(text.startsWith('PK')).toBe(true);
+  expect(text).toContain(
+    '<formula1>"percent_off,amount_off,free_item,buy_x_get_y,free_shipping,fixed_price,custom"</formula1>',
+  );
+  expect(text).toMatch(/type="date"[^>]*sqref="Q2:Q101"/);
+  expect(text).toMatch(/type="whole"[^>]*sqref="D2:D101"/);
+  expect(text).toContain('<sheet name="Guide"');
+});
+
 test('nothing can be created when no row can be written, and Review says why', async ({ page }) => {
   const core = newCore({
     results: () => ({

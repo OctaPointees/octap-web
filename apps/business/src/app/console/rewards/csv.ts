@@ -50,6 +50,17 @@ const KIND_ALIASES: Record<string, BenefitKind> = {
   custom: 'CUSTOM',
 };
 
+/** The `type` of each kind as the template writes it; the Excel template offers these in a drop-down. */
+export const CSV_TYPES = [
+  'percent_off',
+  'amount_off',
+  'free_item',
+  'buy_x_get_y',
+  'free_shipping',
+  'fixed_price',
+  'custom',
+] as const;
+
 /**
  * One example row per kind, so the template documents itself: a welcome-style reward that lasts
  * 14 days from claiming, a coffee swap with no per-member limit, and so on.
