@@ -189,7 +189,7 @@ test('a CSV reads the new columns, an old template, and dates Excel rewrote', as
 test('the downloadable template has one cell per column on every row', async ({ page }) => {
   await openRewards(page, 'BUSINESS_OWNER', catalog([], []), {}, batchRoutes(newCore()));
   await page.getByRole('button', { name: 'Import CSV' }).click();
-  const href = await page.getByRole('link', { name: 'Download the template' }).getAttribute('href');
+  const href = await page.getByRole('link', { name: 'CSV version' }).getAttribute('href');
   const text = decodeURIComponent(String(href).split(',').slice(1).join(','));
   await page.getByLabel('CSV file').setInputFiles({
     name: 'template.csv',
@@ -205,7 +205,7 @@ test('the Excel template has a type drop-down and checks dates and numbers', asy
   await openRewards(page, 'BUSINESS_OWNER', catalog([], []), {}, batchRoutes(newCore()));
   await page.getByRole('button', { name: 'Import CSV' }).click();
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download the Excel template' }).click();
+  await page.getByRole('button', { name: 'Download the template (Excel)' }).click();
   const file = await download;
   expect(file.suggestedFilename()).toBe('octap-rewards-template.xlsx');
   // Stored without compression, so the sheets read as text inside the zip.

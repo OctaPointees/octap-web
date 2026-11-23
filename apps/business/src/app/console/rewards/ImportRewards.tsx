@@ -4,6 +4,7 @@ import {
   CaretDown,
   CaretRight,
   CheckCircle,
+  DownloadSimple,
   Circle,
   Warning,
   XCircle,
@@ -318,25 +319,22 @@ function Upload({
           At most {MAX_IMPORT_ROWS} rewards. From Excel: File › Save as › CSV UTF-8.
         </span>
       </label>
-      <div className="flex flex-col gap-1 text-sm">
-        <span className="flex flex-wrap gap-x-4 gap-y-1">
-          <button type="button" className="link" onClick={downloadXlsxTemplate}>
-            Download the Excel template
-          </button>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+        <Button className="btn-outline btn-sm" onClick={downloadXlsxTemplate}>
+          <DownloadSimple /> Download the template (Excel)
+        </Button>
+        <span className="opacity-70">
+          or the{' '}
           <a
             className="link"
             download="octap-rewards-template.csv"
             href={`data:text/csv;charset=utf-8,${encodeURIComponent(CSV_TEMPLATE)}`}
           >
-            Download the template
+            CSV version
           </a>
         </span>
-        <span className="text-xs opacity-60">
-          The Excel template has a drop-down for the type and checks dates and numbers as you type;
-          its Guide sheet says which columns each type needs. Fill it in Excel or Google Sheets,
-          then save it as CSV and choose that file here.
-        </span>
       </div>
+      <p className="-mt-2 text-xs opacity-60">Fill it in, save it as CSV, then choose it here.</p>
       {file?.error && (
         <p role="alert" className="alert alert-error alert-soft text-sm">
           {file.error}
