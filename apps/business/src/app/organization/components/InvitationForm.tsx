@@ -13,8 +13,8 @@ const TOKEN = /^[a-f0-9]{64}$/;
 
 const CAN_DO: { icon: Icon; text: string }[] = [
   { icon: Key, text: 'Create read-only API keys for your integrations' },
-  { icon: NotePencil, text: 'Create and edit reward drafts' },
-  { icon: UsersThree, text: 'View members, rewards and the points budget' },
+  { icon: NotePencil, text: 'Create and edit voucher drafts' },
+  { icon: UsersThree, text: 'View members, vouchers and the points budget' },
 ];
 
 type Problem = { title: string; detail: string; next: 'switch' | 'leave' };

@@ -27,13 +27,15 @@ const organizationRoutes: RouteObject[] = [
     element: <WorkspaceLayout />,
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: 'rewards', element: <RewardsPage /> },
+      { path: 'vouchers', element: <RewardsPage /> },
       { path: 'members', element: <MembersPage /> },
       { path: 'api-keys', element: <ApiKeysPage /> },
       { path: 'team', element: <TeamPage /> },
       { path: 'settings', element: <SettingsPage /> },
     ],
   },
+  // The Vouchers page used to be called Rewards.
+  { path: 'rewards', element: <Navigate to="../vouchers" relative="path" replace /> },
   // Pages used to be split into a Business and a Developer panel.
   { path: 'merchant/*', element: <LegacyPanelRedirect /> },
   { path: 'developer/*', element: <LegacyPanelRedirect /> },

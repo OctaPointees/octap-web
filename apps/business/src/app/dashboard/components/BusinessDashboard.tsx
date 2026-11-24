@@ -95,7 +95,7 @@ export function BusinessDashboard() {
   const { owner, slug } = useOrganization();
   const rewards = useRewards();
   const budget = useIssuanceBudget();
-  const rewardsPath = organizationPath(slug, 'rewards');
+  const rewardsPath = organizationPath(slug, 'vouchers');
   const summary = rewards.data ? summarizeRewards(rewards.data) : undefined;
   const budgetItem = budgetAttention(budget.data);
   const attention: AttentionItem[] = [
@@ -105,7 +105,7 @@ export function BusinessDashboard() {
   const pipelineTotal = rewards.data?.length ?? 0;
   const allRewards = (
     <Link className="link text-sm font-normal" to={rewardsPath}>
-      All rewards
+      All vouchers
     </Link>
   );
 
@@ -113,7 +113,7 @@ export function BusinessDashboard() {
     <>
       <PageHeader
         title="Dashboard"
-        description="What needs attention in your loyalty program, and how your members and rewards are doing."
+        description="What needs attention in your loyalty program, and how your members and vouchers are doing."
       />
 
       <div className="flex flex-col gap-4">
@@ -122,7 +122,7 @@ export function BusinessDashboard() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <BudgetCard />
           <StatCard
-            label="Live rewards"
+            label="Live vouchers"
             icon={Lightning}
             value={summary ? fmtNumber(summary.stages.live) : <Skeleton className="h-8 w-16" />}
             hint={summary && `${fmtNumber(summary.stages.scheduled)} scheduled`}
@@ -131,7 +131,7 @@ export function BusinessDashboard() {
             label="Vouchers claimed"
             icon={Ticket}
             value={summary ? fmtNumber(summary.claimed) : <Skeleton className="h-8 w-16" />}
-            hint="Across all rewards"
+            hint="Across all vouchers"
           />
           <StatCard
             label="Drafts"
@@ -154,18 +154,18 @@ export function BusinessDashboard() {
           <Card>
             <EmptyState
               icon={Ticket}
-              title="No rewards yet"
-              description="Create your first reward so members have something to spend their points on."
+              title="No vouchers yet"
+              description="Create your first voucher so members have something to spend their points on."
               action={
                 <Link className="btn btn-primary btn-sm" to={rewardsPath}>
-                  Go to Rewards
+                  Go to Vouchers
                 </Link>
               }
             />
           </Card>
         ) : (
           <div className="animate-reveal grid items-start gap-4 xl:grid-cols-5">
-            <Card className="xl:col-span-3" title="Top rewards" actions={allRewards}>
+            <Card className="xl:col-span-3" title="Top vouchers" actions={allRewards}>
               {summary.top.length ? (
                 <ol className="flex flex-col gap-4">
                   {summary.top.map((reward) => (
@@ -190,13 +190,13 @@ export function BusinessDashboard() {
                 </ol>
               ) : (
                 <p className="py-6 text-center text-sm opacity-60">
-                  No vouchers claimed yet. Your most claimed rewards will show here.
+                  No vouchers claimed yet. Your most claimed vouchers will show here.
                 </p>
               )}
             </Card>
 
             <div className="flex flex-col gap-4 xl:col-span-2">
-              <Card title="Reward pipeline">
+              <Card title="Voucher pipeline">
                 <div className="mb-4 flex h-2 overflow-hidden rounded-full bg-base-200" aria-hidden>
                   {summary.pipeline.map(
                     (stage) =>
@@ -235,7 +235,7 @@ export function BusinessDashboard() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm opacity-60">No live rewards close in the next 7 days.</p>
+                  <p className="text-sm opacity-60">No live vouchers close in the next 7 days.</p>
                 )}
               </Card>
             </div>

@@ -31,7 +31,7 @@ function AttentionRow({ item }: { item: AttentionItem }) {
 
   return item.rewards ? (
     <Link
-      to={organizationPath(slug, 'rewards')}
+      to={organizationPath(slug, 'vouchers')}
       className={cn(row, 'outline-none hover:bg-base-200/60 focus-visible:bg-base-200/60')}
     >
       {content}

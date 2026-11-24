@@ -21,7 +21,7 @@ export interface AttentionItem {
   rewards?: boolean;
 }
 
-const rewardCount = (n: number) => `${fmtNumber(n)} reward${n === 1 ? '' : 's'}`;
+const rewardCount = (n: number) => `${fmtNumber(n)} voucher${n === 1 ? '' : 's'}`;
 
 /** The catalog at a glance. */
 export function summarizeRewards(rewards: Reward[], now = Date.now()) {
@@ -74,7 +74,7 @@ export function rewardAttention(
       id: 'failed',
       tone: 'error',
       title: `${rewardCount(stages.failed)} failed to publish`,
-      detail: 'Open Rewards and try activating again.',
+      detail: 'Open Vouchers and try activating again.',
       rewards: true,
     });
   if (stages.pending_approval)
@@ -82,7 +82,7 @@ export function rewardAttention(
       id: 'approval',
       tone: 'warning',
       title: `${rewardCount(stages.pending_approval)} awaiting ${owner ? 'your' : 'the Owner’s'} approval`,
-      detail: 'Members can’t claim a reward until it’s approved.',
+      detail: 'Members can’t claim a voucher until it’s approved.',
       rewards: true,
     });
   if (stages.sold_out)

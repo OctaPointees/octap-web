@@ -14,7 +14,7 @@ import { useOrganizationAction } from '@/app/organization/hooks/useOrganizationA
 import { formFields, organizationTypeLabel } from '@/app/organization/utils';
 
 /** A settings card: fields in the body, Cancel and Save in a footer (none when read-only). */
-function SettingsForm({
+export function SettingsForm({
   onSubmit,
   onCancel,
   dirty,

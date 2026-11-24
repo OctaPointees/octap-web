@@ -178,7 +178,7 @@ const STATUS: Record<Exclude<Status, 'ACTIVE'>, { label: string; icon: Icon; car
   SUSPENDED: { label: 'Suspended', icon: Pause, card: 'border-warning/40 bg-warning/10' },
   ARCHIVED: { label: 'Archived', icon: Archive },
 };
-const ownerTip = 'Owners manage organization settings, the team, rewards and API keys.';
+const ownerTip = 'Owners manage organization settings, the team, vouchers and API keys.';
 const developerTip = 'Developers manage API keys, webhooks and integrations for this organization.';
 
 /**

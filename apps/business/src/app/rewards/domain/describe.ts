@@ -33,7 +33,7 @@ export function describeOffer(draft: RewardDraft): string {
       parts.push(`${draft.item || 'Special offer'} for ${vnd(draft.priceVnd)}`);
       break;
     case 'CUSTOM':
-      parts.push(draft.benefit || 'Custom reward');
+      parts.push(draft.benefit || 'Custom voucher');
       break;
   }
   return parts.join(', ');

@@ -42,7 +42,7 @@ export function InviteDialog({
       description={
         created
           ? `Send this link to ${created.email}. It works once, for that Google account, until ${format(new Date(created.expiresAt), 'PP')}.`
-          : 'They join as a Developer: API keys and integrations, read-only rewards and members.'
+          : 'They join as a Developer: API keys and integrations, read-only vouchers and members.'
       }
       footer={
         created ? (

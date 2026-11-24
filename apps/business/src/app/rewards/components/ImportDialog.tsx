@@ -101,7 +101,7 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
       open={open}
       onOpenChange={(next) => !next && close()}
       onExited={clear}
-      title="Import rewards"
+      title="Import vouchers"
       description="Each row of the file becomes a draft you can review before activating."
       size="lg"
       footer={
@@ -154,7 +154,7 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
           <PlusCircle size={30} className="opacity-60" aria-hidden />
           <span className="text-sm opacity-70">Drag & drop or click to choose a CSV file</span>
           <span className="flex items-center gap-1 text-xs opacity-60">
-            <Info size={14} aria-hidden /> Up to 1 MB and {MAX_IMPORT_ROWS} rewards per file
+            <Info size={14} aria-hidden /> Up to 1 MB and {MAX_IMPORT_ROWS} vouchers per file
           </span>
         </label>
 
@@ -188,7 +188,7 @@ export function ImportDialog({ open, onClose }: { open: boolean; onClose: () => 
 
         <a
           className="btn btn-soft btn-sm w-full font-medium"
-          download="octap-rewards-template.csv"
+          download="octap-vouchers-template.csv"
           href={`data:text/csv;charset=utf-8,${encodeURIComponent(CSV_TEMPLATE)}`}
         >
           <DownloadSimple size={16} /> Download the CSV template

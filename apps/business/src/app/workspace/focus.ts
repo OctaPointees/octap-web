@@ -13,20 +13,20 @@ export type Focus = 'business' | 'developer';
 export const FOCUSES: Record<Focus, { label: string; description: string; icon: Icon }> = {
   business: {
     label: 'Business',
-    description: 'Rewards, members, team and settings',
+    description: 'Vouchers, members, team and settings',
     icon: Storefront,
   },
   developer: {
     label: 'Developer',
-    description: 'API keys, members, rewards and settings',
+    description: 'API keys, members, vouchers and settings',
     icon: Code,
   },
 };
 
 /** The pages each focus lists, in sidebar order. An empty string is the dashboard. */
 export const FOCUS_PAGES: Record<Focus, Array<OrganizationPage | ''>> = {
-  business: ['', 'rewards', 'members', 'team', 'settings'],
-  developer: ['', 'api-keys', 'members', 'rewards', 'settings'],
+  business: ['', 'vouchers', 'members', 'team', 'settings'],
+  developer: ['', 'api-keys', 'members', 'vouchers', 'settings'],
 };
 
 // The choice is kept per browser. Storage can be unavailable (private mode, blocked site data),

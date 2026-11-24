@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Field } from '@base-ui/react/field';
 import { LockSimple, PencilSimple } from 'phosphor-react';
 import { Button, ConfirmDialog, SidePanel } from '@octap/shared/components';
+import { describeRefundRules } from '@/app/settings/domain/refundPolicy';
 import { cn } from '@/utils/cn';
 import {
   describeBenefit,
@@ -180,17 +181,17 @@ export function RewardPanel({
   const kindLocked = (kind: typeof draft.kind) => !!reward?.discountType && !hasDiscountType(kind);
 
   const title = readOnly
-    ? 'Reward details'
+    ? 'Voucher details'
     : mode.type === 'edit'
       ? 'Edit draft'
       : mode.type === 'create' && mode.from
-        ? 'Duplicate reward'
-        : 'New reward';
+        ? 'Duplicate voucher'
+        : 'New voucher';
   const description =
     reward && isLocked(reward)
       ? 'Published on-chain, so these terms never change. To offer something different, duplicate it.'
       : readOnly
-        ? 'You can view this reward. Only its draft can be edited.'
+        ? 'You can view this voucher. Only its draft can be edited.'
         : 'Saved as a draft until it is activated. Activation publishes the locked parts on-chain for good, so leave out personal information.';
 
   const kind = KINDS[draft.kind];
@@ -251,7 +252,7 @@ export function RewardPanel({
                     As members see it
                   </p>
                   <p className="mt-1 truncate text-lg font-semibold">
-                    {draft.title || 'Reward title'}
+                    {draft.title || 'Voucher title'}
                   </p>
                   <p className="text-sm">{describeBenefit(draft)}</p>
                 </div>
@@ -294,8 +295,8 @@ export function RewardPanel({
           )}
 
           <Section title="Offer" locked>
-            <div role="radiogroup" aria-label="Reward type" className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Reward type</span>
+            <div role="radiogroup" aria-label="Voucher type" className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Voucher type</span>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {KIND_ORDER.map((option) => {
                   const { label, icon: KindIcon } = KINDS[option];
@@ -467,6 +468,24 @@ export function RewardPanel({
               )}
             </div>
           </Section>
+
+          {reward?.refundPolicy && isLocked(reward) && (
+            <Section title="Refund terms" locked>
+              <dl className="flex flex-col gap-1 text-sm">
+                {describeRefundRules(reward.refundPolicy).map((row) => (
+                  <div key={row.label} className="grid grid-cols-[8rem_minmax(0,1fr)] gap-3">
+                    <dt className="opacity-60">{row.label}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="text-xs opacity-60">
+                {reward.refundPolicy.version === 0
+                  ? 'From the default refund policy.'
+                  : `From refund policy version ${reward.refundPolicy.version}.`}
+              </p>
+            </Section>
+          )}
 
           <Section title="Availability" locked={false}>
             <div className="grid gap-4 sm:grid-cols-2">

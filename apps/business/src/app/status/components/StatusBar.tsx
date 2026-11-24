@@ -149,7 +149,7 @@ export function StatusBar({
         {network === 'testnet' && (
           <span
             className="badge badge-soft badge-warning badge-xs"
-            title="Test network: points and rewards here aren’t real."
+            title="Test network: points and vouchers here aren’t real."
           >
             Testnet
           </span>

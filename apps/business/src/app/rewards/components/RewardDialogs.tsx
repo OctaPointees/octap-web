@@ -3,6 +3,8 @@ import { LockSimple, PencilSimple } from 'phosphor-react';
 import { Button, ConfirmDialog, Modal, useExitValue } from '@octap/shared/components';
 import { FormField, TextInput } from '@/components/shared/Controls';
 import { UsageBar } from '@/components/shared/Display';
+import { describeRefundRules } from '@/app/settings/domain/refundPolicy';
+import { useRefundPolicy } from '@/app/settings/hooks/useRefundPolicy';
 import { fmtNumber, fmtVnd } from '@/utils/format';
 import {
   describeClaimDates,
@@ -56,7 +58,7 @@ export function RewardConfirm({
     }
   > = {
     activate: {
-      title: 'Activate this reward?',
+      title: 'Activate this voucher?',
       description: ACTIVATION,
       confirmLabel: 'Activate',
       tone: 'primary',
@@ -68,13 +70,13 @@ export function RewardConfirm({
       tone: 'primary',
     },
     pause: {
-      title: 'Pause this reward?',
-      description: `Members can't claim "${reward?.title ?? 'this reward'}" until you resume it. Vouchers already claimed keep working.`,
+      title: 'Pause this voucher?',
+      description: `Members can't claim "${reward?.title ?? 'this voucher'}" until you resume it. Those already claimed keep working.`,
       confirmLabel: 'Pause',
       tone: 'warning',
     },
     reject: {
-      title: 'Send this reward back to draft?',
+      title: 'Send this voucher back to draft?',
       description:
         'Whoever submitted it sees your reason and can change it before submitting again.',
       confirmLabel: 'Reject',
@@ -120,6 +122,20 @@ function SummaryRow({ label, children }: { label: string; children: ReactNode })
   );
 }
 
+/**
+ * The refund rules this reward will lock in. Only the Owner can read the policy, so a Developer
+ * sees where the terms come from instead.
+ */
+function RefundSummaryRows() {
+  const { data: policy } = useRefundPolicy();
+  if (!policy) return <SummaryRow label="Refunds">Current refund policy</SummaryRow>;
+  return describeRefundRules(policy).map((row) => (
+    <SummaryRow key={row.label} label={row.label}>
+      {row.value}
+    </SummaryRow>
+  ));
+}
+
 /** What activating freezes on-chain, and what the Owner can still change afterwards. */
 function ActivationSummary({ reward }: { reward: Reward }) {
   const draft = fromReward(reward);
@@ -163,6 +179,7 @@ function ActivationSummary({ reward }: { reward: Reward }) {
           )}
           <SummaryRow label="Claims">{describeClaimDates(draft)}</SummaryRow>
           <SummaryRow label="Validity">{describeValidity(draft)}</SummaryRow>
+          <RefundSummaryRows />
         </dl>
       </section>
 

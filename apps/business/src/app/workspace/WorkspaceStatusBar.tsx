@@ -17,11 +17,11 @@ function PublishingNote() {
 
   return (
     <Link
-      to={organizationPath(slug, 'rewards')}
+      to={organizationPath(slug, 'vouchers')}
       className="flex shrink-0 items-center gap-1.5 hover:underline"
     >
       <span className="loading loading-spinner loading-xs" aria-hidden />
-      Publishing {count} reward{count === 1 ? '' : 's'}
+      Publishing {count} voucher{count === 1 ? '' : 's'}
     </Link>
   );
 }

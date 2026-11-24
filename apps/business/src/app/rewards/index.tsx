@@ -103,7 +103,7 @@ export default function RewardsPage() {
   const columns = useMemo(
     () => [
       column.accessor('title', {
-        header: 'Reward',
+        header: 'Voucher',
         size: 300,
         cell: ({ row }) => {
           const reward = row.original;
@@ -197,7 +197,7 @@ export default function RewardsPage() {
   return (
     <>
       <PageHeader
-        title="Rewards"
+        title="Vouchers"
         description="What members can claim with their points. Drafts stay private until they are activated."
         actions={
           <>
@@ -205,7 +205,7 @@ export default function RewardsPage() {
               <FileArrowUp size={16} className="mr-1.5" /> Import CSV
             </Button>
             <Button className="btn-primary btn-sm" onClick={() => setPanel({ type: 'create' })}>
-              <Plus size={16} className="mr-1.5" /> New reward
+              <Plus size={16} className="mr-1.5" /> New voucher
             </Button>
           </>
         }
@@ -261,13 +261,13 @@ export default function RewardsPage() {
           icon={Ticket}
           title={
             filter === 'all'
-              ? 'No rewards yet'
-              : `No ${FILTERS.find((f) => f.value === filter)!.label.toLowerCase()} rewards`
+              ? 'No vouchers yet'
+              : `No ${FILTERS.find((f) => f.value === filter)!.label.toLowerCase()} vouchers`
           }
           description={
             filter === 'all'
-              ? 'Create a reward, or import several from a CSV file, then activate it for members.'
-              : 'Rewards move here as their stage changes.'
+              ? 'Create a voucher, or import several from a CSV file, then activate it for members.'
+              : 'Vouchers move here as their stage changes.'
           }
         />
       ) : view === 'cards' ? (

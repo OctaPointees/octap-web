@@ -25,7 +25,7 @@ export function fieldOfCoreError(message: string): DraftField | 'form' {
 export function coreErrors(error: unknown): DraftErrors {
   if (!(error instanceof Error)) return {};
   if (!(error instanceof OctapError)) return { form: error.message };
-  if (error.status === 403) return { form: "You can't make this change to the reward." };
+  if (error.status === 403) return { form: "You can't make this change to the voucher." };
   if (error.status === 422)
     return { form: 'This organization has no loyalty program on-chain yet. Contact OctaP.' };
   // No status means no answer at all: offline, CORS or the 30 second timeout.

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Info } from 'phosphor-react';
 import { PageHeader } from '@/components/shared/Display';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { RefundPolicySection } from './components/RefundPolicyForm';
 import { OrganizationGeneralForm, OrganizationIdentityForm } from './components/SettingsForms';
 
 /** One settings topic: its title and explanation on the left, its card on the right. */
@@ -39,7 +40,11 @@ export default function SettingsPage() {
     <>
       <PageHeader
         title="Organization settings"
-        description="Your organization's name and the legal identity OctaP holds for it."
+        description={
+          owner
+            ? "Your organization's name, legal identity and refund rules."
+            : "Your organization's name and the legal identity OctaP holds for it."
+        }
       />
       {readOnly && (
         <p role="note" className="mb-6 flex items-start gap-2 text-sm opacity-75">
@@ -60,6 +65,15 @@ export default function SettingsPage() {
         >
           <OrganizationIdentityForm key={key} organization={organization} readOnly={readOnly} />
         </SettingsSection>
+        {/* Core answers 403 to anyone else, reads included, so it has no read-only view. */}
+        {owner && (
+          <SettingsSection
+            title="Refund policy"
+            description="When customers can get points back on a claimed voucher. Each change is a new version and applies to vouchers activated afterwards."
+          >
+            <RefundPolicySection />
+          </SettingsSection>
+        )}
       </div>
     </>
   );

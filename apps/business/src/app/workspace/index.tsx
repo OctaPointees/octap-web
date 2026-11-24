@@ -11,7 +11,7 @@ import { WorkspaceStatusBar } from './WorkspaceStatusBar';
 
 const PAGES: Record<OrganizationPage | '', { label: string; icon: Icon }> = {
   '': { label: 'Dashboard', icon: Layout },
-  rewards: { label: 'Rewards', icon: Ticket },
+  vouchers: { label: 'Vouchers', icon: Ticket },
   members: { label: 'Members', icon: UsersThree },
   'api-keys': { label: 'API keys', icon: Key },
   team: { label: 'Team', icon: UsersFour },

@@ -44,7 +44,7 @@ function announcePublished(before: Reward[] | undefined, after: Reward[]) {
     const stage = stageOf(reward);
     if (stage === 'failed')
       notify.error(
-        new Error('Open the reward and activate it again.'),
+        new Error('Open the voucher and activate it again.'),
         `Could not publish ${reward.title}`,
       );
     else notify.success('Published on-chain', `${reward.title}: ${STAGES[stage].label}`);
@@ -120,8 +120,8 @@ export type RewardAction =
 
 const DONE: Record<RewardAction, string> = {
   activate: 'Activating',
-  pause: 'Reward paused',
-  resume: 'Reward resumed',
+  pause: 'Voucher paused',
+  resume: 'Voucher resumed',
   submit: 'Sent for approval',
   withdraw: 'Taken back to draft',
   approve: 'Approved',
@@ -158,7 +158,7 @@ export function useRewardAction(report: RewardReport) {
       store(saved);
       report(saved, stageOf(saved) === 'publishing' ? 'Publishing on-chain' : DONE[action]);
     },
-    onError: (error) => notify.error(new Error(coreMessage(error)), 'Could not update the reward'),
+    onError: (error) => notify.error(new Error(coreMessage(error)), 'Could not update the voucher'),
   });
 }
 

@@ -6,7 +6,7 @@ export type SystemState = 'checking' | 'ok' | 'degraded' | 'down' | 'offline' | 
 export const SYSTEM_STATES: Record<SystemState, { title: string; detail: string }> = {
   checking: { title: 'Checking status', detail: 'Asking OctaP how it is doing.' },
   ok: { title: 'All systems normal', detail: 'OctaP and the blockchain are responding.' },
-  degraded: { title: 'Blockchain delayed', detail: 'New rewards and points may take longer.' },
+  degraded: { title: 'Blockchain delayed', detail: 'New vouchers and points may take longer.' },
   down: { title: 'OctaP is unavailable', detail: 'Some actions won’t work until it’s back.' },
   offline: { title: 'You’re offline', detail: 'Changes won’t save until you reconnect.' },
   unknown: {

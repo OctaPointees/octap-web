@@ -148,7 +148,7 @@ export function draftsFromCsv(text: string): { rows: ImportRow[]; error?: string
   if (body.length > MAX_IMPORT_ROWS)
     return {
       rows: [],
-      error: `At most ${MAX_IMPORT_ROWS} rewards per file; this one has ${body.length}.`,
+      error: `At most ${MAX_IMPORT_ROWS} vouchers per file; this one has ${body.length}.`,
     };
   const rows = body.map((cells, i): ImportRow => {
     const value = (header: string) => (cells[index.indexOf(header)] ?? '').trim();
