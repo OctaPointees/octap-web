@@ -427,6 +427,9 @@ export function stageOf(
   if (voucher.status === 'PENDING_APPROVAL') return 'pending';
   if (voucher.publishStatus === 'PUBLISHING') return 'publishing';
   if (voucher.status === 'DRAFT') return voucher.publishStatus === 'FAILED' ? 'failed' : 'draft';
+  // Paused with its whole batch while publishing, then the publish failed: never live. Activating
+  // it (alone or with the batch) publishes it again.
+  if (voucher.status === 'PAUSED' && voucher.publishStatus === 'FAILED') return 'failed';
   if (voucher.status === 'PAUSED') return 'paused';
   if (claimsClosed(voucher, now)) return 'claims_closed';
   if (voucher.startsAt && Date.parse(voucher.startsAt) > now) return 'scheduled';

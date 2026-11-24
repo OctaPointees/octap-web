@@ -133,9 +133,10 @@ export function describeProgress(progress: ReturnType<typeof batchProgress>): st
 }
 
 /**
- * What the batch's buttons would touch, from its rewards as they are now. Drafts and failed
- * publishes are activated; an Owner's activation also approves what waits. Pause takes live rewards
- * and ones still publishing; resume takes paused ones already on-chain.
+ * What the batch's buttons would touch, from its rewards as they are now, as Core counts them.
+ * Drafts and failed publishes (including one paused while it was publishing) are activated; an
+ * Owner's activation also approves what waits. Pause takes live rewards and drafts still
+ * publishing; resume takes paused ones already on-chain.
  */
 export function batchActions(vouchers: ConsoleVoucher[]) {
   let drafts = 0;
@@ -147,9 +148,19 @@ export function batchActions(vouchers: ConsoleVoucher[]) {
     const stage = stageOf(voucher);
     if (stage === 'draft' || stage === 'failed') drafts += 1;
     if (stage === 'pending') waiting += 1;
-    if (voucher.status === 'ACTIVE' || stage === 'publishing') pausable += 1;
+    // Core pauses live rewards and drafts still publishing; one already paused is not counted again.
+    if (
+      voucher.status === 'ACTIVE' ||
+      (voucher.status === 'DRAFT' && voucher.publishStatus === 'PUBLISHING')
+    )
+      pausable += 1;
     if (voucher.status === 'PAUSED' && voucher.publishStatus === 'PUBLISHED') resumable += 1;
-    if (['ACTIVE', 'PAUSED', 'DEPLETED', 'EXPIRED'].includes(voucher.status)) live += 1;
+    // A paused reward whose publish failed never went live.
+    if (
+      ['ACTIVE', 'PAUSED', 'DEPLETED', 'EXPIRED'].includes(voucher.status) &&
+      voucher.publishStatus !== 'FAILED'
+    )
+      live += 1;
   }
   return { drafts, waiting, pausable, resumable, live };
 }

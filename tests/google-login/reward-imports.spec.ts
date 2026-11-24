@@ -162,6 +162,24 @@ test('the file is checked in the browser first, then Core reviews it without wri
   await expect(page.getByRole('heading', { name: 'rewards.csv' })).toBeVisible();
 });
 
+test('a corrected row after a bad one with the same code is not a repeat', async ({ page }) => {
+  const core = newCore();
+  await openRewards(page, 'BUSINESS_OWNER', catalog([], []), {}, batchRoutes(core));
+  await chooseFile(page, [
+    'type,title,code,points_cost,item,claims_close_on',
+    'free_item,A latte,CODE-A,500,Latte,31/31/2027',
+    'free_item,A latte,CODE-A,500,Latte,2027-12-31',
+    'free_item,Again,CODE-A,500,Latte,2027-12-31',
+  ]);
+  await expect(
+    page.getByText(/Row 2: claims_close_on: "31\/31\/2027" is not a date/),
+  ).toBeVisible();
+  // Row 3 is the corrected copy and is sent; only row 4 repeats a code that will be sent.
+  await expect(page.getByText('Row 4: code: CODE-A is already used by row 3')).toBeVisible();
+  await expect(page.getByText(/Row 3:/)).toHaveCount(0);
+  await expect(page.getByText('1 row ready to check, 2 need fixing in the file.')).toBeVisible();
+});
+
 test('a CSV reads the new columns, an old template, and dates Excel rewrote', async ({ page }) => {
   const core = newCore();
   await openRewards(page, 'BUSINESS_OWNER', catalog([], []), {}, batchRoutes(core));
@@ -284,6 +302,33 @@ test('an Owner activates a batch, which also approves what waits, and sees each 
   await expect(
     page.getByRole('listitem', { name: 'WAIT' }).getByText('Publishing on-chain…'),
   ).toBeVisible();
+});
+
+test('a reward paused while publishing, whose publish failed, is activated again with the batch', async ({
+  page,
+}) => {
+  const core = newCore({
+    batches: [batch({ statusCounts: { DRAFT: 1, PAUSED: 2 } })],
+    vouchers: [
+      draft('A'),
+      draft('STUCK', { status: 'PAUSED', publishStatus: 'FAILED' }),
+      draft('WAITING', { status: 'PAUSED', publishStatus: 'PUBLISHING' }),
+    ],
+  });
+  await openRewards(page, 'BUSINESS_OWNER', catalog([], []), {}, batchRoutes(core));
+  await openBatch(page, /rewards\.csv/);
+  await expect(
+    page.getByRole('listitem', { name: 'STUCK' }).getByText('Publish failed'),
+  ).toBeVisible();
+  // Core activates the failed one too; neither is live, and the one already paused isn't paused again.
+  await expect(page.getByRole('button', { name: 'Activate all (2)' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Pause all/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Resume all/ })).toHaveCount(0);
+  // Archiving freezes the failed one with the draft; the one still publishing is kept, like a live one.
+  await page.getByRole('button', { name: 'Archive' }).click();
+  const dialog = page.getByRole('alertdialog');
+  await expect(dialog.getByText('Its 2 drafts are frozen.')).toBeVisible();
+  await expect(dialog.getByText(/Its 1 live reward stays live/)).toBeVisible();
 });
 
 test('with approval on, a Developer submits the batch and cannot pause it', async ({ page }) => {

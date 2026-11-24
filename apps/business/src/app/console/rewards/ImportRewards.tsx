@@ -53,7 +53,7 @@ type Step = 'upload' | 'review' | 'done';
 
 /**
  * Checks every row in the browser: a row that can't be read, fails the form's own checks, or
- * repeats a code of an earlier row gets a `problem` and is never sent.
+ * repeats the code of an earlier row that will be sent gets a `problem` and is never sent.
  */
 function checkRows(text: string): { rows: FileRow[]; error?: string } {
   const parsed = draftsFromCsv(text);
@@ -68,7 +68,8 @@ function checkRows(text: string): { rows: FileRow[]; error?: string } {
     const earlier = seen.get(code);
     if (earlier && !problems.length)
       problems.push(`code: ${code} is already used by row ${earlier}`);
-    if (!earlier) seen.set(code, row.line);
+    // Only a row that will be sent holds its code: a corrected copy after a bad row is not a repeat.
+    if (!earlier && !problems.length && input) seen.set(code, row.line);
     return problems.length || !input
       ? { ...row, problem: problems.join('; ') || 'This row could not be read' }
       : { ...row, input };
