@@ -7,7 +7,7 @@ import {
   PencilSimpleLine,
   ShareNetwork,
 } from 'phosphor-react';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import {
   Card,
@@ -35,6 +35,9 @@ import {
   summarizeRewards,
 } from '../domain/insights';
 import { isNoProgram, useIssuanceBudget, useWebhookHealth } from '../hooks/useDashboardData';
+import { useDashboardLayout } from '../hooks/useDashboardLayout';
+import { DEVELOPER_PARTS, sizing } from '../grid';
+import { ArrangeableParts, ArrangeControls, type DashboardPart } from './ArrangeableParts';
 import { AttentionCard } from './AttentionCard';
 
 type StepState = 'done' | 'todo' | 'unknown';
@@ -138,18 +141,13 @@ export function DeveloperDashboard() {
   const checkable = steps.filter((step) => step.state !== 'unknown');
   const done = checkable.filter((step) => step.state === 'done').length;
 
-  return (
-    <>
-      <PageHeader
-        title="Developer dashboard"
-        description="Your integration setup, how API keys are being used, and webhook delivery."
-      />
-
-      <div className="flex flex-col gap-4">
-        <AttentionCard items={attention} />
-        {keys.error && <ErrorState error={keys.error} onRetry={() => void keys.refetch()} />}
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  const parts: DashboardPart[] = [
+    {
+      id: 'stats',
+      title: 'Key figures',
+      ...sizing(DEVELOPER_PARTS.stats),
+      node: (
+        <div className="grid gap-4 @lg:grid-cols-2 @4xl:grid-cols-4">
           <StatCard
             label="Active API keys"
             icon={Key}
@@ -193,141 +191,176 @@ export function DeveloperDashboard() {
             }
           />
         </div>
-
-        <div className="grid items-start gap-4 xl:grid-cols-2">
-          <Card
-            title="Integration setup"
-            actions={
-              !checking && (
-                <span className="text-sm opacity-60">
-                  {done} of {checkable.length}
-                </span>
-              )
-            }
-          >
-            {checking ? (
-              <Skeleton className="h-48 w-full" />
-            ) : (
-              <>
-                <progress
-                  aria-label="Setup progress"
-                  className={cn(
-                    'progress h-1.5 w-full',
-                    done === checkable.length ? 'progress-success' : 'progress-primary',
+      ),
+    },
+    {
+      id: 'setup',
+      title: 'Integration setup',
+      ...sizing(DEVELOPER_PARTS.setup),
+      node: (
+        <Card
+          title="Integration setup"
+          actions={
+            !checking && (
+              <span className="text-sm opacity-60">
+                {done} of {checkable.length}
+              </span>
+            )
+          }
+        >
+          {checking ? (
+            <Skeleton className="h-48 w-full" />
+          ) : (
+            <>
+              <progress
+                aria-label="Setup progress"
+                className={cn(
+                  'progress h-1.5 w-full',
+                  done === checkable.length ? 'progress-success' : 'progress-primary',
+                )}
+                value={done}
+                max={checkable.length || 1}
+              />
+              <ol className="animate-reveal mt-4 flex flex-col gap-4">
+                {steps.map((step) => (
+                  <Step key={step.title} {...step} />
+                ))}
+              </ol>
+            </>
+          )}
+        </Card>
+      ),
+    },
+    {
+      id: 'keys',
+      title: 'API keys',
+      ...sizing(DEVELOPER_PARTS.keys),
+      node: (
+        <Card
+          title="API keys"
+          actions={
+            <Link className="link text-sm font-normal" to={apiKeysPath}>
+              Manage keys
+            </Link>
+          }
+        >
+          {keys.isPending ? (
+            <Skeleton className="h-24 w-full" />
+          ) : keySummary?.active.length ? (
+            <ul className="flex flex-col gap-3">
+              {keySummary.active.slice(0, 5).map((key) => (
+                <li key={key.id} className="flex items-center gap-3 text-sm">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{key.name}</p>
+                    <p className="truncate font-mono text-xs opacity-55">{key.keyPrefix}••••</p>
+                  </div>
+                  {isStaleKey(key) && (
+                    <span
+                      className="badge badge-soft badge-warning badge-sm"
+                      title={`Not used in the last ${STALE_KEY_DAYS} days. Revoke it if nothing needs it.`}
+                    >
+                      {key.lastUsedAt ? 'Idle' : 'Never used'}
+                    </span>
                   )}
-                  value={done}
-                  max={checkable.length || 1}
-                />
-                <ol className="animate-reveal mt-4 flex flex-col gap-4">
-                  {steps.map((step) => (
-                    <Step key={step.title} {...step} />
-                  ))}
-                </ol>
-              </>
-            )}
-          </Card>
-
-          <div className="flex flex-col gap-4">
-            <Card
-              title="API keys"
-              actions={
-                <Link className="link text-sm font-normal" to={apiKeysPath}>
-                  Manage keys
-                </Link>
-              }
-            >
-              {keys.isPending ? (
-                <Skeleton className="h-24 w-full" />
-              ) : keySummary?.active.length ? (
-                <ul className="flex flex-col gap-3">
-                  {keySummary.active.slice(0, 5).map((key) => (
-                    <li key={key.id} className="flex items-center gap-3 text-sm">
+                  <span className="w-24 shrink-0 text-right text-xs opacity-60">
+                    {key.lastUsedAt ? fmtRelative(key.lastUsedAt) : 'Not used'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm opacity-60">No active API keys yet.</p>
+          )}
+        </Card>
+      ),
+    },
+    {
+      id: 'webhooks',
+      title: 'Webhook health',
+      ...sizing(DEVELOPER_PARTS.webhooks),
+      node: (
+        <Card title="Webhook health">
+          {!owner ? (
+            <p className="flex items-center gap-2 text-sm opacity-65">
+              <LockSimple size={16} className="shrink-0" aria-hidden />
+              You can’t view this section. Only the organization’s Owner can see webhooks.
+            </p>
+          ) : endpoints.error || deliveries.error ? (
+            <ErrorState
+              error={endpoints.error ?? deliveries.error}
+              onRetry={() => {
+                void endpoints.refetch();
+                void deliveries.refetch();
+              }}
+            />
+          ) : endpoints.isPending || deliveries.isPending ? (
+            <Skeleton className="h-24 w-full" />
+          ) : !endpoints.data?.length ? (
+            <p className="text-sm opacity-60">No webhook endpoints have been added yet.</p>
+          ) : (
+            <div className="flex flex-col gap-3 text-sm">
+              <p className="opacity-70">
+                {fmtNumber(activeEndpoints ?? 0)} of {fmtNumber(endpoints.data.length)} endpoints
+                active
+                {delivery?.retrying
+                  ? `, ${fmtNumber(delivery.retrying)} ${delivery.retrying === 1 ? 'delivery' : 'deliveries'} retrying`
+                  : ''}
+              </p>
+              {delivery?.failed.length ? (
+                <ul className="divide-y divide-base-300 rounded-box border border-base-300">
+                  {delivery.failed.slice(0, 4).map((failure) => (
+                    <li key={failure.id} className="flex items-center gap-3 px-3 py-2">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{key.name}</p>
-                        <p className="truncate font-mono text-xs opacity-55">{key.keyPrefix}••••</p>
-                      </div>
-                      {isStaleKey(key) && (
-                        <span
-                          className="badge badge-soft badge-warning badge-sm"
-                          title={`Not used in the last ${STALE_KEY_DAYS} days. Revoke it if nothing needs it.`}
+                        <p className="truncate font-mono text-xs font-medium">
+                          {failure.eventType}
+                        </p>
+                        <p
+                          className="truncate text-xs opacity-60"
+                          title={failure.lastError ?? undefined}
                         >
-                          {key.lastUsedAt ? 'Idle' : 'Never used'}
-                        </span>
-                      )}
-                      <span className="w-24 shrink-0 text-right text-xs opacity-60">
-                        {key.lastUsedAt ? fmtRelative(key.lastUsedAt) : 'Not used'}
+                          {failure.lastResponseStatus
+                            ? `HTTP ${failure.lastResponseStatus}`
+                            : (failure.lastError ?? 'No response')}
+                          , {fmtNumber(failure.attemptCount)} attempts
+                        </p>
+                      </div>
+                      <StatusBadge status="failed" />
+                      <span className="shrink-0 text-xs opacity-60">
+                        {fmtRelative(failure.updatedAt)}
                       </span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm opacity-60">No active API keys yet.</p>
-              )}
-            </Card>
-
-            <Card title="Webhook health">
-              {!owner ? (
-                <p className="flex items-center gap-2 text-sm opacity-65">
-                  <LockSimple size={16} className="shrink-0" aria-hidden />
-                  You can’t view this section. Only the organization’s Owner can see webhooks.
+                <p className="flex items-center gap-2 text-success">
+                  <CheckCircle size={16} weight="fill" aria-hidden />
+                  No failed deliveries recently.
                 </p>
-              ) : endpoints.error || deliveries.error ? (
-                <ErrorState
-                  error={endpoints.error ?? deliveries.error}
-                  onRetry={() => {
-                    void endpoints.refetch();
-                    void deliveries.refetch();
-                  }}
-                />
-              ) : endpoints.isPending || deliveries.isPending ? (
-                <Skeleton className="h-24 w-full" />
-              ) : !endpoints.data?.length ? (
-                <p className="text-sm opacity-60">No webhook endpoints have been added yet.</p>
-              ) : (
-                <div className="flex flex-col gap-3 text-sm">
-                  <p className="opacity-70">
-                    {fmtNumber(activeEndpoints ?? 0)} of {fmtNumber(endpoints.data.length)}{' '}
-                    endpoints active
-                    {delivery?.retrying
-                      ? `, ${fmtNumber(delivery.retrying)} ${delivery.retrying === 1 ? 'delivery' : 'deliveries'} retrying`
-                      : ''}
-                  </p>
-                  {delivery?.failed.length ? (
-                    <ul className="divide-y divide-base-300 rounded-box border border-base-300">
-                      {delivery.failed.slice(0, 4).map((failure) => (
-                        <li key={failure.id} className="flex items-center gap-3 px-3 py-2">
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-mono text-xs font-medium">
-                              {failure.eventType}
-                            </p>
-                            <p
-                              className="truncate text-xs opacity-60"
-                              title={failure.lastError ?? undefined}
-                            >
-                              {failure.lastResponseStatus
-                                ? `HTTP ${failure.lastResponseStatus}`
-                                : (failure.lastError ?? 'No response')}
-                              , {fmtNumber(failure.attemptCount)} attempts
-                            </p>
-                          </div>
-                          <StatusBadge status="failed" />
-                          <span className="shrink-0 text-xs opacity-60">
-                            {fmtRelative(failure.updatedAt)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="flex items-center gap-2 text-success">
-                      <CheckCircle size={16} weight="fill" aria-hidden />
-                      No failed deliveries recently.
-                    </p>
-                  )}
-                </div>
               )}
-            </Card>
-          </div>
-        </div>
+            </div>
+          )}
+        </Card>
+      ),
+    },
+  ];
+  const layout = useDashboardLayout('developer', parts);
+  const [arranging, setArranging] = useState(false);
+
+  return (
+    <>
+      <PageHeader
+        title="Developer dashboard"
+        description="Your integration setup, how API keys are being used, and webhook delivery."
+        actions={
+          <ArrangeControls arranging={arranging} onArrangingChange={setArranging} layout={layout} />
+        }
+      />
+
+      <div className="flex flex-col gap-4">
+        {/* Always first: it only shows when something needs someone. */}
+        <AttentionCard items={attention} />
+        {keys.error && <ErrorState error={keys.error} onRetry={() => void keys.refetch()} />}
+        <ArrangeableParts parts={parts} layout={layout} arranging={arranging} />
       </div>
     </>
   );

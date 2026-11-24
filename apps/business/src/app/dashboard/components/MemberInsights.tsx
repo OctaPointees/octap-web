@@ -29,7 +29,7 @@ function Figure({ label, value, hint }: { label: string; value: string; hint: st
 /** How many members joined in each recent seven-day period. */
 function JoinsChart({ weeks, capped }: Pick<MemberStats, 'weeks' | 'capped'>) {
   return (
-    <figure className="flex min-w-0 flex-col gap-4 xl:col-span-3">
+    <figure className="flex min-w-0 flex-col gap-4 @4xl:col-span-3">
       <figcaption>
         <h3 className="text-sm font-semibold">New members per week</h3>
         <p className="text-xs opacity-60">
@@ -83,7 +83,7 @@ function MemberFigures({ stats }: { stats: MemberStats }) {
         </p>
       )}
 
-      <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-4 @2xl:grid-cols-4">
         <Figure
           label="Total members"
           value={capped ? `${fmtNumber(counted)}+` : fmtNumber(counted)}
@@ -104,9 +104,9 @@ function MemberFigures({ stats }: { stats: MemberStats }) {
         <Figure label="Blocked" value={amount(stats.blocked)} hint={ofMembers(stats.blocked)} />
       </dl>
 
-      <div className="grid gap-6 border-t border-base-300 pt-5 xl:grid-cols-5">
+      <div className="grid gap-6 border-t border-base-300 pt-5 @4xl:grid-cols-5">
         <JoinsChart weeks={stats.weeks} capped={capped} />
-        <div className="flex flex-col gap-4 xl:col-span-2">
+        <div className="flex flex-col gap-4 @4xl:col-span-2">
           <div>
             <h3 className="text-sm font-semibold">Member profiles</h3>
             <p className="text-xs opacity-60">How complete your member records are</p>

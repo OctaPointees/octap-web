@@ -56,16 +56,20 @@ export function ChartFrame({
       </div>
 
       {ready && (
-        <table className="sr-only" aria-label={label}>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={`${row.name}-${index}`}>
-                <th scope="row">{row.name}</th>
-                <td>{row.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        // The wrapper hides it: a table ignores the 1px height and clipping `sr-only` relies on,
+        // so on its own it keeps its full height and can stretch the page.
+        <div className="sr-only">
+          <table aria-label={label}>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={`${row.name}-${index}`}>
+                  <th scope="row">{row.name}</th>
+                  <td>{row.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

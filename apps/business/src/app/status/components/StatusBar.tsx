@@ -54,7 +54,7 @@ function ServiceRow({ label, up, latency }: { label: string; up: boolean; latenc
 }
 
 /** The current state, which opens a short explanation. */
-function SystemIndicator({ developer }: { developer: boolean }) {
+function SystemIndicator() {
   const { state, report, checkedAt } = useSystemStatus();
   const now = useNow();
   const { title, detail } = SYSTEM_STATES[state];
@@ -90,7 +90,12 @@ function SystemIndicator({ developer }: { developer: boolean }) {
                 <ServiceRow
                   label="Blockchain"
                   up={checks.sui.status === 'up'}
-                  latency={developer ? checks.sui.latencyMs : undefined}
+                  latency={checks.sui.latencyMs}
+                />
+                <ServiceRow
+                  label="Redis"
+                  up={checks.redis.status === 'up'}
+                  latency={checks.redis.latencyMs}
                 />
               </dl>
             )}
@@ -131,7 +136,7 @@ export function StatusBar({
         TONES[state].bar,
       )}
     >
-      <SystemIndicator developer={developer} />
+      <SystemIndicator />
       {activity && <div className="flex min-w-0 items-center gap-4 max-md:hidden">{activity}</div>}
 
       <div className="ml-auto flex shrink-0 items-center gap-4">

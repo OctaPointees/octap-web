@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Coins, Lightning, NotePencil, Ticket } from 'phosphor-react';
 import { Link } from 'react-router';
@@ -27,6 +28,9 @@ import {
   summarizeRewards,
 } from '../domain/insights';
 import { isNoProgram, useIssuanceBudget } from '../hooks/useDashboardData';
+import { useDashboardLayout } from '../hooks/useDashboardLayout';
+import { BUSINESS_PARTS, sizing } from '../grid';
+import { ArrangeableParts, ArrangeControls, type DashboardPart } from './ArrangeableParts';
 import { AttentionCard } from './AttentionCard';
 import { MemberInsights } from './MemberInsights';
 
@@ -110,18 +114,20 @@ export function BusinessDashboard() {
       All vouchers
     </Link>
   );
+  // Each voucher part shows the same thing while the list loads or if it fails.
+  const rewardsFallback = rewards.error ? (
+    <ErrorState error={rewards.error} onRetry={() => void rewards.refetch()} />
+  ) : !summary ? (
+    <Skeleton className="h-40 w-full" />
+  ) : null;
 
-  return (
-    <>
-      <PageHeader
-        title="Dashboard"
-        description="What needs attention in your loyalty program, and how your members and vouchers are doing."
-      />
-
-      <div className="flex flex-col gap-4">
-        <AttentionCard items={attention} />
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  const parts: DashboardPart[] = [
+    {
+      id: 'stats',
+      title: 'Key figures',
+      ...sizing(BUSINESS_PARTS.stats),
+      node: (
+        <div className="grid gap-4 @lg:grid-cols-2 @4xl:grid-cols-4">
           <BudgetCard />
           <StatCard
             label="Live vouchers"
@@ -142,65 +148,75 @@ export function BusinessDashboard() {
             hint={summary && `${fmtNumber(summary.stages.pending_approval)} awaiting approval`}
           />
         </div>
-
-        <MemberInsights />
-
-        {rewards.error ? (
-          <ErrorState error={rewards.error} onRetry={() => void rewards.refetch()} />
-        ) : !summary ? (
-          <div className="grid gap-4 xl:grid-cols-5" aria-busy>
-            <Skeleton className="h-72 xl:col-span-3" />
-            <Skeleton className="h-72 xl:col-span-2" />
-          </div>
-        ) : pipelineTotal === 0 ? (
-          <Card>
-            <EmptyState
-              icon={Ticket}
-              title="No vouchers yet"
-              description="Create your first voucher so members have something to spend their points on."
-              action={
-                <Link className="btn btn-primary btn-sm" to={rewardsPath}>
-                  Go to Vouchers
-                </Link>
-              }
-            />
-          </Card>
-        ) : (
-          <div className="animate-reveal grid items-start gap-4 xl:grid-cols-5">
-            <Card className="xl:col-span-3" title="Top vouchers" actions={allRewards}>
-              {summary.top.length ? (
-                <ol className="flex flex-col gap-4">
-                  {summary.top.map((reward) => (
-                    <li key={reward.id} className="flex flex-col gap-2">
-                      <RewardLine
-                        reward={reward}
-                        detail={
-                          reward.totalSupply == null
-                            ? `${fmtNumber(reward.claimedCount)} claimed`
-                            : `${fmtNumber(reward.claimedCount)} of ${fmtNumber(reward.totalSupply)} claimed`
-                        }
+      ),
+    },
+    {
+      id: 'members',
+      title: 'Members',
+      ...sizing(BUSINESS_PARTS.members),
+      node: <MemberInsights />,
+    },
+    {
+      id: 'top',
+      title: 'Top vouchers',
+      ...sizing(BUSINESS_PARTS.top),
+      node: (
+        <Card title="Top vouchers" actions={allRewards}>
+          {rewardsFallback ??
+            (pipelineTotal === 0 ? (
+              <EmptyState
+                icon={Ticket}
+                title="No vouchers yet"
+                description="Create your first voucher so members have something to spend their points on."
+                action={
+                  <Link className="btn btn-primary btn-sm" to={rewardsPath}>
+                    Go to Vouchers
+                  </Link>
+                }
+              />
+            ) : summary!.top.length ? (
+              <ol className="flex flex-col gap-4">
+                {summary!.top.map((reward) => (
+                  <li key={reward.id} className="flex flex-col gap-2">
+                    <RewardLine
+                      reward={reward}
+                      detail={
+                        reward.totalSupply == null
+                          ? `${fmtNumber(reward.claimedCount)} claimed`
+                          : `${fmtNumber(reward.claimedCount)} of ${fmtNumber(reward.totalSupply)} claimed`
+                      }
+                    />
+                    {reward.totalSupply != null && (
+                      <UsageBar
+                        value={reward.claimedCount}
+                        max={reward.totalSupply}
+                        className="w-full"
                       />
-                      {reward.totalSupply != null && (
-                        <UsageBar
-                          value={reward.claimedCount}
-                          max={reward.totalSupply}
-                          className="w-full"
-                        />
-                      )}
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="py-6 text-center text-sm opacity-60">
-                  No vouchers claimed yet. Your most claimed vouchers will show here.
-                </p>
-              )}
-            </Card>
-
-            <div className="flex flex-col gap-4 xl:col-span-2">
-              <Card title="Voucher pipeline">
+                    )}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="py-6 text-center text-sm opacity-60">
+                No vouchers claimed yet. Your most claimed vouchers will show here.
+              </p>
+            ))}
+        </Card>
+      ),
+    },
+    {
+      id: 'pipeline',
+      title: 'Voucher pipeline',
+      ...sizing(BUSINESS_PARTS.pipeline),
+      node: (
+        <Card title="Voucher pipeline">
+          {rewardsFallback ??
+            (pipelineTotal === 0 ? (
+              <p className="text-sm opacity-60">No vouchers yet.</p>
+            ) : (
+              <>
                 <div className="mb-4 flex h-2 overflow-hidden rounded-full bg-base-200" aria-hidden>
-                  {summary.pipeline.map(
+                  {summary!.pipeline.map(
                     (stage) =>
                       stage.count > 0 && (
                         <span
@@ -212,7 +228,7 @@ export function BusinessDashboard() {
                   )}
                 </div>
                 <dl className="flex flex-col gap-2 text-sm">
-                  {summary.pipeline
+                  {summary!.pipeline
                     .filter((stage) => stage.label !== 'Publishing' || stage.count > 0)
                     .map((stage) => (
                       <div key={stage.label} className="flex items-center gap-2">
@@ -222,27 +238,53 @@ export function BusinessDashboard() {
                       </div>
                     ))}
                 </dl>
-              </Card>
+              </>
+            ))}
+        </Card>
+      ),
+    },
+    {
+      id: 'closing',
+      title: 'Closing soon',
+      ...sizing(BUSINESS_PARTS.closing),
+      node: (
+        <Card title="Closing soon">
+          {rewardsFallback ??
+            (summary!.closingSoon.length ? (
+              <ul className="flex flex-col gap-3">
+                {summary!.closingSoon.slice(0, 4).map((reward) => (
+                  <li key={reward.id}>
+                    <RewardLine
+                      reward={reward}
+                      detail={`Closes ${formatDistanceToNow(new Date(reward.expiresAt!), { addSuffix: true })}`}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm opacity-60">No live vouchers close in the next 7 days.</p>
+            ))}
+        </Card>
+      ),
+    },
+  ];
+  const layout = useDashboardLayout('business', parts);
+  const [arranging, setArranging] = useState(false);
 
-              <Card title="Closing soon">
-                {summary.closingSoon.length ? (
-                  <ul className="flex flex-col gap-3">
-                    {summary.closingSoon.slice(0, 4).map((reward) => (
-                      <li key={reward.id}>
-                        <RewardLine
-                          reward={reward}
-                          detail={`Closes ${formatDistanceToNow(new Date(reward.expiresAt!), { addSuffix: true })}`}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm opacity-60">No live vouchers close in the next 7 days.</p>
-                )}
-              </Card>
-            </div>
-          </div>
-        )}
+  return (
+    <>
+      <PageHeader
+        title="Dashboard"
+        description="What needs attention in your loyalty program, and how your members and vouchers are doing."
+        actions={
+          <ArrangeControls arranging={arranging} onArrangingChange={setArranging} layout={layout} />
+        }
+      />
+
+      <div className="flex flex-col gap-4">
+        {/* Always first: it only shows when something needs someone. */}
+        <AttentionCard items={attention} />
+        <ArrangeableParts parts={parts} layout={layout} arranging={arranging} />
       </div>
     </>
   );
