@@ -3,7 +3,11 @@ import { Info } from 'phosphor-react';
 import { PageHeader } from '@/components/shared/Display';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { RefundPolicySection } from './components/RefundPolicyForm';
-import { OrganizationGeneralForm, OrganizationIdentityForm } from './components/SettingsForms';
+import {
+  OrganizationGeneralForm,
+  OrganizationIdentityForm,
+  VoucherApprovalForm,
+} from './components/SettingsForms';
 
 /** One settings topic: its title and explanation on the left, its card on the right. */
 function SettingsSection({
@@ -42,7 +46,7 @@ export default function SettingsPage() {
         title="Organization settings"
         description={
           owner
-            ? "Your organization's name, legal identity and refund rules."
+            ? "Your organization's name, legal identity, voucher approval and refund rules."
             : "Your organization's name and the legal identity OctaP holds for it."
         }
       />
@@ -64,6 +68,12 @@ export default function SettingsPage() {
           description="Who the organization is legally. A System Admin approves every change."
         >
           <OrganizationIdentityForm key={key} organization={organization} readOnly={readOnly} />
+        </SettingsSection>
+        <SettingsSection
+          title="Voucher approval"
+          description="Whether vouchers a Developer creates wait for the Owner before members can claim them. Owners always activate their own."
+        >
+          <VoucherApprovalForm key={key} organization={organization} readOnly={readOnly} />
         </SettingsSection>
         {/* Core answers 403 to anyone else, reads included, so it has no read-only view. */}
         {owner && (

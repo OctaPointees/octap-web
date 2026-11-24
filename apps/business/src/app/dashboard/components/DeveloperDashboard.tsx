@@ -23,8 +23,19 @@ import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { organizationPath } from '@/app/organization/utils';
 import { cn } from '@/utils/cn';
 import { fmtNumber, fmtRelative } from '@/utils/format';
-import { summarizeDeliveries, summarizeKeys } from '../domain/insights';
+import { useAuth } from '@octap/shared/authentication';
+import { rejectedFor } from '@/app/rewards/domain/stage';
+import { useRewards } from '@/app/rewards/hooks/useRewards';
+import {
+  budgetAttention,
+  collectAttention,
+  rewardAttention,
+  summarizeDeliveries,
+  summarizeKeys,
+  summarizeRewards,
+} from '../domain/insights';
 import { isNoProgram, useIssuanceBudget, useWebhookHealth } from '../hooks/useDashboardData';
+import { AttentionCard } from './AttentionCard';
 
 type StepState = 'done' | 'todo' | 'unknown';
 
@@ -64,6 +75,18 @@ export function DeveloperDashboard() {
   const keys = useApiKeys();
   const budget = useIssuanceBudget();
   const { endpoints, deliveries } = useWebhookHealth();
+  const rewards = useRewards();
+  const { identity } = useAuth();
+  const attention = collectAttention(
+    budgetAttention(budget.data),
+    rewards.data
+      ? rewardAttention(
+          summarizeRewards(rewards.data),
+          owner,
+          rejectedFor(rewards.data, identity?.user.id),
+        )
+      : [],
+  );
   const apiKeysPath = organizationPath(slug, 'api-keys');
   const keySummary = keys.data ? summarizeKeys(keys.data) : undefined;
   const delivery = deliveries.data ? summarizeDeliveries(deliveries.data) : undefined;
@@ -123,6 +146,7 @@ export function DeveloperDashboard() {
       />
 
       <div className="flex flex-col gap-4">
+        <AttentionCard items={attention} />
         {keys.error && <ErrorState error={keys.error} onRetry={() => void keys.refetch()} />}
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

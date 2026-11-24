@@ -15,20 +15,20 @@ import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { organizationPath } from '@/app/organization/utils';
 import { fromReward, type Reward } from '@/app/rewards/domain/draft';
 import { KINDS } from '@/app/rewards/domain/kinds';
+import { rejectedFor } from '@/app/rewards/domain/stage';
 import { useRewards } from '@/app/rewards/hooks/useRewards';
+import { useAuth } from '@octap/shared/authentication';
 import { cn } from '@/utils/cn';
 import { fmtNumber } from '@/utils/format';
 import {
   budgetAttention,
+  collectAttention,
   rewardAttention,
   summarizeRewards,
-  type AttentionItem,
 } from '../domain/insights';
 import { isNoProgram, useIssuanceBudget } from '../hooks/useDashboardData';
 import { AttentionCard } from './AttentionCard';
 import { MemberInsights } from './MemberInsights';
-
-const URGENCY: AttentionItem['tone'][] = ['error', 'warning', 'info'];
 
 /** The points left to issue, with how much of the budget is used. */
 function BudgetCard() {
@@ -94,14 +94,16 @@ function RewardLine({ reward, detail }: { reward: Reward; detail: string }) {
 export function BusinessDashboard() {
   const { owner, slug } = useOrganization();
   const rewards = useRewards();
+  const { identity } = useAuth();
   const budget = useIssuanceBudget();
   const rewardsPath = organizationPath(slug, 'vouchers');
   const summary = rewards.data ? summarizeRewards(rewards.data) : undefined;
-  const budgetItem = budgetAttention(budget.data);
-  const attention: AttentionItem[] = [
-    ...(budgetItem ? [budgetItem] : []),
-    ...(summary ? rewardAttention(summary, owner) : []),
-  ].sort((a, b) => URGENCY.indexOf(a.tone) - URGENCY.indexOf(b.tone));
+  const attention = collectAttention(
+    budgetAttention(budget.data),
+    rewards.data && summary
+      ? rewardAttention(summary, owner, rejectedFor(rewards.data, identity?.user.id))
+      : [],
+  );
   const pipelineTotal = rewards.data?.length ?? 0;
   const allRewards = (
     <Link className="link text-sm font-normal" to={rewardsPath}>

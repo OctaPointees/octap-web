@@ -138,6 +138,62 @@ export function OrganizationGeneralForm({
 }
 
 /**
+ * Whether a Developer's voucher waits for the Owner before it goes live. Off, a Developer
+ * activates a draft directly; on, they submit it and the Owner approves or rejects it.
+ */
+export function VoucherApprovalForm({
+  organization,
+  readOnly = false,
+}: {
+  organization: ConsoleOrganization;
+  readOnly?: boolean;
+}) {
+  const { run, busy, savedAt } = useOrganizationAction();
+  const [required, setRequired] = useState(organization.voucherApprovalRequired);
+  const dirty = required !== organization.voucherApprovalRequired;
+
+  return (
+    <SettingsForm
+      dirty={dirty}
+      busy={busy}
+      savedAt={savedAt}
+      readOnly={readOnly}
+      submitLabel="Save"
+      onCancel={() => setRequired(organization.voucherApprovalRequired)}
+      onSubmit={(event) => {
+        event.preventDefault();
+        run(async (api) => {
+          await unwrap(
+            api.console.settings({
+              organizationId: organization.id,
+              body: { voucherApprovalRequired: required },
+            }),
+          );
+        }, '');
+      }}
+    >
+      <label className="flex cursor-pointer items-start justify-between gap-4">
+        <span className="flex flex-col gap-1">
+          <span className="text-sm font-medium">Developers need approval to activate vouchers</span>
+          <span className="text-xs opacity-60">
+            {required
+              ? 'A Developer submits a draft, and it goes live once the Owner approves it.'
+              : 'A Developer activates a draft straight away. The Owner never needs to approve it.'}
+          </span>
+        </span>
+        <input
+          type="checkbox"
+          className="toggle toggle-primary mt-0.5 shrink-0"
+          checked={required}
+          disabled={readOnly || busy}
+          onChange={(event) => setRequired(event.target.checked)}
+        />
+      </label>
+    </SettingsForm>
+  );
+}
+
+/**
  * The organization's legal identity. Core only changes it through an UPDATE_IDENTITY change
  * request, which needs a reason and a System Admin's approval, so the form sends only the fields
  * that differ from what Core has, and asks for the reason once something has changed.

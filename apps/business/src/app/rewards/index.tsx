@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FileArrowUp, Plus, Rows, SquaresFour, Ticket } from 'phosphor-react';
+import { useSearchParams } from 'react-router';
+import { useAuth } from '@octap/shared/authentication';
 import { Button, createColumnHelper, notify, Table, useRowFlash } from '@octap/shared/components';
 import { Segmented } from '@/components/shared/Controls';
 import { EmptyState, ErrorState, PageHeader } from '@/components/shared/Display';
@@ -8,7 +10,7 @@ import { fmtDate } from '@/utils/format';
 import { describePoints } from './domain/describe';
 import { duplicateOf, fromReward, type Reward } from './domain/draft';
 import { KINDS } from './domain/kinds';
-import { FILTER_OF, FILTERS, STAGES, stageOf, type Filter } from './domain/stage';
+import { FILTER_OF, FILTERS, rejectedFor, STAGES, stageOf, type Filter } from './domain/stage';
 import {
   useRewardAction,
   useRewardPermissions,
@@ -25,6 +27,7 @@ import {
   type RewardConfirmRequest,
 } from './components/RewardDialogs';
 import { RewardPanel, type RewardPanelMode } from './components/RewardPanel';
+import { RejectedBanner } from './components/RejectionNotice';
 
 type View = 'cards' | 'table';
 const viewKey = 'octap.business.rewardsView';
@@ -90,8 +93,42 @@ export default function RewardsPage() {
     else run.mutate({ reward, action: intent });
   };
   const busyWith = run.isPending ? run.variables.reward.id : null;
+  const openReward = (reward: Reward) =>
+    onIntent(permissionsOf(reward).edit ? 'edit' : 'view', reward);
 
-  const counts: Record<Filter, number> = { all: 0, drafts: 0, live: 0, paused: 0, ended: 0 };
+  const { identity } = useAuth();
+  const rejected = list.data ? rejectedFor(list.data, identity?.user.id) : [];
+
+  // `?open=<id>` (from a dashboard row) opens that reward once the list is in. It opens once per
+  // link, and closing the panel drops the parameter.
+  const [params, setParams] = useSearchParams();
+  const openId = params.get('open');
+  const [openedId, setOpenedId] = useState<string | null>(null);
+  if (openId && openId !== openedId && list.data) {
+    setOpenedId(openId);
+    const reward = list.data.find((item) => item.id === openId);
+    if (reward) openReward(reward);
+  }
+  const closePanel = () => {
+    setPanelOpen(false);
+    if (openId)
+      setParams(
+        (current) => {
+          current.delete('open');
+          return current;
+        },
+        { replace: true },
+      );
+  };
+
+  const counts: Record<Filter, number> = {
+    all: 0,
+    drafts: 0,
+    awaiting: 0,
+    live: 0,
+    paused: 0,
+    ended: 0,
+  };
   for (const reward of list.data ?? []) {
     counts.all += 1;
     counts[FILTER_OF[stageOf(reward)]] += 1;
@@ -211,6 +248,8 @@ export default function RewardsPage() {
         }
       />
 
+      <RejectedBanner rewards={rejected} onOpen={openReward} />
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Segmented
           value={filter}
@@ -259,11 +298,7 @@ export default function RewardsPage() {
       ) : rewards.length === 0 ? (
         <EmptyState
           icon={Ticket}
-          title={
-            filter === 'all'
-              ? 'No vouchers yet'
-              : `No ${FILTERS.find((f) => f.value === filter)!.label.toLowerCase()} vouchers`
-          }
+          title={FILTERS.find((f) => f.value === filter)!.empty}
           description={
             filter === 'all'
               ? 'Create a voucher, or import several from a CSV file, then activate it for members.'
@@ -293,24 +328,19 @@ export default function RewardsPage() {
           rowProps={(reward) => ({
             tabIndex: 0,
             className: 'cursor-pointer hover:bg-primary/5',
-            onClick: () => onIntent(permissionsOf(reward).edit ? 'edit' : 'view', reward),
+            onClick: () => openReward(reward),
             onKeyDown: (event) => {
               if (event.target !== event.currentTarget) return;
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                onIntent(permissionsOf(reward).edit ? 'edit' : 'view', reward);
+                openReward(reward);
               }
             },
           })}
         />
       )}
 
-      <RewardPanel
-        open={panelOpen}
-        mode={panel}
-        onSaved={report}
-        onClose={() => setPanelOpen(false)}
-      />
+      <RewardPanel open={panelOpen} mode={panel} onSaved={report} onClose={closePanel} />
       <RewardConfirm request={confirming} onDone={report} onClose={() => setConfirming(null)} />
       <AvailabilityDialog
         reward={editingAvailability}

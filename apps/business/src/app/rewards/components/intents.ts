@@ -22,7 +22,7 @@ export const INTENTS: { intent: RewardIntent; label: string; icon: Icon; tone?: 
   { intent: 'edit', label: 'Edit draft', icon: PencilSimple },
   { intent: 'view', label: 'View details', icon: Eye },
   { intent: 'activate', label: 'Activate', icon: Lightning },
-  { intent: 'submit', label: 'Submit for approval', icon: PaperPlaneTilt },
+  { intent: 'submit', label: 'Submit', icon: PaperPlaneTilt },
   { intent: 'approve', label: 'Approve', icon: CheckCircle },
   { intent: 'reject', label: 'Reject', icon: XCircle, tone: 'text-error' },
   { intent: 'withdraw', label: 'Take back to draft', icon: ArrowCounterClockwise },
@@ -32,10 +32,14 @@ export const INTENTS: { intent: RewardIntent; label: string; icon: Icon; tone?: 
   { intent: 'duplicate', label: 'Duplicate', icon: Copy },
 ];
 
-/** The intents a user has on a reward, in menu order. A reward they can't edit opens read-only. */
+/**
+ * The intents a user has on a reward, in menu order. A reward they can't edit opens read-only.
+ * Every intent but `view` reads its own permission, so one missing from `rewardPermissions` fails
+ * the typecheck instead of quietly hiding the menu item.
+ */
 export function intentsFor(permissions: RewardPermissions): RewardIntent[] {
   return INTENTS.map((item) => item.intent).filter((intent) =>
-    intent === 'view' ? !permissions.edit : permissions[intent as keyof RewardPermissions],
+    intent === 'view' ? !permissions.edit : permissions[intent],
   );
 }
 

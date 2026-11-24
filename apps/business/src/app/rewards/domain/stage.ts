@@ -7,6 +7,7 @@ import type { Reward } from './draft';
  */
 export type Stage =
   | 'draft'
+  | 'rejected'
   | 'failed'
   | 'pending_approval'
   | 'publishing'
@@ -19,6 +20,7 @@ export type Stage =
 
 export const STAGES: Record<Stage, { label: string; tone: string }> = {
   draft: { label: 'Draft', tone: 'badge-ghost' },
+  rejected: { label: 'Rejected', tone: 'badge-error' },
   failed: { label: 'Publish failed', tone: 'badge-error' },
   pending_approval: { label: 'Awaiting approval', tone: 'badge-warning' },
   publishing: { label: 'Publishing', tone: 'badge-info' },
@@ -35,26 +37,47 @@ export function stageOf(reward: Reward, now = Date.now()): Stage {
   if (reward.status === 'EXPIRED') return 'expired';
   if (reward.publishStatus === 'PUBLISHING') return 'publishing';
   if (reward.status === 'PENDING_APPROVAL') return 'pending_approval';
-  if (reward.status === 'DRAFT') return reward.publishStatus === 'FAILED' ? 'failed' : 'draft';
+  if (reward.status === 'DRAFT') {
+    if (reward.publishStatus === 'FAILED') return 'failed';
+    // Back in draft because the Owner said no. Submitting again replaces the rejection.
+    return reward.approval?.status === 'REJECTED' ? 'rejected' : 'draft';
+  }
   if (reward.status === 'PAUSED') return 'paused';
   if (reward.expiresAt && Date.parse(reward.expiresAt) <= now) return 'claims_closed';
   if (reward.startsAt && Date.parse(reward.startsAt) > now) return 'scheduled';
   return 'live';
 }
 
+/** Whether this person, not another member or an API key, submitted the reward for approval. */
+export function submittedBy(reward: Reward, userId: string | undefined) {
+  const by = reward.approval?.submittedBy;
+  return !!userId && by?.type === 'USER' && by.id === userId;
+}
+
+/** The person's own rewards the Owner rejected, most recently rejected first. */
+export function rejectedFor(rewards: Reward[], userId: string | undefined) {
+  const reviewedAt = (reward: Reward) => Date.parse(reward.approval?.reviewedAt ?? '') || 0;
+  return rewards
+    .filter((reward) => stageOf(reward) === 'rejected' && submittedBy(reward, userId))
+    .sort((a, b) => reviewedAt(b) - reviewedAt(a));
+}
+
 /** The tabs above the list, and which stages each one shows. */
-export type Filter = 'all' | 'drafts' | 'live' | 'paused' | 'ended';
-export const FILTERS: { value: Filter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'drafts', label: 'Drafts' },
-  { value: 'live', label: 'Live' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'ended', label: 'Ended' },
+export type Filter = 'all' | 'drafts' | 'awaiting' | 'live' | 'paused' | 'ended';
+/** `empty` titles the list when the tab has nothing in it. */
+export const FILTERS: { value: Filter; label: string; empty: string }[] = [
+  { value: 'all', label: 'All', empty: 'No vouchers yet' },
+  { value: 'drafts', label: 'Drafts', empty: 'No draft vouchers' },
+  { value: 'awaiting', label: 'Awaiting approval', empty: 'No vouchers awaiting approval' },
+  { value: 'live', label: 'Live', empty: 'No live vouchers' },
+  { value: 'paused', label: 'Paused', empty: 'No paused vouchers' },
+  { value: 'ended', label: 'Ended', empty: 'No ended vouchers' },
 ];
 export const FILTER_OF: Record<Stage, Exclude<Filter, 'all'>> = {
   draft: 'drafts',
+  rejected: 'drafts',
   failed: 'drafts',
-  pending_approval: 'drafts',
+  pending_approval: 'awaiting',
   publishing: 'live',
   scheduled: 'live',
   live: 'live',
@@ -79,13 +102,14 @@ export function rewardPermissions(
   { owner, approvalRequired }: { owner: boolean; approvalRequired: boolean },
 ) {
   const stage = stageOf(reward);
-  const draft = stage === 'draft' || stage === 'failed';
+  const draft = stage === 'draft' || stage === 'rejected' || stage === 'failed';
   const published = isLocked(reward) && stage !== 'publishing';
   return {
     edit: draft,
     activate: draft && (owner || !approvalRequired),
     submit: draft && !owner && approvalRequired,
     approve: stage === 'pending_approval' && owner,
+    reject: stage === 'pending_approval' && owner,
     withdraw: stage === 'pending_approval',
     pause: owner && ['scheduled', 'live'].includes(stage),
     resume: owner && stage === 'paused',

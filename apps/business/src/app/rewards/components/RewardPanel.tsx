@@ -27,6 +27,7 @@ import { coreErrors } from '../domain/errors';
 import { hasDiscountType, KIND_ORDER, KINDS, MAX_VALID_FOR_DAYS } from '../domain/kinds';
 import { isLocked } from '../domain/stage';
 import { useSaveReward, type RewardReport } from '../hooks/useRewards';
+import { RejectionNotice } from './RejectionNotice';
 
 /** What the panel is for: a new reward (maybe from a copy), editing a draft, or viewing one. */
 export type RewardPanelMode =
@@ -270,6 +271,8 @@ export function RewardPanel({
               </ul>
             </section>
           </div>
+
+          <RejectionNotice reward={reward} />
 
           {errors.form && (
             <p role="alert" className="alert alert-error alert-soft mt-4 text-sm">

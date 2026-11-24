@@ -19,6 +19,19 @@ export interface AttentionItem {
   detail: string;
   /** Opens the Rewards page. Items without it have nowhere to go yet. */
   rewards?: boolean;
+  /** With `rewards`, opens this one reward on the page. */
+  rewardId?: string;
+}
+
+/** Most urgent first. */
+const URGENCY: AttentionItem['tone'][] = ['error', 'warning', 'info'];
+
+/** Everything that needs someone, most urgent first. */
+export function collectAttention(...groups: Array<AttentionItem | AttentionItem[] | null>) {
+  return groups
+    .flat()
+    .filter((item): item is AttentionItem => item !== null)
+    .sort((a, b) => URGENCY.indexOf(a.tone) - URGENCY.indexOf(b.tone));
 }
 
 const rewardCount = (n: number) => `${fmtNumber(n)} voucher${n === 1 ? '' : 's'}`;
@@ -32,7 +45,11 @@ export function summarizeRewards(rewards: Reward[], now = Date.now()) {
   for (const reward of rewards) stages[stageOf(reward, now)] += 1;
 
   const pipeline = [
-    { label: 'Drafts', count: stages.draft + stages.failed, tone: 'bg-base-content/25' },
+    {
+      label: 'Drafts',
+      count: stages.draft + stages.rejected + stages.failed,
+      tone: 'bg-base-content/25',
+    },
     { label: 'Awaiting approval', count: stages.pending_approval, tone: 'bg-warning' },
     { label: 'Publishing', count: stages.publishing, tone: 'bg-info/60' },
     { label: 'Scheduled', count: stages.scheduled, tone: 'bg-info' },
@@ -48,7 +65,7 @@ export function summarizeRewards(rewards: Reward[], now = Date.now()) {
   return {
     stages,
     pipeline,
-    drafts: stages.draft + stages.failed,
+    drafts: stages.draft + stages.rejected + stages.failed,
     claimed: rewards.reduce((total, reward) => total + reward.claimedCount, 0),
     top: rewards
       .filter((reward) => reward.claimedCount > 0)
@@ -63,12 +80,27 @@ export function summarizeRewards(rewards: Reward[], now = Date.now()) {
   };
 }
 
-/** What in the catalog needs someone, and who can act on it. */
+/**
+ * What in the catalog needs someone, and who can act on it. `rejected` is the person's own
+ * rewards the Owner sent back (see `rejectedFor`), each opened straight from its row.
+ */
 export function rewardAttention(
   { stages, closingSoon }: ReturnType<typeof summarizeRewards>,
   owner: boolean,
+  rejected: Reward[] = [],
 ): AttentionItem[] {
   const items: AttentionItem[] = [];
+  for (const reward of rejected)
+    items.push({
+      id: `rejected-${reward.id}`,
+      tone: 'error',
+      title: `Your voucher “${reward.title}” was rejected`,
+      detail: reward.approval?.reason
+        ? `Owner’s reason: ${reward.approval.reason}`
+        : 'The Owner gave no reason. Change it and submit it again.',
+      rewards: true,
+      rewardId: reward.id,
+    });
   if (stages.failed)
     items.push({
       id: 'failed',
