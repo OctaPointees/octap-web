@@ -121,6 +121,8 @@ const groupRules = [
   // Merchant routes, server-side with an API key: they belong to `@octap/sdk`, not this browser
   // client. This also skips their two public POS finalize routes, which are part of the same flow.
   [/^(Credits|Rewards|Webhooks)/, null],
+  // MCP OAuth (`/oauth/*`, `/.well-known/*`): an MCP host signs in through these, not the portals.
+  [/^McpOAuth/, null],
   [/^Health/, 'health'],
   [/^OrganizationResolution/, 'organizations'],
   [/^(IdentityController|CustomerVerificationController)/, 'identity'],
@@ -169,7 +171,21 @@ const schemaLines = ['/** Types generated from the OctaP OpenAPI document. */'];
 for (const [name, schema] of Object.entries(spec.components?.schemas ?? {})) {
   const typeName = getTypeName(name);
   const type = convertSchemaType(schema);
-  if (schema.type === 'object' && schema.properties !== undefined && schema.properties !== null) {
+  // An object with no properties is an empty body (`Record<string, never>`): `{}` would allow any value.
+  if (
+    schema.type === 'object' &&
+    schema.properties !== null &&
+    typeof schema.properties === 'object' &&
+    Object.keys(schema.properties).length === 0 &&
+    schema.additionalProperties === undefined
+  ) {
+    schemaLines.push(`export type ${typeName} = Record<string, never>;`);
+  } else if (
+    schema.type === 'object' &&
+    schema.properties !== undefined &&
+    schema.properties !== null &&
+    Object.keys(schema.properties).length > 0
+  ) {
     schemaLines.push(`export interface ${typeName} ${type}`);
   } else {
     schemaLines.push(`export type ${typeName} = ${type};`);

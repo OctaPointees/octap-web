@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { OctapError } from '@octap/internal-sdk';
 import { unwrap, useAuth } from '@octap/shared/authentication';
 import { notify } from '@octap/shared/components';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
@@ -124,18 +125,6 @@ export function useSaveReward(editing: Reward | undefined, report: RewardReport)
   });
 }
 
-/** Creates one draft without a toast, for the CSV import's row-by-row run. */
-export function useCreateDraft() {
-  const { api } = useAuth();
-  const { organizationId } = useOrganization();
-  const store = useRewardCache();
-  return async (input: RewardInput) => {
-    const saved = await unwrap(api.console.createRewards({ organizationId, body: input }));
-    store(saved);
-    return saved;
-  };
-}
-
 export type RewardAction =
   'activate' | 'pause' | 'resume' | 'submit' | 'withdraw' | 'approve' | 'reject';
 
@@ -154,6 +143,7 @@ export function useRewardAction(report: RewardReport) {
   const { api } = useAuth();
   const { organizationId } = useOrganization();
   const store = useRewardCache();
+  const cache = useQueryClient();
   return useMutation({
     meta: cacheOnly,
     mutationFn: ({
@@ -166,20 +156,43 @@ export function useRewardAction(report: RewardReport) {
       reason?: string;
     }) => {
       const id = reward.id;
-      const status = { activate: 'ACTIVE', resume: 'ACTIVE', pause: 'PAUSED' } as const;
-      if (action === 'activate' || action === 'resume' || action === 'pause')
+      // Core decides only on what the user saw (OCT-324): the voucher as shown, and the submission
+      // the Owner reviewed. One changed since is a 409, and the list is read again.
+      const approvalRequestId = reward.approval?.id ?? '';
+      if (action === 'activate')
         return unwrap(
-          api.console.updateRewards({ organizationId, id, body: { status: status[action] } }),
+          api.console.updateRewards({
+            organizationId,
+            id,
+            body: { status: 'ACTIVE', expectedUpdatedAt: reward.updatedAt },
+          }),
         );
+      if (action === 'resume' || action === 'pause')
+        return unwrap(
+          api.console.updateRewards({
+            organizationId,
+            id,
+            body: { status: action === 'pause' ? 'PAUSED' : 'ACTIVE' },
+          }),
+        );
+      if (action === 'approve')
+        return unwrap(api.console.approve({ organizationId, id, body: { approvalRequestId } }));
       if (action === 'reject')
-        return unwrap(api.console.reject({ organizationId, id, body: { reason } }));
+        return unwrap(
+          api.console.reject({ organizationId, id, body: { approvalRequestId, reason } }),
+        );
       return unwrap(api.console[action]({ organizationId, id }));
     },
     onSuccess: (saved, { action }) => {
       store(saved);
       report(saved, stageOf(saved) === 'publishing' ? 'Publishing on-chain' : DONE[action]);
     },
-    onError: (error) => notify.error(new Error(coreMessage(error)), 'Could not update the voucher'),
+    onError: (error) => {
+      // A 409 can mean the voucher changed since it was shown: show it as it is now.
+      if (error instanceof OctapError && error.status === 409)
+        void cache.invalidateQueries({ queryKey: rewardKeys.list(organizationId) });
+      notify.error(new Error(coreMessage(error)), 'Could not update the voucher');
+    },
   });
 }
 
