@@ -22,7 +22,10 @@ export const queryClient: QueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
-      refetchOnWindowFocus: false,
+      // Coming back to the tab reloads what is on screen, so changes made elsewhere (another
+      // tab, a teammate, an API key) show up. Only data older than `staleTime` is fetched again,
+      // so switching tabs back and forth quickly costs nothing.
+      refetchOnWindowFocus: true,
       // Client errors will not change on a retry.
       retry: (count, error) => (statusOf(error) ?? 500) >= 500 && count < 2,
     },

@@ -4,7 +4,13 @@ import { notify } from '@octap/shared/components';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { toRewardPatch, type Reward, type RewardInput } from '../domain/draft';
 import { coreMessage } from '../domain/errors';
-import { availabilityPatch, rewardPermissions, stageOf, STAGES } from '../domain/stage';
+import {
+  availabilityPatch,
+  rejectedFor,
+  rewardPermissions,
+  stageOf,
+  STAGES,
+} from '../domain/stage';
 
 /** How often the list is read again while a reward publishes on-chain. */
 const PUBLISH_POLL_MS = 3000;
@@ -70,6 +76,21 @@ export function useRewards() {
         ? PUBLISH_POLL_MS
         : false,
   });
+}
+
+/**
+ * How many rewards are waiting on the signed-in user, for the badge beside Vouchers in the
+ * sidebar: for the Owner, those awaiting their approval; for anyone else, their own rewards the
+ * Owner rejected. 0 until the list loads.
+ */
+export function useRewardsNeedingMe() {
+  const { owner } = useOrganization();
+  const { identity } = useAuth();
+  const { data } = useRewards();
+  if (!data) return 0;
+  return owner
+    ? data.filter((reward) => stageOf(reward) === 'pending_approval').length
+    : rejectedFor(data, identity?.user.id).length;
 }
 
 /** What the signed-in user may do with a reward. */

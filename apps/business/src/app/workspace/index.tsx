@@ -5,6 +5,7 @@ import type { NavOption } from '@/components/layout/SidePanel';
 import { platformAdminLinks } from '@/components/layout/nav';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { organizationPath, type OrganizationPage } from '@/app/organization/utils';
+import { useRewardsNeedingMe } from '@/app/rewards/hooks/useRewards';
 import { FOCUS_PAGES, useFocus } from './focus';
 import { FocusToggle } from './FocusToggle';
 import { WorkspaceStatusBar } from './WorkspaceStatusBar';
@@ -30,11 +31,14 @@ export default function WorkspaceLayout() {
   const { identity } = useAuth();
   const { slug, membership } = useOrganization();
   const focus = useFocus();
+  const vouchersWaiting = useRewardsNeedingMe();
+  const badges: Partial<Record<OrganizationPage, number>> = { vouchers: vouchersWaiting };
 
   const nav: NavOption[] = FOCUS_PAGES[focus].map((page) => ({
     ...PAGES[page],
     path: organizationPath(slug, page || undefined),
     end: !page,
+    badge: page ? badges[page] : undefined,
   }));
 
   return (

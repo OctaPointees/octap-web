@@ -1,5 +1,7 @@
-import { XCircle } from 'phosphor-react';
-import { fmtDate } from '@/utils/format';
+import { Clock, XCircle } from 'phosphor-react';
+import { cn } from '@/utils/cn';
+import { fmtDate, fmtRelative } from '@/utils/format';
+import { usePeople } from '../hooks/usePeople';
 import type { Reward } from '../domain/draft';
 import { stageOf } from '../domain/stage';
 
@@ -56,18 +58,77 @@ export function RejectedBanner({
  * Shows nothing for any other reward.
  */
 export function RejectionNotice({ reward }: { reward: Reward | undefined }) {
+  const people = usePeople();
   if (!reward || stageOf(reward) !== 'rejected') return null;
-  const { reason, reviewedAt } = reward.approval ?? {};
+  const { reason, reviewedAt, reviewedById } = reward.approval ?? {};
+  const reviewer = people.person(reviewedById);
   return (
     <div role="note" className="alert alert-error alert-soft mt-4 items-start text-sm">
       <XCircle size={20} weight="fill" className="mt-0.5 shrink-0" aria-hidden />
       <div className="flex flex-col gap-1">
         <p className="font-semibold">
-          The Owner rejected this voucher{reviewedAt ? ` on ${fmtDate(reviewedAt)}` : ''}
+          {reviewer ? `Rejected by ${reviewer.name}` : 'The Owner rejected this voucher'}
+          {reviewedAt ? ` on ${fmtDate(reviewedAt)}` : ''}
         </p>
         <p>{reason ? `Reason: ${reason}` : 'No reason was given.'}</p>
+        <SubmittedBy reward={reward} />
         <p className="opacity-75">Change what is needed, save it, then submit it again.</p>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Who sent the reward for approval and when, as one line. Shows nothing for a reward that was
+ * never submitted.
+ */
+export function SubmittedBy({ reward, className }: { reward: Reward; className?: string }) {
+  const people = usePeople();
+  const approval = reward.approval;
+  const submitter = people.actor(approval?.submittedBy);
+  if (!approval || !submitter) return null;
+  return (
+    <p className={cn('flex flex-wrap items-baseline gap-x-1.5', className)}>
+      <span className="opacity-75">Submitted by</span>
+      <span className="font-medium" title={submitter.detail}>
+        {submitter.name}
+      </span>
+      {submitter.detail && <span className="opacity-60">({submitter.detail})</span>}
+      <span className="opacity-60">{fmtRelative(approval.submittedAt)}</span>
+    </p>
+  );
+}
+
+/**
+ * Where the reward is in review, at the top of its panel: who submitted it while it waits, or who
+ * approved it once it has gone through. Rejections have `RejectionNotice` instead.
+ */
+export function ApprovalNotice({ reward }: { reward: Reward | undefined }) {
+  const people = usePeople();
+  if (!reward?.approval) return null;
+  const stage = stageOf(reward);
+  if (stage === 'pending_approval')
+    return (
+      <div role="note" className="alert alert-warning alert-soft mt-4 items-start text-sm">
+        <Clock size={20} weight="fill" className="mt-0.5 shrink-0" aria-hidden />
+        <div className="flex flex-col gap-1">
+          <p className="font-semibold">Waiting for the Owner to approve it</p>
+          <SubmittedBy reward={reward} />
+        </div>
+      </div>
+    );
+  const reviewer = people.person(reward.approval.reviewedById);
+  if (reward.approval.status !== 'APPROVED' || !reviewer) return null;
+  return (
+    <div className="mt-4 flex flex-col gap-0.5 text-sm">
+      <SubmittedBy reward={reward} />
+      <p className="flex flex-wrap items-baseline gap-x-1.5">
+        <span className="opacity-75">Approved by</span>
+        <span className="font-medium">{reviewer.name}</span>
+        {reward.approval.reviewedAt && (
+          <span className="opacity-60">on {fmtDate(reward.approval.reviewedAt)}</span>
+        )}
+      </p>
     </div>
   );
 }

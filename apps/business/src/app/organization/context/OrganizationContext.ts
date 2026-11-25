@@ -15,7 +15,10 @@ export interface CurrentOrganization {
   organization: ConsoleOrganizationsOrganizationResponse;
   /** Business Owner of this organization (otherwise Business Developer). */
   owner: boolean;
-  /** When `organization` was last loaded. It changes after each save, so forms can reset. */
+  /**
+   * Goes up each time `organization` actually changes, such as after a save, so forms can reset.
+   * A reload that finds nothing new leaves it alone.
+   */
   revision: number;
 }
 

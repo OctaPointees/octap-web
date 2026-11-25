@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, Outlet, useLocation, useParams } from 'react-router';
 import { AccountControls, unwrap, useAuth } from '@octap/shared/authentication';
@@ -26,6 +26,11 @@ export function OrganizationProvider() {
   });
 
   const organization = query.data;
+  // Counts real changes only. A reload that finds nothing new keeps the same object (React Query
+  // shares unchanged data), so coming back to the tab doesn't reset a form someone is filling in.
+  const [seen, setSeen] = useState({ organization, revision: 0 });
+  if (organization !== seen.organization) setSeen({ organization, revision: seen.revision + 1 });
+  const revision = seen.revision;
   const value = useMemo<CurrentOrganization | null>(
     () =>
       membership && organization
@@ -35,10 +40,10 @@ export function OrganizationProvider() {
             membership,
             organization,
             owner: organization.persona === 'BUSINESS_OWNER',
-            revision: query.dataUpdatedAt,
+            revision,
           }
         : null,
-    [organizationId, slug, membership, organization, query.dataUpdatedAt],
+    [organizationId, slug, membership, organization, revision],
   );
 
   if (byId) {

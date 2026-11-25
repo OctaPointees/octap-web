@@ -16,9 +16,10 @@ import {
 import { fromReward, type Reward } from '../domain/draft';
 import { KINDS } from '../domain/kinds';
 import { useRewardAction, useRewardAvailability, type RewardReport } from '../hooks/useRewards';
+import { SubmittedBy } from './RejectionNotice';
 
 export type RewardConfirmRequest = {
-  action: 'activate' | 'approve' | 'pause' | 'reject';
+  action: 'activate' | 'submit' | 'approve' | 'pause' | 'reject';
   reward: Reward;
 };
 
@@ -26,7 +27,8 @@ const ACTIVATION =
   "Check the details below. Once it's published on-chain, the locked ones can never change.";
 
 /**
- * Asks before the steps that need a second look: activating or approving, pausing, rejecting.
+ * Asks before the steps that need a second look: activating, submitting or approving, pausing,
+ * rejecting.
  * Stays mounted, so it animates in and out; `request` opens it.
  */
 export function RewardConfirm({
@@ -63,6 +65,13 @@ export function RewardConfirm({
       confirmLabel: 'Activate',
       tone: 'primary',
     },
+    submit: {
+      title: 'Submit for approval?',
+      description:
+        "The Owner reviews these details. Once they approve, it's published on-chain and the locked ones can never change.",
+      confirmLabel: 'Submit',
+      tone: 'primary',
+    },
     approve: {
       title: 'Approve and activate?',
       description: ACTIVATION,
@@ -95,6 +104,9 @@ export function RewardConfirm({
         run.mutate({ reward, action, reason: reason.trim() }, { onSuccess: onClose });
       }}
     >
+      {(action === 'approve' || action === 'reject') && reward && (
+        <SubmittedBy reward={reward} className="text-sm" />
+      )}
       {action === 'reject' && (
         <FormField label="Reason" hint="1 to 500 characters.">
           <TextInput
@@ -105,7 +117,7 @@ export function RewardConfirm({
           />
         </FormField>
       )}
-      {(action === 'activate' || action === 'approve') && reward && (
+      {(action === 'activate' || action === 'submit' || action === 'approve') && reward && (
         <ActivationSummary reward={reward} />
       )}
     </ConfirmDialog>

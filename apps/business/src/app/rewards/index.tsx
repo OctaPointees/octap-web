@@ -17,6 +17,7 @@ import {
   useRewards,
   type RewardReport,
 } from './hooks/useRewards';
+import { usePeople } from './hooks/usePeople';
 import { ImportDialog } from './components/ImportDialog';
 import type { RewardIntent } from './components/intents';
 import { RewardActions, RewardPrimaryAction } from './components/RewardActions';
@@ -48,6 +49,7 @@ const column = createColumnHelper<Reward>();
 export default function RewardsPage() {
   const list = useRewards();
   const permissionsOf = useRewardPermissions();
+  const people = usePeople();
   const [filter, setFilter] = useState<Filter>('all');
   const [view, setView] = useState<View>(savedView);
   const { flashRow, isFlashing } = useRowFlash();
@@ -85,6 +87,7 @@ export default function RewardsPage() {
     else if (intent === 'availability') setEditingAvailability(reward);
     else if (
       intent === 'activate' ||
+      intent === 'submit' ||
       intent === 'approve' ||
       intent === 'pause' ||
       intent === 'reject'
@@ -171,10 +174,23 @@ export default function RewardsPage() {
         enableColumnFilter: true,
         cell: ({ row }) => {
           const stage = stageOf(row.original);
+          // While it waits, who sent it, so the Owner knows whose request it is.
+          const submitter =
+            stage === 'pending_approval' ? people.actor(row.original.approval?.submittedBy) : null;
           return (
-            <span className={cn('badge badge-soft badge-sm', STAGES[stage].tone)}>
-              {stage === 'publishing' && <span className="loading loading-spinner loading-xs" />}
-              {STAGES[stage].label}
+            <span className="flex min-w-0 flex-col items-start gap-0.5">
+              <span className={cn('badge badge-soft badge-sm', STAGES[stage].tone)}>
+                {stage === 'publishing' && <span className="loading loading-spinner loading-xs" />}
+                {STAGES[stage].label}
+              </span>
+              {submitter && (
+                <span
+                  className="max-w-full truncate text-xs opacity-60"
+                  title={submitter.detail ?? submitter.name}
+                >
+                  by {submitter.name}
+                </span>
+              )}
             </span>
           );
         },
@@ -228,7 +244,7 @@ export default function RewardsPage() {
     ],
     // The handlers read the latest state on every render; the column shape never changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [busyWith, permissionsOf],
+    [busyWith, permissionsOf, people],
   );
 
   return (
