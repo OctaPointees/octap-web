@@ -15,6 +15,17 @@ export class ConsoleApi extends ApiGroup {
       url: `/v1/console/mcp/token`,
     });
   }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/assistant/messages. */
+  message(input: {
+    organizationId: string;
+    body: OpenApi.ConsoleAssistantMessageInput;
+  }): Promise<OctapResponse<unknown>> {
+    return this.request<unknown>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/assistant/messages`,
+      data: input.body,
+    });
+  }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/budget. */
   readIssuanceBudget(input: {
     organizationId: string;
@@ -364,10 +375,20 @@ export class ConsoleApi extends ApiGroup {
   replayDelivery(input: {
     organizationId: string;
     id: string;
-  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksReplayDeliveryResponse>> {
-    return this.request<OpenApi.ConsoleWebhooksReplayDeliveryResponse>({
+  }): Promise<OctapResponse<OpenApi.WebhookDeliveryWithEvent>> {
+    return this.request<OpenApi.WebhookDeliveryWithEvent>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/deliveries/${encodeURIComponent(input.id)}/replay`,
+    });
+  }
+  /** Sends a GET request to /v1/console/organizations/{organizationId}/events. */
+  stream(input: { organizationId: string; lastEventID?: string }): Promise<OctapResponse<unknown>> {
+    return this.request<unknown>({
+      method: 'get',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/events`,
+      headers: {
+        ...(input.lastEventID !== undefined ? { 'Last-Event-ID': input.lastEventID } : {}),
+      },
     });
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/api-credentials. */

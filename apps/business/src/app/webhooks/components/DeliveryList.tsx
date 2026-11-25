@@ -80,7 +80,7 @@ function DeliveryDetails({
             {row('Attempts', `${fmtNumber(delivery.attemptCount)} of ${MAX_ATTEMPTS}`)}
             {row('Last result', lastResult(delivery))}
             {delivery.status === 'PENDING' && row('Next try', fmtRelative(delivery.nextAttemptAt))}
-            {row('Event ID', <code className="font-mono text-xs">{delivery.id}</code>)}
+            {row('Event ID', <code className="font-mono text-xs">{delivery.eventId}</code>)}
             {row('Created', fmtDate(delivery.createdAt))}
           </dl>
           <div className="flex flex-col gap-1">

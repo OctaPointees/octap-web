@@ -143,6 +143,8 @@ type ConfirmProps = {
   tone?: 'primary' | 'error' | 'warning';
   loading?: boolean;
   onConfirm: () => void;
+  /** Turns the confirm button off, such as when what it would act on has changed. */
+  confirmDisabled?: boolean;
   children?: ReactNode;
 };
 
@@ -156,6 +158,7 @@ export function ConfirmDialog({
   tone = 'primary',
   loading,
   onConfirm,
+  confirmDisabled = false,
   children,
 }: ConfirmProps) {
   return (
@@ -179,6 +182,7 @@ export function ConfirmDialog({
                 'btn-warning': tone === 'warning',
               })}
               loading={loading}
+              disabled={confirmDisabled}
               onClick={onConfirm}
             >
               {confirmLabel}

@@ -27,6 +27,11 @@ export interface ConsoleApiCredentialsRevokeResponse {
   revoked: boolean;
 }
 
+export interface ConsoleAssistantMessageInput {
+  message: string;
+  history?: Array<AssistantTurn>;
+}
+
 export interface ConsoleChangeRequestsProposeInput {
   requestType: GovernanceRequestType;
   reason: string;
@@ -402,20 +407,7 @@ export interface ConsoleWebhooksEnableEndpointResponse {
   updatedAt: string;
 }
 
-export type ConsoleWebhooksListDeliveriesResponse = Array<{
-  id: string;
-  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
-  createdAt: string;
-  updatedAt: string;
-  organizationId: string;
-  payload: unknown;
-  endpointId: string;
-  eventType: string;
-  attemptCount: number;
-  nextAttemptAt: string;
-  lastResponseStatus: null | number;
-  lastError: null | string;
-}>;
+export type ConsoleWebhooksListDeliveriesResponse = Array<WebhookDeliveryWithEvent>;
 
 export type ConsoleWebhooksListEndpointsResponse = Array<{
   id: string;
@@ -443,20 +435,7 @@ export interface ConsoleWebhooksRegisterEndpointResponse {
   updatedAt: string;
 }
 
-export interface ConsoleWebhooksReplayDeliveryResponse {
-  id: string;
-  organizationId: string;
-  endpointId: string;
-  eventType: string;
-  payload: unknown;
-  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
-  attemptCount: number;
-  nextAttemptAt: string;
-  lastResponseStatus: null | number;
-  lastError: null | string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type ConsoleWebhooksReplayDeliveryResponse = WebhookDeliveryWithEvent;
 
 export interface ConsoleWebhooksRotateSecretResponse {
   secret: string;
@@ -1268,20 +1247,7 @@ export type VoucherPublishStatus = 'FAILED' | 'NOT_PUBLISHED' | 'PUBLISHED' | 'P
 export type VoucherStatus =
   'ACTIVE' | 'ARCHIVED' | 'DEPLETED' | 'DRAFT' | 'EXPIRED' | 'PAUSED' | 'PENDING_APPROVAL';
 
-export type WebhooksListDeliveriesResponse = Array<{
-  id: string;
-  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
-  createdAt: string;
-  updatedAt: string;
-  organizationId: string;
-  payload: unknown;
-  endpointId: string;
-  eventType: string;
-  attemptCount: number;
-  nextAttemptAt: string;
-  lastResponseStatus: null | number;
-  lastError: null | string;
-}>;
+export type WebhooksListDeliveriesResponse = Array<WebhookDeliveryWithEvent>;
 
 export type WebhooksListEndpointsResponse = Array<{
   id: string;
@@ -1292,6 +1258,22 @@ export type WebhooksListEndpointsResponse = Array<{
   createdAt: string;
   updatedAt: string;
 }>;
+
+export interface WebhookDeliveryWithEvent {
+  id: string;
+  organizationId: string;
+  endpointId: string;
+  eventId: string;
+  eventType: string;
+  payload: unknown;
+  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
+  attemptCount: number;
+  nextAttemptAt: string;
+  lastResponseStatus: null | number;
+  lastError: null | string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface DependencyCheck {
   status: 'down' | 'up';
@@ -1334,6 +1316,11 @@ export interface WorkerLag {
     deadLettered: number;
   };
   indexer: Array<IndexerLag>;
+}
+
+export interface AssistantTurn {
+  role: 'assistant' | 'user';
+  text: string;
 }
 
 export interface ConsoleCredential {

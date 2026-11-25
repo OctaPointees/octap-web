@@ -29,6 +29,11 @@ export interface AuthSession {
    * to get the data or a thrown `OctapError`.
    */
   api: OctapClient;
+  /**
+   * The current Google ID token, or `null` when signed out. Only for requests the SDK client can't
+   * make, such as reading a Server-Sent Events stream with `fetch`. Never store it.
+   */
+  getAccessToken(): string | null;
 }
 
 export const AuthContext = createContext<AuthSession | null>(null);

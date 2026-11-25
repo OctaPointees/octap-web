@@ -478,6 +478,66 @@
         "description": "**Auth:** console user (Google ID token)."
       }
     },
+    "/v1/console/organizations/{organizationId}/assistant/messages": {
+      "post": {
+        "operationId": "ConsoleAssistantController_message",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-Sent Events. Each message: `event` its type, `data` an `AssistantStreamEvent` (`@octap/contracts`) as JSON. Settings, body, membership and rate-limit errors come back as JSON errors before the stream starts.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Request rejected. `message` says why.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Console Assistant"
+        ],
+        "security": [
+          {
+            "consoleSession": []
+          }
+        ],
+        "x-octap-auth": {
+          "kind": "console",
+          "platformAdminOnly": false
+        },
+        "description": "**Auth:** console user (Google ID token).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsoleAssistantController_message_Body"
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/platform/organizations": {
       "get": {
         "operationId": "PlatformOrganizationsController_list",
@@ -3026,7 +3086,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsoleWebhooksController_replayDelivery_Response"
+                  "$ref": "#/components/schemas/WebhookDeliveryWithEvent"
                 }
               }
             }
@@ -3044,6 +3104,65 @@
         },
         "tags": [
           "Console Webhooks"
+        ],
+        "security": [
+          {
+            "consoleSession": []
+          }
+        ],
+        "x-octap-auth": {
+          "kind": "console",
+          "platformAdminOnly": false
+        },
+        "description": "**Auth:** console user (Google ID token)."
+      }
+    },
+    "/v1/console/organizations/{organizationId}/events": {
+      "get": {
+        "operationId": "ConsoleEventsController_stream",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Last-Event-ID",
+            "in": "header",
+            "required": false,
+            "description": "The last `id` received, to resume after it.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-Sent Events. Each message: `id` is the event `sequence`, `event` its type, `data` an `OrganizationStreamEvent` (`@octap/contracts`) as JSON. `stream.*` messages are about the stream itself. Send `Last-Event-ID` to resume.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Request rejected. `message` says why.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Console Events"
         ],
         "security": [
           {
@@ -6022,7 +6141,13 @@
       "name": "Console Api Credentials"
     },
     {
+      "name": "Console Assistant"
+    },
+    {
       "name": "Console Change Requests"
+    },
+    {
+      "name": "Console Events"
     },
     {
       "name": "Console Identity"
@@ -6213,6 +6338,25 @@
         },
         "required": [
           "revoked"
+        ]
+      },
+      "ConsoleAssistantController_message_Body": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "The new question. 1–4000 characters.",
+            "type": "string"
+          },
+          "history": {
+            "description": "The conversation so far, oldest first, starting with a user turn. At most 40 turns and 60000\ncharacters together with the new message.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssistantTurn"
+            }
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "ConsoleChangeRequestsController_propose_Body": {
@@ -7786,71 +7930,7 @@
       "ConsoleWebhooksController_listDeliveries_Response": {
         "type": "array",
         "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "status": {
-              "enum": [
-                "DEAD_LETTER",
-                "DELIVERED",
-                "PENDING"
-              ],
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "updatedAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "organizationId": {
-              "type": "string"
-            },
-            "payload": {},
-            "endpointId": {
-              "type": "string"
-            },
-            "eventType": {
-              "type": "string"
-            },
-            "attemptCount": {
-              "type": "number"
-            },
-            "nextAttemptAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "lastResponseStatus": {
-              "type": [
-                "null",
-                "number"
-              ]
-            },
-            "lastError": {
-              "type": [
-                "null",
-                "string"
-              ]
-            }
-          },
-          "required": [
-            "attemptCount",
-            "createdAt",
-            "endpointId",
-            "eventType",
-            "id",
-            "lastError",
-            "lastResponseStatus",
-            "nextAttemptAt",
-            "organizationId",
-            "payload",
-            "status",
-            "updatedAt"
-          ]
+          "$ref": "#/components/schemas/WebhookDeliveryWithEvent"
         }
       },
       "ConsoleWebhooksController_listEndpoints_Response": {
@@ -7963,71 +8043,7 @@
         ]
       },
       "ConsoleWebhooksController_replayDelivery_Response": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "organizationId": {
-            "type": "string"
-          },
-          "endpointId": {
-            "type": "string"
-          },
-          "eventType": {
-            "type": "string"
-          },
-          "payload": {},
-          "status": {
-            "enum": [
-              "DEAD_LETTER",
-              "DELIVERED",
-              "PENDING"
-            ],
-            "type": "string"
-          },
-          "attemptCount": {
-            "type": "number"
-          },
-          "nextAttemptAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lastResponseStatus": {
-            "type": [
-              "null",
-              "number"
-            ]
-          },
-          "lastError": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "attemptCount",
-          "createdAt",
-          "endpointId",
-          "eventType",
-          "id",
-          "lastError",
-          "lastResponseStatus",
-          "nextAttemptAt",
-          "organizationId",
-          "payload",
-          "status",
-          "updatedAt"
-        ]
+        "$ref": "#/components/schemas/WebhookDeliveryWithEvent"
       },
       "ConsoleWebhooksController_rotateSecret_Response": {
         "type": "object",
@@ -11179,71 +11195,7 @@
       "WebhooksController_listDeliveries_Response": {
         "type": "array",
         "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "status": {
-              "enum": [
-                "DEAD_LETTER",
-                "DELIVERED",
-                "PENDING"
-              ],
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "updatedAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "organizationId": {
-              "type": "string"
-            },
-            "payload": {},
-            "endpointId": {
-              "type": "string"
-            },
-            "eventType": {
-              "type": "string"
-            },
-            "attemptCount": {
-              "type": "number"
-            },
-            "nextAttemptAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "lastResponseStatus": {
-              "type": [
-                "null",
-                "number"
-              ]
-            },
-            "lastError": {
-              "type": [
-                "null",
-                "string"
-              ]
-            }
-          },
-          "required": [
-            "attemptCount",
-            "createdAt",
-            "endpointId",
-            "eventType",
-            "id",
-            "lastError",
-            "lastResponseStatus",
-            "nextAttemptAt",
-            "organizationId",
-            "payload",
-            "status",
-            "updatedAt"
-          ]
+          "$ref": "#/components/schemas/WebhookDeliveryWithEvent"
         }
       },
       "WebhooksController_listEndpoints_Response": {
@@ -11292,6 +11244,80 @@
             "url"
           ]
         }
+      },
+      "WebhookDeliveryWithEvent": {
+        "description": "A delivery with the event it carries, the shape every delivery read returns.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "This delivery, to replay it.",
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string"
+          },
+          "eventId": {
+            "description": "The event delivered: the body's `id` and `x-octap-event-id`, the same for every endpoint.",
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "payload": {},
+          "status": {
+            "enum": [
+              "DEAD_LETTER",
+              "DELIVERED",
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "attemptCount": {
+            "type": "number"
+          },
+          "nextAttemptAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastResponseStatus": {
+            "type": [
+              "null",
+              "number"
+            ]
+          },
+          "lastError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "attemptCount",
+          "createdAt",
+          "endpointId",
+          "eventId",
+          "eventType",
+          "id",
+          "lastError",
+          "lastResponseStatus",
+          "nextAttemptAt",
+          "organizationId",
+          "payload",
+          "status",
+          "updatedAt"
+        ]
       },
       "DependencyCheck": {
         "type": "object",
@@ -11472,6 +11498,27 @@
           "indexer",
           "operations",
           "webhookDeliveries"
+        ]
+      },
+      "AssistantTurn": {
+        "description": "One earlier turn of the conversation. The browser keeps the history; Core stores none.",
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "assistant",
+              "user"
+            ],
+            "type": "string"
+          },
+          "text": {
+            "description": "Plain text of that turn.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "text"
         ]
       },
       "ConsoleCredential": {

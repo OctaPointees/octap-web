@@ -129,6 +129,7 @@ export function AuthProvider({
       cancelResume,
       refresh,
       api,
+      getAccessToken: token.get,
     }),
     [
       portal,
@@ -142,6 +143,7 @@ export function AuthProvider({
       cancelResume,
       refresh,
       api,
+      token,
     ],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

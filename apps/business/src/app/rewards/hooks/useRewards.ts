@@ -3,6 +3,7 @@ import { OctapError } from '@octap/internal-sdk';
 import { unwrap, useAuth } from '@octap/shared/authentication';
 import { notify } from '@octap/shared/components';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { useLiveStatus } from '@/app/live/liveStatus';
 import { toRewardPatch, type Reward, type RewardInput } from '../domain/draft';
 import { coreMessage } from '../domain/errors';
 import {
@@ -15,6 +16,8 @@ import {
 
 /** How often the list is read again while a reward publishes on-chain. */
 const PUBLISH_POLL_MS = 3000;
+/** The same, while live updates are on: Core says when publishing ends, so this is only a backup. */
+const PUBLISH_POLL_LIVE_MS = 30_000;
 
 export const rewardKeys = {
   list: (organizationId: string) => ['console', 'organization', organizationId, 'rewards'] as const,
@@ -64,6 +67,7 @@ export function useRewards() {
   const { organizationId } = useOrganization();
   const cache = useQueryClient();
   const queryKey = rewardKeys.list(organizationId);
+  const live = useLiveStatus() === 'live';
   return useQuery({
     queryKey,
     queryFn: async () => {
@@ -74,7 +78,9 @@ export function useRewards() {
     },
     refetchInterval: (query) =>
       query.state.data?.some((reward) => reward.publishStatus === 'PUBLISHING')
-        ? PUBLISH_POLL_MS
+        ? live
+          ? PUBLISH_POLL_LIVE_MS
+          : PUBLISH_POLL_MS
         : false,
   });
 }

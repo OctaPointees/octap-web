@@ -2,12 +2,20 @@ import type { WebhookDeliveryRecord } from '../hooks/useWebhooks';
 
 /** The events OctaP sends, as Core names them, with what each one means. */
 export const EVENT_TYPES: { type: string; meaning: string }[] = [
+  { type: 'credits.earned', meaning: 'A member earned points; on its way to the chain' },
   { type: 'credits.earn.confirmed', meaning: 'Points a member earned are on-chain' },
   { type: 'credits.earn.failed', meaning: 'Points a member earned could not be issued' },
   { type: 'credits.redemption.confirmed', meaning: 'A member spent points' },
   { type: 'credits.reversed', meaning: 'A transaction was reversed' },
   { type: 'voucher.granted', meaning: 'A member claimed a voucher' },
   { type: 'voucher.redeemed', meaning: 'A member used a voucher' },
+  { type: 'voucher.created', meaning: 'A voucher draft was created' },
+  { type: 'voucher.submitted', meaning: 'A draft was sent to the Owner for approval' },
+  { type: 'voucher.returned', meaning: 'A draft came back: rejected, or taken back' },
+  { type: 'voucher.activated', meaning: 'A voucher went live, or was resumed' },
+  { type: 'voucher.publish.failed', meaning: 'A voucher could not be published on-chain' },
+  { type: 'voucher.paused', meaning: 'A voucher was paused' },
+  { type: 'voucher.archived', meaning: 'An imported draft was archived' },
   { type: 'budget.low', meaning: 'The points budget is running low' },
 ];
 

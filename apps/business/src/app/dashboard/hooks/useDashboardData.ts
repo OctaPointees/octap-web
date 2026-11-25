@@ -11,7 +11,7 @@ const MEMBER_PAGE_SIZE = 100;
 const MEMBER_PAGES = 10;
 export const MEMBER_SAMPLE = MEMBER_PAGE_SIZE * MEMBER_PAGES;
 
-const dashboardKeys = {
+export const dashboardKeys = {
   budget: (organizationId: string) =>
     ['console', 'organization', organizationId, 'budget'] as const,
 };

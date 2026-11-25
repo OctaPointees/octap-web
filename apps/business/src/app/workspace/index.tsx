@@ -15,6 +15,7 @@ import { platformAdminLinks } from '@/components/layout/nav';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { organizationPath, type OrganizationPage } from '@/app/organization/utils';
 import { useRewardsNeedingMe } from '@/app/rewards/hooks/useRewards';
+import { useLiveUpdates } from '@/app/live/useLiveUpdates';
 import { FOCUS_PAGES, useFocus } from './focus';
 import { FocusToggle } from './FocusToggle';
 import { WorkspaceStatusBar } from './WorkspaceStatusBar';
@@ -41,6 +42,7 @@ export default function WorkspaceLayout() {
   const { identity } = useAuth();
   const { slug, membership } = useOrganization();
   const focus = useFocus();
+  useLiveUpdates();
   const vouchersWaiting = useRewardsNeedingMe();
   const badges: Partial<Record<OrganizationPage, number>> = { vouchers: vouchersWaiting };
 

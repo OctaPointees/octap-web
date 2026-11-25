@@ -15,7 +15,13 @@ import {
 } from '../domain/describe';
 import { fromReward, type Reward } from '../domain/draft';
 import { KINDS } from '../domain/kinds';
-import { useRewardAction, useRewardAvailability, type RewardReport } from '../hooks/useRewards';
+import { stageOf } from '../domain/stage';
+import {
+  useRewardAction,
+  useRewardAvailability,
+  useRewards,
+  type RewardReport,
+} from '../hooks/useRewards';
 import { SubmittedBy } from './RejectionNotice';
 
 export type RewardConfirmRequest = {
@@ -44,12 +50,30 @@ export function RewardConfirm({
   const shown = useExitValue(request);
   const [reason, setReason] = useState('');
   const [session, setSession] = useState(request);
+  // Set once the action is sent, so the outcome (the voucher moving on) isn't read as a change.
+  const [sent, setSent] = useState(false);
   if (request !== session) {
     setSession(request);
+    setSent(false);
     if (request) setReason('');
   }
   const action = shown?.action ?? 'activate';
   const reward = shown?.reward;
+  // The list as it is now: live updates (or a refresh) can change it while this dialog is open.
+  const { data: rewards } = useRewards();
+  const latest = reward && rewards?.find((item) => item.id === reward.id);
+  // For a review, the submission the Owner is looking at must still be the one waiting. Core
+  // refuses otherwise (OCT-324), but this says why before they press the button.
+  // Only while open: after a successful approve the voucher has moved on, and the closing dialog
+  // shouldn't flash a warning.
+  const reviewGone =
+    !!request &&
+    !sent &&
+    (action === 'approve' || action === 'reject') &&
+    !!reward &&
+    (!latest ||
+      stageOf(latest) !== 'pending_approval' ||
+      latest.approval?.id !== reward.approval?.id);
   const copies: Record<
     RewardConfirmRequest['action'],
     {
@@ -99,11 +123,25 @@ export function RewardConfirm({
       onOpenChange={(open) => !open && onClose()}
       {...copies[action]}
       loading={run.isPending}
+      confirmDisabled={reviewGone}
       onConfirm={() => {
-        if (!reward || (action === 'reject' && !reason.trim())) return;
-        run.mutate({ reward, action, reason: reason.trim() }, { onSuccess: onClose });
+        if (!reward || reviewGone || (action === 'reject' && !reason.trim())) return;
+        setSent(true);
+        run.mutate(
+          { reward, action, reason: reason.trim() },
+          { onSuccess: onClose, onError: () => setSent(false) },
+        );
       }}
     >
+      {reviewGone && (
+        <p role="alert" className="alert alert-warning alert-soft text-sm">
+          {!latest
+            ? 'This voucher is no longer in the list.'
+            : stageOf(latest) === 'pending_approval'
+              ? 'It was submitted again with changes since you opened this. Close this and review the new version.'
+              : 'It was taken back to draft while you were reviewing it. There is nothing to approve now.'}
+        </p>
+      )}
       {(action === 'approve' || action === 'reject') && reward && (
         <SubmittedBy reward={reward} className="text-sm" />
       )}
