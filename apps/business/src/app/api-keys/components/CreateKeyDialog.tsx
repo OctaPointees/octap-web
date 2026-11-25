@@ -23,8 +23,8 @@ const ACCESS: { value: Scope; label: string; hint: string; icon: Icon }[] = [
   },
 ];
 
-/** Says "Copied" only once the clipboard has really taken the key. */
-function CopySecret({ value }: { value: string }) {
+/** Says "Copied" only once the clipboard has really taken the secret. */
+export function CopySecret({ value, noun = 'key' }: { value: string; noun?: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -32,7 +32,7 @@ function CopySecret({ value }: { value: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch (cause) {
-      notify.error(cause, 'Could not copy the key. Select it and copy it by hand.');
+      notify.error(cause, `Could not copy the ${noun}. Select it and copy it by hand.`);
     }
   };
 

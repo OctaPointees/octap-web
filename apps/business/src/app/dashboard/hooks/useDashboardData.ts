@@ -3,6 +3,7 @@ import { OctapError } from '@octap/internal-sdk';
 import { unwrap, useAuth } from '@octap/shared/authentication';
 import { memberKeys } from '@/app/members/hooks/useMembers';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { webhookKeys } from '@/app/webhooks/hooks/useWebhooks';
 import { countMember, emptyMemberStats, type WebhookDelivery } from '../domain/insights';
 
 /** Core returns at most 100 members a page, so this reads up to 1,000. */
@@ -13,10 +14,6 @@ export const MEMBER_SAMPLE = MEMBER_PAGE_SIZE * MEMBER_PAGES;
 const dashboardKeys = {
   budget: (organizationId: string) =>
     ['console', 'organization', organizationId, 'budget'] as const,
-  webhookEndpoints: (organizationId: string) =>
-    ['console', 'organization', organizationId, 'webhook-endpoints'] as const,
-  webhookDeliveries: (organizationId: string) =>
-    ['console', 'organization', organizationId, 'webhook-deliveries'] as const,
 };
 
 /** The points budget. Core reads it from the chain, so it is kept for a minute between reads. */
@@ -71,12 +68,12 @@ export function useWebhookHealth() {
   const { api } = useAuth();
   const { organizationId, owner } = useOrganization();
   const endpoints = useQuery({
-    queryKey: dashboardKeys.webhookEndpoints(organizationId),
+    queryKey: webhookKeys.endpoints(organizationId),
     queryFn: () => unwrap(api.console.listEndpoints({ organizationId })),
     enabled: owner,
   });
   const deliveries = useQuery({
-    queryKey: dashboardKeys.webhookDeliveries(organizationId),
+    queryKey: webhookKeys.deliveries(organizationId),
     queryFn: async (): Promise<WebhookDelivery[]> =>
       (await unwrap(api.console.listDeliveries({ organizationId }))).map((delivery) => ({
         id: delivery.id,

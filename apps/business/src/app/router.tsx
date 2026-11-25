@@ -15,6 +15,7 @@ import DashboardPage from './dashboard';
 import RewardsPage from './rewards';
 import MembersPage from './members';
 import ApiKeysPage from './api-keys';
+import WebhooksPage from './webhooks';
 import TeamPage from './team';
 import SettingsPage from './settings';
 
@@ -30,6 +31,7 @@ const organizationRoutes: RouteObject[] = [
       { path: 'vouchers', element: <RewardsPage /> },
       { path: 'members', element: <MembersPage /> },
       { path: 'api-keys', element: <ApiKeysPage /> },
+      { path: 'webhooks', element: <WebhooksPage /> },
       { path: 'team', element: <TeamPage /> },
       { path: 'settings', element: <SettingsPage /> },
     ],

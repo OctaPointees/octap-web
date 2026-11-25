@@ -94,6 +94,7 @@ export function DeveloperDashboard() {
   const keySummary = keys.data ? summarizeKeys(keys.data) : undefined;
   const delivery = deliveries.data ? summarizeDeliveries(deliveries.data) : undefined;
   const activeEndpoints = endpoints.data?.filter((endpoint) => endpoint.status === 'ACTIVE').length;
+  const webhooksPath = organizationPath(slug, 'webhooks');
   const loadingValue = <Skeleton className="h-8 w-16" />;
   // Hold the checklist until its answers are in, so no step briefly reads as not done.
   const checking = keys.isPending || budget.isPending || (owner && endpoints.isPending);
@@ -136,6 +137,11 @@ export function DeveloperDashboard() {
       detail: owner
         ? 'Get notified on your server when points and vouchers change.'
         : 'Only the organization’s Owner can see webhooks.',
+      action: (
+        <Link className="btn btn-primary btn-sm" to={webhooksPath}>
+          Add endpoint
+        </Link>
+      ),
     },
   ];
   const checkable = steps.filter((step) => step.state !== 'unknown');
@@ -279,7 +285,16 @@ export function DeveloperDashboard() {
       title: 'Webhook health',
       ...sizing(DEVELOPER_PARTS.webhooks),
       node: (
-        <Card title="Webhook health">
+        <Card
+          title="Webhook health"
+          actions={
+            owner && (
+              <Link className="link text-sm font-normal" to={webhooksPath}>
+                Manage webhooks
+              </Link>
+            )
+          }
+        >
           {!owner ? (
             <p className="flex items-center gap-2 text-sm opacity-65">
               <LockSimple size={16} className="shrink-0" aria-hidden />

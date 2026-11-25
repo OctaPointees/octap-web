@@ -1,5 +1,14 @@
 import { useAuth } from '@octap/shared/authentication';
-import { Gear, Key, Layout, Ticket, UsersFour, UsersThree, type Icon } from 'phosphor-react';
+import {
+  Gear,
+  Key,
+  Layout,
+  ShareNetwork,
+  Ticket,
+  UsersFour,
+  UsersThree,
+  type Icon,
+} from 'phosphor-react';
 import PortalLayout from '@/components/layout/PortalLayout';
 import type { NavOption } from '@/components/layout/SidePanel';
 import { platformAdminLinks } from '@/components/layout/nav';
@@ -15,6 +24,7 @@ const PAGES: Record<OrganizationPage | '', { label: string; icon: Icon }> = {
   vouchers: { label: 'Vouchers', icon: Ticket },
   members: { label: 'Members', icon: UsersThree },
   'api-keys': { label: 'API keys', icon: Key },
+  webhooks: { label: 'Webhooks', icon: ShareNetwork },
   team: { label: 'Team', icon: UsersFour },
   settings: { label: 'Settings', icon: Gear },
 };

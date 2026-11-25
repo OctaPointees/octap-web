@@ -2,7 +2,8 @@ import type { FormEvent } from 'react';
 import type { OrganizationType } from '@octap/internal-sdk';
 
 /** The organization's pages, one per feature, under `/organizations/:slug`. */
-export type OrganizationPage = 'vouchers' | 'members' | 'api-keys' | 'team' | 'settings';
+export type OrganizationPage =
+  'vouchers' | 'members' | 'api-keys' | 'webhooks' | 'team' | 'settings';
 
 /** `/organizations/:slug`, the dashboard, or one of its feature pages. */
 export const organizationPath = (slug: string, page?: OrganizationPage) =>
