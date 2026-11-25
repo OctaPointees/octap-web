@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Coins, Lightning, NotePencil, Ticket } from 'phosphor-react';
 import { Link } from 'react-router';
@@ -77,7 +77,16 @@ function BudgetCard() {
 }
 
 /** A reward's type icon, title and a line under it. */
-function RewardLine({ reward, detail }: { reward: Reward; detail: string }) {
+function RewardLine({
+  reward,
+  detail,
+  trailing,
+}: {
+  reward: Reward;
+  detail: string;
+  /** At the end of the line, such as a progress ring. */
+  trailing?: ReactNode;
+}) {
   const { icon: KindIcon } = KINDS[fromReward(reward).kind];
   return (
     <div className="flex min-w-0 items-center gap-3">
@@ -90,7 +99,61 @@ function RewardLine({ reward, detail }: { reward: Reward; detail: string }) {
         </p>
         <p className="truncate text-xs opacity-60">{detail}</p>
       </div>
+      {trailing}
     </div>
+  );
+}
+
+const RING_RADIUS = 16;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+
+/**
+ * How much of a reward's supply has been claimed, as a ring with the percent inside. A sliver
+ * still shows for a few claims, and the label never rounds a few claims to 0% or up to 100%.
+ */
+function ClaimRing({ claimed, total }: { claimed: number; total: number }) {
+  const share = total > 0 ? Math.min(1, claimed / total) : 0;
+  const percent = share * 100;
+  const label =
+    claimed === 0
+      ? '0%'
+      : percent < 1
+        ? '<1%'
+        : `${claimed < total ? Math.min(99, Math.round(percent)) : 100}%`;
+  // At least a visible dot once anything is claimed.
+  const drawn = claimed > 0 ? Math.max(share, 0.02) : 0;
+  return (
+    <span
+      role="progressbar"
+      aria-label={`${fmtNumber(claimed)} of ${fmtNumber(total)} claimed`}
+      aria-valuemin={0}
+      aria-valuemax={total}
+      aria-valuenow={claimed}
+      className="relative flex size-11 shrink-0 items-center justify-center"
+    >
+      <svg viewBox="0 0 40 40" className="absolute inset-0 size-full -rotate-90" aria-hidden>
+        <circle
+          cx="20"
+          cy="20"
+          r={RING_RADIUS}
+          fill="none"
+          strokeWidth="4"
+          className="stroke-primary/15"
+        />
+        <circle
+          cx="20"
+          cy="20"
+          r={RING_RADIUS}
+          fill="none"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={RING_LENGTH}
+          strokeDashoffset={RING_LENGTH * (1 - drawn)}
+          className="stroke-primary motion-safe:transition-[stroke-dashoffset] motion-safe:duration-500"
+        />
+      </svg>
+      <span className="text-[0.625rem] font-semibold tabular-nums">{label}</span>
+    </span>
   );
 }
 
@@ -177,22 +240,20 @@ export function BusinessDashboard() {
             ) : summary!.top.length ? (
               <ol className="flex flex-col gap-4">
                 {summary!.top.map((reward) => (
-                  <li key={reward.id} className="flex flex-col gap-2">
+                  <li key={reward.id}>
                     <RewardLine
                       reward={reward}
                       detail={
                         reward.totalSupply == null
-                          ? `${fmtNumber(reward.claimedCount)} claimed`
+                          ? `${fmtNumber(reward.claimedCount)} claimed, no limit`
                           : `${fmtNumber(reward.claimedCount)} of ${fmtNumber(reward.totalSupply)} claimed`
                       }
+                      trailing={
+                        reward.totalSupply != null && (
+                          <ClaimRing claimed={reward.claimedCount} total={reward.totalSupply} />
+                        )
+                      }
                     />
-                    {reward.totalSupply != null && (
-                      <UsageBar
-                        value={reward.claimedCount}
-                        max={reward.totalSupply}
-                        className="w-full"
-                      />
-                    )}
                   </li>
                 ))}
               </ol>
