@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   ClockCounterClockwise,
   FileArrowUp,
+  Funnel,
   Plus,
   Rows,
   SquaresFour,
@@ -11,7 +12,6 @@ import {
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { Button, createColumnHelper, notify, Table, useRowFlash } from '@octap/shared/components';
-import { Segmented } from '@/components/shared/Controls';
 import { EmptyState, ErrorState, PageHeader } from '@/components/shared/Display';
 import { cn } from '@/utils/cn';
 import { fmtDate } from '@/utils/format';
@@ -19,7 +19,10 @@ import { batchTitle } from './domain/batches';
 import { describePoints } from './domain/describe';
 import { duplicateOf, fromReward, type Reward } from './domain/draft';
 import { KINDS } from './domain/kinds';
-import { FILTER_OF, FILTERS, rejectedFor, STAGES, stageOf, type Filter } from './domain/stage';
+import { filterChips, matchesFilters } from './domain/filters';
+import { rejectedFor, STAGES, stageOf } from './domain/stage';
+import { useRewardFilters } from './hooks/useRewardFilters';
+import { FilterBar } from './components/FilterBar';
 import {
   useRewardAction,
   useRewardPermissions,
@@ -53,21 +56,21 @@ const savedView = (): View => {
 const column = createColumnHelper<Reward>();
 
 /**
- * The organization's reward catalog, as cards or as a table, filtered by stage. Opening a reward
+ * The organization's reward catalog, as cards or as a table, narrowed by the filters in the URL.
+ * The table only sorts; filtering lives in the filter bar. Opening a reward
  * shows it in a side panel: editable while it is a draft, read-only once it is published.
  */
 export default function RewardsPage() {
   const list = useRewards();
   const permissionsOf = useRewardPermissions();
   const people = usePeople();
-  const [filter, setFilter] = useState<Filter>('all');
+  const { filters, setFilters, clear: clearFilters } = useRewardFilters();
   const [view, setView] = useState<View>(savedView);
   const { flashRow, isFlashing } = useRowFlash();
-  // The tint shows the result. If the current filter hides that reward, a toast says it instead.
+  // The tint shows the result. If the filters hide that reward, a toast says it instead.
   const report: RewardReport = (saved, message) => {
     flashRow(saved.id);
-    if (filter !== 'all' && FILTER_OF[stageOf(saved)] !== filter)
-      notify.success(message, saved.title);
+    if (!matchesFilters(saved, filters)) notify.success(message, saved.title);
   };
   const run = useRewardAction(report);
   // The panel keeps its last mode while it slides away, so it closes with `panelOpen` only.
@@ -139,21 +142,8 @@ export default function RewardsPage() {
       );
   };
 
-  const counts: Record<Filter, number> = {
-    all: 0,
-    drafts: 0,
-    awaiting: 0,
-    live: 0,
-    paused: 0,
-    ended: 0,
-  };
-  for (const reward of list.data ?? []) {
-    counts.all += 1;
-    counts[FILTER_OF[stageOf(reward)]] += 1;
-  }
-  const rewards = list.data?.filter(
-    (reward) => filter === 'all' || FILTER_OF[stageOf(reward)] === filter,
-  );
+  const rewards = list.data?.filter((reward) => matchesFilters(reward, filters));
+  const filtered = filterChips(filters).length > 0;
 
   const columns = useMemo(
     () => [
@@ -180,13 +170,11 @@ export default function RewardsPage() {
         id: 'type',
         header: 'Type',
         size: 140,
-        enableColumnFilter: true,
       }),
       column.accessor((reward) => STAGES[stageOf(reward)].label, {
         id: 'stage',
         header: 'Stage',
         size: 160,
-        enableColumnFilter: true,
         cell: ({ row }) => {
           const stage = stageOf(row.original);
           // While it waits, who sent it, so the Owner knows whose request it is.
@@ -301,42 +289,35 @@ export default function RewardsPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Segmented
-          value={filter}
-          onValueChange={setFilter}
-          options={FILTERS.map(({ value, label }) => ({
-            value,
-            label: (
-              <>
-                {label}
-                <span className="text-xs opacity-70 tabular-nums">{counts[value]}</span>
-              </>
-            ),
-          }))}
-        />
-        <div role="radiogroup" aria-label="Display" className="join">
-          {(
-            [
-              ['cards', 'Cards', SquaresFour],
-              ['table', 'Table', Rows],
-            ] as const
-          ).map(([value, label, ViewIcon]) => (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={view === value}
-              title={label}
-              onClick={() => chooseView(value)}
-              className={cn('btn btn-sm join-item', view === value ? 'btn-active' : 'btn-ghost')}
-            >
-              <ViewIcon size={16} />
-              <span className="sr-only">{label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <FilterBar
+        rewards={list.data ?? []}
+        filters={filters}
+        onChange={setFilters}
+        onClear={clearFilters}
+        end={
+          <div role="radiogroup" aria-label="Display" className="join">
+            {(
+              [
+                ['cards', 'Cards', SquaresFour],
+                ['table', 'Table', Rows],
+              ] as const
+            ).map(([value, label, ViewIcon]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={view === value}
+                title={label}
+                onClick={() => chooseView(value)}
+                className={cn('btn btn-sm join-item', view === value ? 'btn-active' : 'btn-ghost')}
+              >
+                <ViewIcon size={16} />
+                <span className="sr-only">{label}</span>
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {list.error ? (
         <ErrorState error={list.error} onRetry={() => void list.refetch()} />
@@ -347,15 +328,24 @@ export default function RewardsPage() {
           ))}
         </div>
       ) : rewards.length === 0 ? (
-        <EmptyState
-          icon={Ticket}
-          title={FILTERS.find((f) => f.value === filter)!.empty}
-          description={
-            filter === 'all'
-              ? 'Create a voucher, or import several from a CSV file, then activate it for members.'
-              : 'Vouchers move here as their stage changes.'
-          }
-        />
+        filtered ? (
+          <EmptyState
+            icon={Funnel}
+            title="No vouchers match these filters"
+            description={`None of your ${list.data?.length ?? 0} vouchers match. Change or clear the filters.`}
+            action={
+              <Button className="btn-sm" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState
+            icon={Ticket}
+            title="No vouchers yet"
+            description="Create a voucher, or import several from a CSV file, then activate it for members."
+          />
+        )
       ) : view === 'cards' ? (
         <ul className="animate-reveal grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {rewards.map((reward) => (

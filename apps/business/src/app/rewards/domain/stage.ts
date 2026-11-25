@@ -69,32 +69,6 @@ export function rejectedFor(rewards: Reward[], userId: string | undefined) {
     .sort((a, b) => reviewedAt(b) - reviewedAt(a));
 }
 
-/** The tabs above the list, and which stages each one shows. */
-export type Filter = 'all' | 'drafts' | 'awaiting' | 'live' | 'paused' | 'ended';
-/** `empty` titles the list when the tab has nothing in it. */
-export const FILTERS: { value: Filter; label: string; empty: string }[] = [
-  { value: 'all', label: 'All', empty: 'No vouchers yet' },
-  { value: 'drafts', label: 'Drafts', empty: 'No draft vouchers' },
-  { value: 'awaiting', label: 'Awaiting approval', empty: 'No vouchers awaiting approval' },
-  { value: 'live', label: 'Live', empty: 'No live vouchers' },
-  { value: 'paused', label: 'Paused', empty: 'No paused vouchers' },
-  { value: 'ended', label: 'Ended', empty: 'No ended vouchers' },
-];
-export const FILTER_OF: Record<Stage, Exclude<Filter, 'all'>> = {
-  draft: 'drafts',
-  rejected: 'drafts',
-  failed: 'drafts',
-  pending_approval: 'awaiting',
-  publishing: 'live',
-  scheduled: 'live',
-  live: 'live',
-  paused: 'paused',
-  claims_closed: 'ended',
-  sold_out: 'ended',
-  expired: 'ended',
-  archived: 'ended',
-};
-
 /** Once publishing starts, the offer is frozen on-chain; only availability can change. */
 export const isLocked = (reward: Pick<Reward, 'publishStatus'>) =>
   reward.publishStatus === 'PUBLISHING' || reward.publishStatus === 'PUBLISHED';
