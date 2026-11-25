@@ -16,7 +16,8 @@ export type Stage =
   | 'paused'
   | 'claims_closed'
   | 'sold_out'
-  | 'expired';
+  | 'expired'
+  | 'archived';
 
 export const STAGES: Record<Stage, { label: string; tone: string }> = {
   draft: { label: 'Draft', tone: 'badge-ghost' },
@@ -30,9 +31,12 @@ export const STAGES: Record<Stage, { label: string; tone: string }> = {
   claims_closed: { label: 'Claims closed', tone: 'badge-neutral' },
   sold_out: { label: 'Sold out', tone: 'badge-neutral' },
   expired: { label: 'Expired', tone: 'badge-neutral' },
+  archived: { label: 'Archived', tone: 'badge-neutral' },
 };
 
 export function stageOf(reward: Reward, now = Date.now()): Stage {
+  // A draft of an import that was archived (OCT-303): it never went live and can't any more.
+  if (reward.status === 'ARCHIVED') return 'archived';
   if (reward.status === 'DEPLETED') return 'sold_out';
   if (reward.status === 'EXPIRED') return 'expired';
   if (reward.publishStatus === 'PUBLISHING') return 'publishing';
@@ -42,6 +46,9 @@ export function stageOf(reward: Reward, now = Date.now()): Stage {
     // Back in draft because the Owner said no. Submitting again replaces the rejection.
     return reward.approval?.status === 'REJECTED' ? 'rejected' : 'draft';
   }
+  // Paused while it was publishing, then the publish failed: it never went live, so it is a draft
+  // whose publish failed, activated again like one.
+  if (reward.status === 'PAUSED' && reward.publishStatus === 'FAILED') return 'failed';
   if (reward.status === 'PAUSED') return 'paused';
   if (reward.expiresAt && Date.parse(reward.expiresAt) <= now) return 'claims_closed';
   if (reward.startsAt && Date.parse(reward.startsAt) > now) return 'scheduled';
@@ -85,6 +92,7 @@ export const FILTER_OF: Record<Stage, Exclude<Filter, 'all'>> = {
   claims_closed: 'ended',
   sold_out: 'ended',
   expired: 'ended',
+  archived: 'ended',
 };
 
 /** Once publishing starts, the offer is frozen on-chain; only availability can change. */

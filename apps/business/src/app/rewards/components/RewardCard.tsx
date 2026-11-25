@@ -73,6 +73,11 @@ export function RewardCard({
       <div className="pointer-events-none relative flex flex-1 flex-col gap-1">
         <p className="text-sm">{describeBenefit(draft)}</p>
         <p className="text-xs opacity-60">{describeValidity(draft)}</p>
+        {stage === 'archived' && (
+          <p className="text-xs opacity-70">
+            Its import was archived. Import its code again to use it.
+          </p>
+        )}
       </div>
 
       <div className="pointer-events-none relative flex flex-col gap-1.5">

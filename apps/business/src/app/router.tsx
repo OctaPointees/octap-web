@@ -13,6 +13,8 @@ import WorkspaceLayout from './workspace';
 import { LegacyPanelRedirect } from './workspace/LegacyPanelRedirect';
 import DashboardPage from './dashboard';
 import RewardsPage from './rewards';
+import ImportHistoryPage from './rewards/batches/ImportHistory';
+import BatchDetailPage from './rewards/batches/BatchDetail';
 import MembersPage from './members';
 import ApiKeysPage from './api-keys';
 import WebhooksPage from './webhooks';
@@ -29,6 +31,8 @@ const organizationRoutes: RouteObject[] = [
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'vouchers', element: <RewardsPage /> },
+      { path: 'vouchers/imports', element: <ImportHistoryPage /> },
+      { path: 'vouchers/imports/:batchId', element: <BatchDetailPage /> },
       { path: 'members', element: <MembersPage /> },
       { path: 'api-keys', element: <ApiKeysPage /> },
       { path: 'webhooks', element: <WebhooksPage /> },

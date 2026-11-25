@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react';
-import { FileArrowUp, Plus, Rows, SquaresFour, Ticket } from 'phosphor-react';
-import { useSearchParams } from 'react-router';
+import {
+  ClockCounterClockwise,
+  FileArrowUp,
+  Plus,
+  Rows,
+  SquaresFour,
+  Stack,
+  Ticket,
+} from 'phosphor-react';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '@octap/shared/authentication';
 import { Button, createColumnHelper, notify, Table, useRowFlash } from '@octap/shared/components';
 import { Segmented } from '@/components/shared/Controls';
 import { EmptyState, ErrorState, PageHeader } from '@/components/shared/Display';
 import { cn } from '@/utils/cn';
 import { fmtDate } from '@/utils/format';
+import { batchTitle } from './domain/batches';
 import { describePoints } from './domain/describe';
 import { duplicateOf, fromReward, type Reward } from './domain/draft';
 import { KINDS } from './domain/kinds';
@@ -17,6 +26,7 @@ import {
   useRewards,
   type RewardReport,
 } from './hooks/useRewards';
+import { useBatches } from './hooks/useBatches';
 import { usePeople } from './hooks/usePeople';
 import { ImportDialog } from './components/ImportDialog';
 import type { RewardIntent } from './components/intents';
@@ -71,6 +81,11 @@ export default function RewardsPage() {
   const [confirming, setConfirming] = useState<RewardConfirmRequest | null>(null);
   const [editingAvailability, setEditingAvailability] = useState<Reward | null>(null);
   const [importing, setImporting] = useState(false);
+  const navigate = useNavigate();
+  // Open imports with drafts left, for the banner that leads back to them.
+  const batches = useBatches();
+  const waitingBatches = batches.data?.filter((batch) => (batch.statusCounts.DRAFT ?? 0) > 0) ?? [];
+  const waitingDrafts = waitingBatches.reduce((n, batch) => n + (batch.statusCounts.DRAFT ?? 0), 0);
 
   const chooseView = (next: View) => {
     setView(next);
@@ -254,6 +269,9 @@ export default function RewardsPage() {
         description="What members can claim with their points. Drafts stay private until they are activated."
         actions={
           <>
+            <Link to="imports" className="btn btn-ghost btn-sm">
+              <ClockCounterClockwise size={16} className="mr-1.5" /> Import history
+            </Link>
             <Button className="btn-ghost btn-sm" onClick={() => setImporting(true)}>
               <FileArrowUp size={16} className="mr-1.5" /> Import CSV
             </Button>
@@ -265,6 +283,23 @@ export default function RewardsPage() {
       />
 
       <RejectedBanner rewards={rejected} onOpen={openReward} />
+
+      {waitingBatches.length > 0 && (
+        <div role="status" className="alert alert-info alert-soft mb-4 text-sm">
+          <Stack size={18} aria-hidden />
+          <span>
+            {waitingBatches.length === 1
+              ? `“${batchTitle(waitingBatches[0])}” has ${waitingDrafts} draft${waitingDrafts === 1 ? '' : 's'} waiting to go live.`
+              : `${waitingBatches.length} imports have ${waitingDrafts} drafts waiting to go live.`}
+          </span>
+          <Link
+            className="btn btn-ghost btn-xs"
+            to={waitingBatches.length === 1 ? `imports/${waitingBatches[0].id}` : 'imports'}
+          >
+            Open
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Segmented
@@ -363,7 +398,11 @@ export default function RewardsPage() {
         onDone={report}
         onClose={() => setEditingAvailability(null)}
       />
-      <ImportDialog open={importing} onClose={() => setImporting(false)} />
+      <ImportDialog
+        open={importing}
+        onClose={() => setImporting(false)}
+        onOpenBatch={(id) => navigate(`imports/${id}`)}
+      />
     </>
   );
 }

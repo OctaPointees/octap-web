@@ -1,7 +1,7 @@
 import { emptyDraft, suggestCode, type RewardDraft } from './draft';
 import type { BenefitKind } from './kinds';
 
-/** At most this many rows per file: each one is a separate create request. */
+/** At most this many rows per file: Core takes at most this many in one import batch. */
 export const MAX_IMPORT_ROWS = 100;
 
 const COLUMNS: { header: string; field: keyof RewardDraft }[] = [
@@ -50,6 +50,17 @@ const KIND_ALIASES: Record<string, BenefitKind> = {
   special_price: 'FIXED_PRICE',
   custom: 'CUSTOM',
 };
+
+/** The `type` of each kind as the template writes it; the Excel template offers these in a drop-down. */
+export const CSV_TYPES = [
+  'percent_off',
+  'amount_off',
+  'free_item',
+  'buy_x_get_y',
+  'free_shipping',
+  'fixed_price',
+  'custom',
+] as const;
 
 /**
  * One example row per kind, so the template documents itself: a welcome-style reward that lasts
