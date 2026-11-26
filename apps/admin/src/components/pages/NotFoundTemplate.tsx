@@ -15,7 +15,8 @@ export function NotFoundTemplate() {
           />
         </div>
 
-        <div className="flex-col items-end justify-center gap-4 select-none">
+        <div className="flex flex-col items-end justify-center gap-4 select-none">
+          {/* 10rem: a poster-size 404, bigger than the largest scale step (text-9xl, 8rem). */}
           <div className="text-[10rem] font-bold font-mono">[404]</div>
 
           <div className="text-right">

@@ -1,122 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
-@import 'tailwindcss';
 @import '@octap/shared/styles/index.css';
 
-/* The admin themes, added to the shared daisyUI setup. */
-@plugin "daisyui/theme" {
-  name: 'octap-light';
-  default: false;
-  prefersdark: false;
-
-  color-scheme: light;
-  --radius-selector: 0.2rem;
-  --radius-field: 0.4rem;
-  --radius-box: 0.8rem;
-
-  --size-field: 0.28rem;
-  --size-selector: 0.28rem;
-
-  --border: 1Q;
-  --depth: 0;
-  --noise: 0;
-
-  --color-primary: #9f0261;
-  --color-primary-content: #ffffff;
-
-  --color-secondary: #002b49;
-  --color-secondary-content: #ffffff;
-
-  --color-accent: #fff9e7;
-  --color-accent-content: #0d1b2a;
-
-  --color-neutral: #8c8f96;
-  --color-neutral-content: #121212;
-
-  --color-success: #16a349;
-  --color-success-content: #ffffff;
-
-  --color-warning: #f39c12;
-  --color-warning-content: #ffffff;
-
-  --color-error: #d9383a;
-  --color-error-content: #ffffff;
-
-  --color-info: #066aff;
-  --color-info-content: #ffffff;
-
-  --color-base-100: #ffffff;
-  --color-base-200: #fafafa;
-  --color-base-300: #eaeaea;
-
-  --color-base-shadow: #aaaaaa;
-  --color-base-content: #000000;
-}
-
-@plugin "daisyui/theme" {
-  name: 'octap-dark';
-  default: false;
-  prefersdark: false;
-
-  color-scheme: light;
-  --radius-selector: 0.4rem;
-  --radius-field: 0.4rem;
-  --radius-box: 0.7rem;
-
-  --size-field: 0.28rem;
-  --size-selector: 0.28rem;
-
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-
-  --color-primary: #de0387;
-  --color-primary-content: #ffffff;
-
-  --color-secondary: #002b49;
-  --color-secondary-content: #ffffff;
-
-  --color-accent: #fff9e7;
-  --color-accent-content: #0d1b2a;
-
-  --color-neutral: #8c8f96;
-  --color-neutral-content: #121212;
-
-  --color-success: #88c057;
-  --color-success-content: #112200;
-
-  --color-warning: #f39c12;
-  --color-warning-content: #1a0f00;
-
-  --color-error: #f04925;
-  --color-error-content: #ffffff;
-
-  --color-info: #33bbf6;
-  --color-info-content: #00121d;
-
-  --color-base-100: #03040a;
-  --color-base-200: #08081a;
-  --color-base-300: #181922;
-
-  --color-base-shadow: #aaaaaa;
-  --color-base-content: #ffffff;
-}
-
 @theme {
+  --font-sans: 'Host Grotesk', 'Google Sans';
   --font-mono: 'JetBrains Mono';
-}
-
-@utility place-center {
-  align-items: center;
-  justify-content: center;
-}
-
-.input {
-  @apply outline-none;
-}
-
-.flex-col {
-  @apply flex;
 }
 
 :root {
@@ -152,12 +40,6 @@ html {
   height: 100%;
   font-size: calc(var(--global-font-size) * 1Q);
   background-color: #000000;
-
-  /* Overriding shared styles  */
-  --font-sans: 'Host Grotesk', 'Google Sans';
-
-  --radius-field: 6Q;
-  --radius-box: calc(var(--radius-field) * 1.5);
 }
 
 body {
@@ -174,10 +56,6 @@ body {
 
 @utility screen-wrapper {
   @apply size-full;
-}
-
-@utility flex-* {
-  @apply min-w-0 min-h-0;
 }
 
 @utility info-box {
@@ -221,23 +99,6 @@ body {
   }
 }
 
-.modal-box {
-  @apply space-y-4;
-
-  .modal-note {
-    @apply alert alert-info alert-soft whitespace-normal;
-  }
-
-  .form-control {
-    @apply block space-y-4;
-  }
-
-  > input,
-  textarea {
-    @apply outline-0;
-  }
-}
-
 @utility test-gradient {
   background: linear-gradient(
     164deg in oklch,
@@ -267,13 +128,4 @@ body {
 
 .screen-wrapper {
   @apply fade-fly-in;
-}
-
-.modal.modal-open {
-  @apply bg-base-content/50;
-
-  > .modal-box {
-    --delay: 0.5;
-    @apply fade-fly-in;
-  }
 }

@@ -293,8 +293,8 @@ export function PartnerActionsPanel() {
             ) : null}
 
             {action !== 'PROVISION' && (
-              <label className="form-control mt-4 w-full">
-                <span className="label-text mb-2 font-medium">Reason</span>
+              <label className="mt-4 flex w-full flex-col gap-2">
+                <span className="font-medium">Reason</span>
                 <textarea
                   className="textarea textarea-bordered min-h-24 w-full"
                   value={reason}

@@ -119,8 +119,8 @@ export function ChangeRequestActions({ request }: { request: ChangeRequest }) {
         }
       >
         <div aria-busy={reviewMutation.isPending}>
-          <div className="form-control mt-4 w-full">
-            <span className="label-text mb-2 font-medium">Request action</span>
+          <div className="mt-4 flex w-full flex-col gap-2">
+            <span className="font-medium">Request action</span>
 
             <div className="flex *:flex-1 gap-2">
               <Button
@@ -142,8 +142,8 @@ export function ChangeRequestActions({ request }: { request: ChangeRequest }) {
             </div>
           </div>
 
-          <label className="form-control mt-4 w-full">
-            <span className="label-text mb-2 font-medium">Message / Reason</span>
+          <label className="mt-4 flex w-full flex-col gap-2">
+            <span className="font-medium">Message / Reason</span>
             <textarea
               className="textarea textarea-bordered min-h-24 w-full block"
               value={message}

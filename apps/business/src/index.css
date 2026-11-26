@@ -1,15 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 
-@import 'tailwindcss';
-@import '@octap/shared/styles/motion.css';
-@source "../../../packages/shared/src/authentication";
-@source "../../../packages/shared/src/components";
-@plugin "daisyui";
+@import '@octap/shared/styles/index.css';
 
-:root {
+@theme {
   --font-sans: 'Manrope', 'Google Sans';
   --font-mono: 'Space Mono';
+}
 
+:root {
   --size-article: 1280px;
   /* Width of the side panel when it is retracted to an icon rail. */
   --size-sidebar-retract: 4.5rem;
@@ -66,10 +64,6 @@ body {
 
 @utility app-wrapper {
   @apply w-full h-full;
-}
-
-@utility place-center {
-  @apply items-center justify-center;
 }
 
 @utility bg-pattern-dots {

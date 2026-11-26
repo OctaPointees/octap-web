@@ -16,8 +16,7 @@ import {
 import type { OctapClient, PlatformOrganizationsDetailResponse } from '@octap/internal-sdk';
 import { cn } from '@octap/shared/utils';
 
-import { Button } from '@octap/shared/components';
-import { Table } from '@octap/shared/components';
+import { Button, Modal, Table } from '@octap/shared/components';
 import { useAuth } from '@octap/shared/authentication';
 
 function displayValue(value: string | null | undefined) {
@@ -296,97 +295,73 @@ export function OrganizationRequestActions({
         Actions
       </Button>
 
-      {isOpen && (
-        <div className="modal modal-open z-20" role="presentation">
-          <div
-            className="modal-box max-w-2xl"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={`organization-request-actions-${request.id}`}
-            aria-busy={isPending}
-          >
-            <h2 id={`organization-request-actions-${request.id}`} className="text-lg font-bold">
-              Review organization request
-            </h2>
+      <Modal
+        open={isOpen}
+        onOpenChange={(open) => !open && closeModal()}
+        size="xl"
+        title="Review organization request"
+        description={
+          <>
+            Choose whether to approve or reject the request from{' '}
+            <strong>{request.initialOwnerName || request.applicantEmail}</strong>.
+          </>
+        }
+        footer={
+          <>
+            <Button type="button" className="btn-ghost" disabled={isPending} onClick={closeModal}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="btn-error btn-outline"
+              icon={XCircle}
+              disabled={!message.trim() || isPending}
+              loading={isPending && activeAction === 'REJECT'}
+              onClick={() => {
+                setActiveAction('REJECT');
+                reviewMutation.mutate({ action: 'REJECT', message: message.trim() });
+              }}
+            >
+              Reject
+            </Button>
+            <Button
+              type="button"
+              className="btn-success"
+              icon={Check}
+              disabled={!message.trim() || isPending}
+              loading={isPending && activeAction === 'APPROVE'}
+              onClick={() => {
+                setActiveAction('APPROVE');
+                reviewMutation.mutate({ action: 'APPROVE', message: message.trim() });
+              }}
+            >
+              Approve
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4" aria-busy={isPending}>
+          <label className="flex w-full flex-col gap-2">
+            <span className="font-medium">Message</span>
+            <textarea
+              className="textarea textarea-bordered min-h-24 w-full"
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              disabled={isPending}
+              maxLength={1000}
+              placeholder="Add a message explaining your decision"
+            />
+          </label>
 
-            <p className="modal-note">
-              Choose whether to approve or reject the request from{' '}
-              <strong>{request.initialOwnerName || request.applicantEmail}</strong>.
-            </p>
-
-            <label className="form-control mt-4 w-full flex flex-col">
-              <span className="label-text mb-2 font-medium">Message</span>
-              <textarea
-                className="textarea textarea-bordered min-h-24 w-full"
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                disabled={isPending}
-                maxLength={1000}
-                placeholder="Add a message explaining your decision"
-              />
-            </label>
-
-            {reviewMutation.isError && (
-              <div className="alert alert-error mt-4" role="alert">
-                {reviewMutation.error instanceof Error
-                  ? reviewMutation.error.message
-                  : 'Could not review this request. Please try again.'}
-              </div>
-            )}
-
-            <div className="modal-action flex-wrap">
-              <Button type="button" className="btn-ghost" disabled={isPending} onClick={closeModal}>
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                className="btn-error btn-outline"
-                icon={XCircle}
-                disabled={!message.trim() || isPending}
-                onClick={() => {
-                  setActiveAction('REJECT');
-                  reviewMutation.mutate({ action: 'REJECT', message: message.trim() });
-                }}
-              >
-                {isPending && activeAction === 'REJECT' ? (
-                  <span className="flex items-center gap-2">
-                    <span className="loading loading-spinner" />
-                    Rejecting...
-                  </span>
-                ) : (
-                  'Reject'
-                )}
-              </Button>
-              <Button
-                type="button"
-                className="btn-success"
-                icon={Check}
-                disabled={!message.trim() || isPending}
-                onClick={() => {
-                  setActiveAction('APPROVE');
-                  reviewMutation.mutate({ action: 'APPROVE', message: message.trim() });
-                }}
-              >
-                {isPending && activeAction === 'APPROVE' ? (
-                  <span className="flex items-center gap-2">
-                    <span className="loading loading-spinner" />
-                    Approving...
-                  </span>
-                ) : (
-                  'Approve'
-                )}
-              </Button>
+          {reviewMutation.isError && (
+            <div className="alert alert-error" role="alert">
+              {reviewMutation.error instanceof Error
+                ? reviewMutation.error.message
+                : 'Could not review this request. Please try again.'}
             </div>
-          </div>
-          <button
-            className="modal-backdrop cursor-default"
-            type="button"
-            aria-label="Close request actions"
-            disabled={isPending}
-            onClick={closeModal}
-          />
+          )}
         </div>
-      )}
+      </Modal>
     </>
   );
 }

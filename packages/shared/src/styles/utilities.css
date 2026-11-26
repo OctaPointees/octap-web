@@ -5,3 +5,8 @@
 @utility text-balance-pretty {
   text-wrap: balance;
 }
+
+@utility place-center {
+  align-items: center;
+  justify-content: center;
+}

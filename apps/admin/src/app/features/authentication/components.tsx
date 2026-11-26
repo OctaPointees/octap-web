@@ -3,7 +3,7 @@ import { GoogleSignInForm } from '@octap/shared/authentication';
 /** The sign-in side: Google only. Core checks the account for the System Admin role. */
 export function SignInPanel() {
   return (
-    <div className="max-w-115 flex-1 flex-col justify-center gap-4 rounded-box h-full">
+    <div className="max-w-115 flex flex-1 flex-col justify-center gap-4 rounded-box h-full">
       <div>
         <h2 className="text-2xl font-bold">Sign in with Google</h2>
         <p className="mt-2 text-sm text-base-content/67">
@@ -17,7 +17,7 @@ export function SignInPanel() {
 
 export function LeftPanel() {
   return (
-    <div className="flex-1 flex-col p-4">
+    <div className="flex flex-1 flex-col p-4">
       <img src="/favicon.svg" className="size-24" />
 
       <div className="space-y-1 my-4">
