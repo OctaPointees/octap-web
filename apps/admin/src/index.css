@@ -1,24 +1,279 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Space+Grotesk:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
 @import 'tailwindcss';
-@source "../../../packages/shared/src/authentication";
-@source "../../../packages/shared/src/components";
-
 @import '@octap/shared/styles/index.css';
 
-body {
-  @apply font-sans;
+/* The admin themes, added to the shared daisyUI setup. */
+@plugin "daisyui/theme" {
+  name: 'octap-light';
+  default: false;
+  prefersdark: false;
+
+  color-scheme: light;
+  --radius-selector: 0.2rem;
+  --radius-field: 0.4rem;
+  --radius-box: 0.8rem;
+
+  --size-field: 0.28rem;
+  --size-selector: 0.28rem;
+
+  --border: 1Q;
+  --depth: 0;
+  --noise: 0;
+
+  --color-primary: #9f0261;
+  --color-primary-content: #ffffff;
+
+  --color-secondary: #002b49;
+  --color-secondary-content: #ffffff;
+
+  --color-accent: #fff9e7;
+  --color-accent-content: #0d1b2a;
+
+  --color-neutral: #8c8f96;
+  --color-neutral-content: #121212;
+
+  --color-success: #16a349;
+  --color-success-content: #ffffff;
+
+  --color-warning: #f39c12;
+  --color-warning-content: #ffffff;
+
+  --color-error: #d9383a;
+  --color-error-content: #ffffff;
+
+  --color-info: #066aff;
+  --color-info-content: #ffffff;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #fafafa;
+  --color-base-300: #eaeaea;
+
+  --color-base-shadow: #aaaaaa;
+  --color-base-content: #000000;
 }
 
-html,
-body,
-#root {
-  height: 100%;
+@plugin "daisyui/theme" {
+  name: 'octap-dark';
+  default: false;
+  prefersdark: false;
+
+  color-scheme: light;
+  --radius-selector: 0.4rem;
+  --radius-field: 0.4rem;
+  --radius-box: 0.7rem;
+
+  --size-field: 0.28rem;
+  --size-selector: 0.28rem;
+
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+
+  --color-primary: #de0387;
+  --color-primary-content: #ffffff;
+
+  --color-secondary: #002b49;
+  --color-secondary-content: #ffffff;
+
+  --color-accent: #fff9e7;
+  --color-accent-content: #0d1b2a;
+
+  --color-neutral: #8c8f96;
+  --color-neutral-content: #121212;
+
+  --color-success: #88c057;
+  --color-success-content: #112200;
+
+  --color-warning: #f39c12;
+  --color-warning-content: #1a0f00;
+
+  --color-error: #f04925;
+  --color-error-content: #ffffff;
+
+  --color-info: #33bbf6;
+  --color-info-content: #00121d;
+
+  --color-base-100: #03040a;
+  --color-base-200: #08081a;
+  --color-base-300: #181922;
+
+  --color-base-shadow: #aaaaaa;
+  --color-base-content: #ffffff;
 }
+
+@theme {
+  --font-mono: 'JetBrains Mono';
+}
+
+@utility place-center {
+  align-items: center;
+  justify-content: center;
+}
+
+.input {
+  @apply outline-none;
+}
+
+.flex-col {
+  @apply flex;
+}
+
+:root {
+  --global-font-size: 16;
+}
+
+@keyframes key-fade-in {
+  from {
+    transform: translateY(calc(3Q * var(--dist)));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0Q);
+    opacity: 1;
+  }
+}
+
+@keyframes key-slide-in {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+html {
+  overflow: hidden;
+  height: 100%;
+  font-size: calc(var(--global-font-size) * 1Q);
+  background-color: #000000;
+
+  /* Overriding shared styles  */
+  --font-sans: 'Host Grotesk', 'Google Sans';
+
+  --radius-field: 6Q;
+  --radius-box: calc(var(--radius-field) * 1.5);
+}
+
 body {
-  margin: 0;
+  @apply bg-primary/70 font-sans size-full overflow-hidden xl:p-4;
 }
-@utility app-wrapper {
-  width: 100%;
-  height: 100%;
+
+#root {
+  @apply size-full overflow-hidden xl:rounded-[18Q];
+
+  > .screen-wrapper {
+    @apply bg-base-100;
+  }
+}
+
+@utility screen-wrapper {
+  @apply size-full;
+}
+
+@utility flex-* {
+  @apply min-w-0 min-h-0;
+}
+
+@utility info-box {
+  @apply p-4 shadow-xs rounded-box select-none space-y-1 ring ring-base-300;
+
+  > .title {
+    @apply font-bold text-xs uppercase flex items-center;
+  }
+
+  > .title::after {
+    content: '';
+    @apply block w-48 border-b-[1Q] border-dashed opacity-40 flex-1 mx-2;
+  }
+
+  > .content {
+    @apply flex items-center mt-4 min-h-14;
+  }
+
+  > .content .figure-bold {
+    @apply font-bold text-4xl;
+  }
+
+  > .description {
+    @apply text-xs mb-2;
+  }
+}
+
+@utility info-box-compact {
+  @apply p-3 space-y-1;
+
+  > .content {
+    @apply mt-1 min-h-0;
+  }
+
+  > .content .figure-bold {
+    @apply text-3xl;
+  }
+
+  > .description {
+    @apply mb-0;
+  }
+}
+
+.modal-box {
+  @apply space-y-4;
+
+  .modal-note {
+    @apply alert alert-info alert-soft whitespace-normal;
+  }
+
+  .form-control {
+    @apply block space-y-4;
+  }
+
+  > input,
+  textarea {
+    @apply outline-0;
+  }
+}
+
+@utility test-gradient {
+  background: linear-gradient(
+    164deg in oklch,
+    color-mix(in oklab, var(--color-primary), #0000 40%),
+    color-mix(in oklab, var(--color-primary), #000 10%)
+  );
+}
+
+@utility fade-fly-in {
+  --delay: 1;
+  --dist: 1;
+
+  animation-name: key-fade-in;
+  animation-duration: calc(var(--delay) * 0.3s);
+  animation-fill-mode: none;
+}
+
+@utility fade-slide-in {
+  animation-name: key-slide-in;
+  animation-duration: 0.1s;
+  animation-fill-mode: none;
+}
+
+#root > .screen-wrapper {
+  --delay: 0;
+}
+
+.screen-wrapper {
+  @apply fade-fly-in;
+}
+
+.modal.modal-open {
+  @apply bg-base-content/50;
+
+  > .modal-box {
+    --delay: 0.5;
+    @apply fade-fly-in;
+  }
 }

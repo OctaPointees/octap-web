@@ -1,7 +1,6 @@
 # OctaP System Admin dashboard
 
-The existing admin layout, navigation, account card and routes support direct Google/Core
-authentication by default and an explicitly enabled browser-local demo.
+The System Admin portal: dashboard, change requests, partners and the system audit.
 
 ## Run locally
 
@@ -12,53 +11,16 @@ npm ci
 npm run dev:admin
 ```
 
-Open http://localhost:5000/admin. Copy this app's `.env.example` to `.env.local`, set its
-public Google client ID and Core target, and authorize `http://localhost:5000` in Google.
-Core must be running with its migrations applied. See
-[the portal guide](../../docs/google-login.md).
+Open http://localhost:5000. Copy this app's `.env.example` to `.env.local`, set its public
+Google client ID and Core target, and authorize `http://localhost:5000` in Google. Core must be
+running with its migrations applied. See [the portal guide](../../docs/google-login.md).
 
-## Default Google/Core mode
+## How it works
 
-- Google verifies the account; Core checks its persisted `SYSTEM_ADMIN` role.
-- `/admin` uses existing dashboard components for request summaries and approval/rejection.
-  `/admin/partners` shows the same persisted organization review data.
-- Review shows organization type and business details. CCCD is masked and remains unverified.
-  Approval grants portal membership, not document verification or a provisioned Sui program.
-- The toolbar searches loaded requests and pages. Mobile navigation and sign-out remain
-  available in the existing layout.
-- Business dashboard appears only with an explicit active Owner/Developer membership.
-  Configure `VITE_BUSINESS_PORTAL_URL` for the business deployment.
-- Metrics, voucher moderation, audit and other mocked adapters report that they are not
-  connected in real mode. They do not silently return sample data.
-- Provider credentials stay in memory; reloading requires Google sign-in again. The real
-  portal uses no OctaP SDK, password authentication or custom Redis session.
-
-## Demo mode
-
-Password demo sign-in has been removed: both portals sign in with Google only.
-`VITE_ENABLE_DEMO_AUTH=true` still switches a few pages to their old sample data. That
-leftover demo code is due for removal.
-
-## Validate
-
-From the repository root:
-
-```sh
-npm run build
-npm run lint
-npm test -w @octap/admin
-npm run test:google-login
-```
-
-The Node regression test explicitly enables demo mode for login/session/overview checks
-and separately verifies real-mode mock isolation in both apps. Browser tests cover Google
-flow binding, roles, onboarding and invitations with controlled provider/API responses.
-They do not replace real Google sign-in or Core's database integration tests.
-
-## Organization
-
-`App.tsx` composes providers and the router. `app/router.tsx` retains the existing lazy
-routes and wraps real mode with shared authentication state. `app/guards.tsx` checks the
-platform role in Web; Core independently authorizes protected requests. Admin layout,
-demo adapters, queries and domain models stay in this app. Shared theme, utilities and
-reusable portal flows live in `packages/shared`.
+- Sign-in uses the shared `AuthProvider` and `GoogleSignInForm` from `@octap/shared/authentication`.
+  Google verifies the account; Core checks its `SYSTEM_ADMIN` role. Other accounts see an
+  access denied screen with a sign-out button.
+- Pages call Core through `useAuth().api`, the `@octap/internal-sdk` client from `packages/internal`.
+- In dev, Vite proxies `/v1` and `/health` to `CORE_API_URL`. Leave `VITE_CORE_API_URL` empty to
+  use the proxy, or set it to Core's URL for a deployed build.
+- Buttons, tables and dialogs come from `@octap/shared/components`.
