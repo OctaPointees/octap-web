@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Field } from '@base-ui/react/field';
 import { Info } from 'phosphor-react';
-import { unwrap, useAuth } from '@octap/shared/authentication';
+import { unwrap } from '@octap/shared/authentication';
 import type {
   ConsoleOrganizationsOrganizationResponse as ConsoleOrganization,
   IdentityChangePayload,
@@ -205,13 +205,13 @@ export function OrganizationIdentityForm({
   organization: ConsoleOrganization;
   readOnly?: boolean;
 }) {
-  const { identity } = useAuth();
   const { run, busy } = useOrganizationAction();
+  // Empty when nothing is saved: a prefilled name would count as a change nobody made.
   const initial = {
     type: organization.organizationType ?? '',
     legalName: organization.legalName ?? '',
     taxId: organization.taxId ?? '',
-    representativeName: organization.representativeName ?? identity?.user.fullName ?? '',
+    representativeName: organization.representativeName ?? '',
     nationalId: '',
     reason: '',
   };
@@ -351,7 +351,7 @@ export function OrganizationIdentityForm({
         </div>
       )}
 
-      {dirty && (
+      {dirty && !readOnly && (
         <Field.Root className="flex flex-col gap-1">
           <Field.Label className="text-sm font-medium">Reason for the change</Field.Label>
           <Field.Control
