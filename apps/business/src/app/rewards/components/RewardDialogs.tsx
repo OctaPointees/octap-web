@@ -22,6 +22,7 @@ import {
   useRewards,
   type RewardReport,
 } from '../hooks/useRewards';
+import { MISSING_APPROVAL } from '../domain/errors';
 import { SubmittedBy } from './RejectionNotice';
 
 export type RewardConfirmRequest = {
@@ -74,6 +75,10 @@ export function RewardConfirm({
     (!latest ||
       stageOf(latest) !== 'pending_approval' ||
       latest.approval?.id !== reward.approval?.id);
+  // A review needs the submission's id. A list loaded before it was sent doesn't have it yet.
+  const approvalMissing =
+    !!request && (action === 'approve' || action === 'reject') && !!reward && !reward.approval;
+  const reasonMissing = action === 'reject' && !reason.trim();
   const copies: Record<
     RewardConfirmRequest['action'],
     {
@@ -123,9 +128,9 @@ export function RewardConfirm({
       onOpenChange={(open) => !open && onClose()}
       {...copies[action]}
       loading={run.isPending}
-      confirmDisabled={reviewGone}
+      confirmDisabled={reviewGone || approvalMissing || reasonMissing}
       onConfirm={() => {
-        if (!reward || reviewGone || (action === 'reject' && !reason.trim())) return;
+        if (!reward || reviewGone || approvalMissing || reasonMissing) return;
         setSent(true);
         run.mutate(
           { reward, action, reason: reason.trim() },
@@ -142,11 +147,16 @@ export function RewardConfirm({
               : 'It was taken back to draft while you were reviewing it. There is nothing to approve now.'}
         </p>
       )}
+      {approvalMissing && !reviewGone && (
+        <p role="alert" className="alert alert-warning alert-soft text-sm">
+          {MISSING_APPROVAL}
+        </p>
+      )}
       {(action === 'approve' || action === 'reject') && reward && (
         <SubmittedBy reward={reward} className="text-sm" />
       )}
       {action === 'reject' && (
-        <FormField label="Reason" hint="1 to 500 characters.">
+        <FormField label="Reason" hint="Required. 1 to 500 characters.">
           <TextInput
             value={reason}
             maxLength={500}
@@ -285,10 +295,15 @@ export function AvailabilityDialog({
   const claimed = reward?.claimedCount ?? 0;
   const supplyNumber = supply.trim() ? Number(supply) : null;
   const limitNumber = limit.trim() ? Number(limit) : null;
+  // Core takes a positive whole number or unlimited, and never fewer than already claimed.
   const supplyError =
-    supply.trim() && !(Number.isInteger(supplyNumber) && supplyNumber! >= claimed)
-      ? `A whole number, at least the ${fmtNumber(claimed)} already claimed`
+    supply.trim() && !(Number.isInteger(supplyNumber) && supplyNumber! >= Math.max(1, claimed))
+      ? claimed > 0
+        ? `A whole number, at least the ${fmtNumber(claimed)} already claimed`
+        : 'A positive whole number, or empty for unlimited'
       : undefined;
+  // Quick add counts from the number typed, or from what is claimed when it isn't one.
+  const addBase = Number.isInteger(supplyNumber) ? supplyNumber! : claimed;
   const limitError =
     limit.trim() && !(Number.isInteger(limitNumber) && limitNumber! > 0)
       ? 'A positive whole number, or empty for no limit'
@@ -345,7 +360,7 @@ export function AvailabilityDialog({
               <Button
                 key={add}
                 className="btn-xs btn-outline min-w-0 font-normal"
-                onClick={() => setSupply(String((supplyNumber ?? claimed) + add))}
+                onClick={() => setSupply(String(addBase + add))}
               >
                 +{add}
               </Button>

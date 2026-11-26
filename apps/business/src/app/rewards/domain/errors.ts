@@ -37,3 +37,7 @@ export function coreErrors(error: unknown): DraftErrors {
 /** One message for a toast. */
 export const coreMessage = (error: unknown) =>
   Object.values(coreErrors(error))[0] ?? 'Something went wrong.';
+
+/** Shown when a review has no submission id: the list was loaded before it was sent. */
+export const MISSING_APPROVAL =
+  'This submission is not in the list yet. Reload the page and try again.';

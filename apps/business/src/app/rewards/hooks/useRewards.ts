@@ -5,7 +5,7 @@ import { notify } from '@octap/shared/components';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { useLiveStatus } from '@/app/live/liveStatus';
 import { toRewardPatch, type Reward, type RewardInput } from '../domain/draft';
-import { coreMessage } from '../domain/errors';
+import { coreMessage, MISSING_APPROVAL } from '../domain/errors';
 import {
   availabilityPatch,
   rejectedFor,
@@ -165,6 +165,9 @@ export function useRewardAction(report: RewardReport) {
       // Core decides only on what the user saw (OCT-324): the voucher as shown, and the submission
       // the Owner reviewed. One changed since is a 409, and the list is read again.
       const approvalRequestId = reward.approval?.id ?? '';
+      // The dialog blocks this too; never send Core an empty id.
+      if ((action === 'approve' || action === 'reject') && !approvalRequestId)
+        throw new Error(MISSING_APPROVAL);
       if (action === 'activate')
         return unwrap(
           api.console.updateRewards({
