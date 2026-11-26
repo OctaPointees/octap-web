@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Pause, Play } from 'phosphor-react';
 import { Link, useParams } from 'react-router';
-import type { VoucherBatchActionResult } from '@octap/internal-sdk';
+import type { VoucherBatchActionResult, VoucherSeen } from '@octap/internal-sdk';
 import { Button, ConfirmDialog, notify } from '@octap/shared/components';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
 import { ErrorState, LoadingBlock, PageHeader } from '@/components/shared/Display';
@@ -13,6 +13,7 @@ import {
   batchTitle,
   describeOutcome,
   describeProgress,
+  seenOf,
 } from '../domain/batches';
 import { describePoints } from '../domain/describe';
 import { coreMessage } from '../domain/errors';
@@ -41,6 +42,9 @@ export default function BatchDetailPage() {
   const detail = useBatch(batchId);
   const run = useBatchAction(batchId);
   const [confirming, setConfirming] = useState<BatchAction | null>(null);
+  // The vouchers as shown when the Owner opened Activate all. Refreshes behind the dialog don't
+  // change it, so a teammate's edit meanwhile is left out instead of published unseen.
+  const [seen, setSeen] = useState<VoucherSeen[]>();
   const [outcomes, setOutcomes] = useState<Record<string, VoucherBatchActionResult>>({});
   // The panel keeps its last mode while it slides away, so it closes with `panelOpen` only.
   const [panel, setPanel] = useState<RewardPanelMode | null>(null);
@@ -49,7 +53,7 @@ export default function BatchDetailPage() {
   const submits = !owner && organization.voucherApprovalRequired;
 
   const act = (action: BatchAction) =>
-    run.mutate(action, {
+    run.mutate(action === 'activate' ? { action, seen } : { action }, {
       onSuccess: (response) => {
         setOutcomes(Object.fromEntries(response.vouchers.map((v) => [v.voucherId, v])));
         setConfirming(null);
@@ -140,7 +144,10 @@ export default function BatchDetailPage() {
                 className="btn-primary btn-sm"
                 disabled={busy || (submits ? counts.drafts : toActivate) === 0}
                 title={toActivate === 0 ? 'Nothing left to activate in this batch' : undefined}
-                onClick={() => setConfirming('activate')}
+                onClick={() => {
+                  setSeen(seenOf(batch.vouchers));
+                  setConfirming('activate');
+                }}
               >
                 {submits
                   ? `Submit batch for approval (${counts.drafts})`

@@ -2,10 +2,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import type {
   ConsoleVoucherBatchesCreateInput,
   ConsoleVoucherBatchesCreateResponse,
+  VoucherSeen,
 } from '@octap/internal-sdk';
 import { unwrap, useAuth } from '@octap/shared/authentication';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
-import { seenOf, type BatchItemResult } from '../domain/batches';
+import type { BatchItemResult } from '../domain/batches';
 import { rewardKeys } from './useRewards';
 
 /** How often a batch is read again while some of its vouchers publish on-chain. */
@@ -75,22 +76,23 @@ export type BatchAction = 'activate' | 'pause' | 'resume' | 'archive';
 
 /**
  * Activates, pauses, resumes or archives every voucher of a batch at once. An Owner's activation
- * sends the vouchers as the Owner sees them (`seen`), so Core leaves out any that changed since
- * (OCT-324). Afterwards the catalog, the batch and the list are read again.
+ * sends `seen`: the vouchers as they were when the Owner opened the confirm, taken with `seenOf`.
+ * The page refreshes behind the dialog, so the cache at click time may hold an edit the Owner never
+ * saw. Core leaves out any voucher that changed since (OCT-324). Afterwards the catalog, the batch
+ * and the list are read again.
  */
 export function useBatchAction(batchId: string) {
   const { api } = useAuth();
   const { organizationId, owner } = useOrganization();
-  const batch = useBatch(batchId);
   return useMutation({
     meta: { invalidates: [rewardKeys.list(organizationId), batchKeys.all(organizationId)] },
-    mutationFn: (action: BatchAction) => {
+    mutationFn: ({ action, seen }: { action: BatchAction; seen?: VoucherSeen[] }) => {
       const input = { organizationId, batchId };
       if (action === 'activate')
         return unwrap(
           api.console.activate({
             ...input,
-            body: owner && batch.data ? { seen: seenOf(batch.data.vouchers) } : {},
+            body: owner && seen ? { seen } : {},
           }),
         );
       return unwrap(api.console[action](input));
