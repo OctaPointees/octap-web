@@ -87,7 +87,7 @@ body {
 @utility bg-pattern-radial {
   background-image: radial-gradient(
     125% 125% at 50% 90%,
-    #fff 40%,
+    var(--color-base-100) 40%,
     color-mix(in oklab, var(--color-primary), transparent 90%) 100%
   );
 }

@@ -50,3 +50,52 @@
 
   --color-base-shadow: #1a152314;
 }
+
+@plugin "daisyui/theme" {
+  name: 'octap-dark';
+  default: false;
+  prefersdark: false;
+
+  color-scheme: dark;
+  --radius-selector: 0.4rem;
+  --radius-field: 0.2rem;
+  --radius-box: 0.4rem;
+
+  --size-field: 0.28rem;
+  --size-selector: 0.28rem;
+
+  --border: 1Q;
+  --depth: 0;
+  --noise: 0;
+
+  --color-primary: #d6338a;
+  --color-primary-content: #ffffff;
+
+  --color-secondary: #9db4e0;
+  --color-secondary-content: #0d1626;
+
+  --color-accent: #8b80ff;
+  --color-accent-content: #0f0c2e;
+
+  --color-neutral: #e9e5ee;
+  --color-neutral-content: #1a1523;
+
+  --color-info: #60a5fa;
+  --color-info-content: #0b1a33;
+
+  --color-success: #4ade80;
+  --color-success-content: #052e14;
+
+  --color-warning: #fbbf24;
+  --color-warning-content: #2a1a02;
+
+  --color-error: #f87171;
+  --color-error-content: #2b0707;
+
+  --color-base-100: #1c1824;
+  --color-base-200: #141119;
+  --color-base-300: #2e2838;
+  --color-base-content: #ece8f2;
+
+  --color-base-shadow: #00000066;
+}

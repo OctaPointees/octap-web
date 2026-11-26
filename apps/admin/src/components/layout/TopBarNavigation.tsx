@@ -1,6 +1,6 @@
 import { MagnifyingGlass, Minus, Plus, SignOut, Square, User, type Icon } from 'phosphor-react';
 
-import { Button } from '@octap/shared/components';
+import { Button, useTheme } from '@octap/shared/components';
 import { PageLogo } from '../shared/PageLogo';
 import { NavLink } from 'react-router';
 import { cn, wait } from '@octap/shared/utils';
@@ -158,6 +158,7 @@ function AccountInfo() {
               <User size="1.5em" />
             </Menu.Item> */}
             <ZoomAdjustMenuItem />
+            <DarkModeMenuItem />
             <Menu.Separator className={ACC_CLSS.Separator} />
             <LogoutButton />
           </Menu.Popup>
@@ -197,6 +198,29 @@ function ZoomAdjustMenuItem() {
         <Button children={<Plus />} className="btn-soft btn-square" onClick={inc} />
       </div>
     </Menu.Item>
+  );
+}
+
+function DarkModeMenuItem() {
+  const theme = useTheme();
+
+  return (
+    <Menu.CheckboxItem
+      className="p-2 flex items-center cursor-pointer rounded-field data-highlighted:bg-base-300"
+      checked={theme.dark}
+      onCheckedChange={(dark) => theme.setTheme(dark ? 'octap-dark' : 'octap-light')}
+      closeOnClick={false}
+    >
+      <div className="flex-1">Dark mode</div>
+      <input
+        type="checkbox"
+        aria-hidden
+        tabIndex={-1}
+        readOnly
+        checked={theme.dark}
+        className="toggle toggle-primary pointer-events-none"
+      />
+    </Menu.CheckboxItem>
   );
 }
 

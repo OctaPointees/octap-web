@@ -6,12 +6,13 @@ import {
   CaretDown,
   Check,
   ListBullets,
+  Moon,
   PlusCircle,
   SignOut,
 } from 'phosphor-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { notify } from '@octap/shared/components';
+import { notify, useTheme } from '@octap/shared/components';
 import { useCurrentOrganization } from '@/app/organization/hooks/useOrganization';
 import { dashboardPath } from '@/app/organization/utils';
 import { FOCUSES, useFocus, useSwitchFocus, type Focus } from '@/app/workspace/focus';
@@ -31,6 +32,7 @@ const tag =
 /** The signed-in person: who they are, plus refresh and sign-out. The only sign-out in the shell. */
 export function AccountMenu() {
   const auth = useAuth();
+  const theme = useTheme();
   const organization = useCurrentOrganization();
   const [refreshing, setRefreshing] = useState(false);
   const user = auth.identity?.user;
@@ -38,9 +40,9 @@ export function AccountMenu() {
 
   const refresh = () => {
     setRefreshing(true);
+    notify.info('Refreshing access. . .');
     auth
       .refresh()
-    notify.info('Refreshing access. . .');
       .then(
         () => notify.success('Access refreshed'),
         (cause) => notify.error(cause, 'That did not work'),
@@ -90,6 +92,23 @@ export function AccountMenu() {
               </div>
             </div>
             <div className={separator} />
+            <Menu.CheckboxItem
+              className={item}
+              checked={theme.dark}
+              onCheckedChange={(dark) => theme.setTheme(dark ? 'octap-dark' : 'octap-light')}
+              closeOnClick={false}
+            >
+              <Moon size={16} />
+              <span className="flex-1">Dark mode</span>
+              <input
+                type="checkbox"
+                aria-hidden
+                tabIndex={-1}
+                readOnly
+                checked={theme.dark}
+                className="toggle toggle-xs toggle-primary pointer-events-none"
+              />
+            </Menu.CheckboxItem>
             <Menu.Item className={item} disabled={refreshing} onClick={refresh}>
               <ArrowClockwise size={16} /> Refresh access
             </Menu.Item>
