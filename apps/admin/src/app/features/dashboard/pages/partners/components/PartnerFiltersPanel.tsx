@@ -6,13 +6,19 @@ import {
   Buildings,
   CheckCircle,
   Clock,
+  ListBullets,
   MagnifyingGlass,
   PaperPlaneRight,
+  Rows,
 } from 'phosphor-react';
+import { formatDistanceToNow } from 'date-fns';
 
 import { Button } from '@octap/shared/components';
 
+import { ColumnMenu } from '@/components/shared/ColumnMenu';
+
 import { usePartnersData } from '../PartnersDataContext';
+import { PARTNER_COLUMNS } from '../types';
 
 const DefaultFilterValue = { query: '' };
 type FilterTypes = typeof DefaultFilterValue;
@@ -23,7 +29,19 @@ interface ISearchAndFilterProps {
 
 export function PartnerFiltersPanel({ onSubmit: handleSubmit }: ISearchAndFilterProps) {
   const [formLoading, setFormLoading] = useState(false);
-  const { orgs, setSearchQuery, statusFilter, setStatusFilter, reload } = usePartnersData();
+  const {
+    orgs,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    reload,
+    reloading,
+    updatedAt,
+    isCompact,
+    setIsCompact,
+    hiddenColumns,
+    toggleColumn,
+  } = usePartnersData();
 
   const loading = orgs === 0;
   const hasError = orgs !== 0 && orgs.error !== null;
@@ -94,11 +112,31 @@ export function PartnerFiltersPanel({ onSubmit: handleSubmit }: ISearchAndFilter
         >
           Apply
         </Button>
+      </form>
 
-        <Button className="btn-block mt-2" icon={ArrowClockwise} onClick={reload}>
+      <div className="*:btn-block space-y-2 my-2">
+        <ColumnMenu columns={PARTNER_COLUMNS} hidden={hiddenColumns} onToggle={toggleColumn} />
+
+        <Button
+          type="button"
+          icon={isCompact ? ListBullets : Rows}
+          aria-pressed={isCompact}
+          title={isCompact ? 'Switch to detailed table' : 'Switch to compact table'}
+          onClick={() => setIsCompact(!isCompact)}
+        >
+          View mode: {isCompact ? 'Compact' : 'Detailed'}
+        </Button>
+
+        <Button icon={ArrowClockwise} loading={reloading} onClick={reload}>
           Reload Data
         </Button>
-      </form>
+
+        {updatedAt > 0 && (
+          <div className="py-2 text-sm italic text-center opacity-67">
+            Updated {formatDistanceToNow(updatedAt, { addSuffix: true })}
+          </div>
+        )}
+      </div>
 
       <div className="flex-1 min-h-8"></div>
 

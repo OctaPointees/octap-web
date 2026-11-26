@@ -13,6 +13,14 @@ interface PartnersData {
   orgs: OrganizationList | 0;
   timestamp: string;
   reload: () => void;
+  /** True while the list is loading again. */
+  reloading: boolean;
+  /** When the list last loaded, in milliseconds. */
+  updatedAt: number;
+  isCompact: boolean;
+  setIsCompact: (compact: boolean) => void;
+  hiddenColumns: ReadonlySet<string>;
+  toggleColumn: (column: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   statusFilter: OrganizationStatusFilter | null;
@@ -26,6 +34,8 @@ export function PartnersDataProvider({ children }: { children: ReactNode }) {
   const [timestamp, setTimestamp] = useState(() => new Date().toISOString());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrganizationStatusFilter | null>(null);
+  const [isCompact, setIsCompact] = useState(false);
+  const [hiddenColumns, setHiddenColumns] = useState<ReadonlySet<string>>(new Set());
 
   const organizationsQuery = useQuery({
     queryKey: ['partners', 'organizations'],
@@ -49,12 +59,33 @@ export function PartnersDataProvider({ children }: { children: ReactNode }) {
       setSearchQuery,
       statusFilter,
       setStatusFilter,
+      reloading: organizationsQuery.isFetching,
+      updatedAt: organizationsQuery.dataUpdatedAt,
+      isCompact,
+      setIsCompact,
+      hiddenColumns,
+      toggleColumn: (column) =>
+        setHiddenColumns((current) => {
+          const next = new Set(current);
+          if (!next.delete(column)) next.add(column);
+          return next;
+        }),
       reload: () => {
         setTimestamp(new Date().toISOString());
         void reloadOrganizations();
       },
     }),
-    [orgs, timestamp, searchQuery, statusFilter, reloadOrganizations],
+    [
+      orgs,
+      timestamp,
+      searchQuery,
+      statusFilter,
+      reloadOrganizations,
+      organizationsQuery.isFetching,
+      organizationsQuery.dataUpdatedAt,
+      isCompact,
+      hiddenColumns,
+    ],
   );
 
   return createElement(PartnersDataContext.Provider, { value }, children);

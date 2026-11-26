@@ -6,7 +6,6 @@ import {
   ArrowClockwise,
   CheckCircle,
   CheckSquareOffset,
-  Circle,
   Clock,
   Copy,
   ListBullets,
@@ -23,7 +22,7 @@ import { ChangeRequestActions } from './components/ChangeRequestActions';
 import type { ChangeRequest, ChangeRequestStatus } from './types';
 import { cn } from '@octap/shared/utils';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Menu } from '@base-ui/react';
+import { ColumnMenu } from '@/components/shared/ColumnMenu';
 
 export function RequestsPage() {
   const { api: client } = useAuth();
@@ -291,49 +290,11 @@ export function RequestsPage() {
         </form>
 
         <div className="*:btn-block space-y-2 my-2 flex-1">
-          <Menu.Root>
-            <Menu.Trigger
-              render={(props) => (
-                <Button {...props}>
-                  <div className="flex-1 text-left">Display Columns</div>
-                  <div>{FILTER_COLUMNS.length}</div>
-                </Button>
-              )}
-            />
-
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup className="menu rounded-box z-5 w-(--anchor-width) *:btn-sm">
-                  {COLUMNS.map((_) => {
-                    return (
-                      <Menu.Item
-                        closeOnClick={false}
-                        onClick={() => TOGGLE_COLUMN(_.name)}
-                        key={_.name}
-                        render={(props) => {
-                          if (!disabledCols.has(_.name)) {
-                            return (
-                              <Button {...props} className="text-primary">
-                                <div className="flex-1 text-left">{_.name}</div>
-                                <CheckCircle size="1.5em" />
-                              </Button>
-                            );
-                          }
-
-                          return (
-                            <Button {...props}>
-                              <div className="flex-1 text-left">{_.name}</div>
-                              <Circle size="1.5em" />
-                            </Button>
-                          );
-                        }}
-                      ></Menu.Item>
-                    );
-                  })}
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
+          <ColumnMenu
+            columns={COLUMNS.map((column) => column.name)}
+            hidden={disabledCols}
+            onToggle={TOGGLE_COLUMN}
+          />
 
           <Button
             type="button"
