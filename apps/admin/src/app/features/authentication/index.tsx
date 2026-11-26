@@ -3,7 +3,7 @@ import { LeftPanel, SignInPanel } from './components';
 export default function AdminAuthentication() {
   return (
     <div
-      className="screen-wrapper gap-8 flex-col place-center bg-contain bg-no-repeat rounded-box"
+      className="screen-wrapper gap-8 flex-col place-center overflow-y-auto bg-contain bg-no-repeat rounded-box"
       style={{
         backgroundImage: `
             url('/illustrations/server.png'), 

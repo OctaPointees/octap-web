@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       <TopBarNavigation options={nav} subtitle="System Dashboard" />
 
       <div
-        className="z-0 flex-1 min-h-0 m-4 mt-0 rounded-box p-2"
+        className="z-0 flex-1 min-h-0 m-4 mt-0 overflow-y-auto rounded-box p-2"
         key={pathname}
         style={{
           boxShadow:

@@ -76,7 +76,9 @@ function SearchBar() {
   return (
     <div className="h-full gap-0 p-0 input input-ghost group w-fit">
       <Button
-        className={cn('h-full btn-primary btn-soft', { 'rounded-r-none btn-active': showInput })}
+        className={cn('h-full min-w-0 btn-primary btn-soft', {
+          'rounded-r-none btn-active': showInput,
+        })}
         onClick={focusInput}
       >
         <MagnifyingGlass size="1.5em" />
@@ -190,9 +192,9 @@ function ZoomAdjustMenuItem() {
       </div>
 
       <div className="*:btn-sm flex items-center">
-        <Button children={<Minus />} className="btn-soft" onClick={dec} />
+        <Button children={<Minus />} className="btn-soft btn-square" onClick={dec} />
         <div className="pointer-events-none btn">{size}</div>
-        <Button children={<Plus />} className="btn-soft" onClick={inc} />
+        <Button children={<Plus />} className="btn-soft btn-square" onClick={inc} />
       </div>
     </Menu.Item>
   );

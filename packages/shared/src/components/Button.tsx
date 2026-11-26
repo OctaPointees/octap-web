@@ -62,6 +62,8 @@ export function Button({
   const flashing = useFlash(successKey);
   const succeeded = flashing && !loading;
   const covered = loading || succeeded;
+  // Square and circle buttons size themselves; a minimum width would stretch them.
+  const square = typeof className === 'string' && /\bbtn-(square|circle)\b/.test(className);
 
   return (
     <BaseButton
@@ -70,7 +72,8 @@ export function Button({
       aria-busy={loading || undefined}
       disabled={props.disabled || loading}
       className={cn(
-        'group btn relative gap-0 min-w-25 transition-[color,background-color,border-color,box-shadow,scale] duration-(--motion-press) ease-enter active:not-disabled:scale-[0.97]',
+        'group btn relative gap-0 transition-[color,background-color,border-color,box-shadow,scale] duration-(--motion-press) ease-enter active:not-disabled:scale-[0.97]',
+        { 'min-w-25': !square },
         className,
         { 'border-success bg-success text-success-content': succeeded },
       )}
