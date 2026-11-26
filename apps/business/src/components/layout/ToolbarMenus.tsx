@@ -40,6 +40,7 @@ export function AccountMenu() {
     setRefreshing(true);
     auth
       .refresh()
+    notify.info('Refreshing access. . .');
       .then(
         () => notify.success('Access refreshed'),
         (cause) => notify.error(cause, 'That did not work'),

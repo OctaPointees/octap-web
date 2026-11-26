@@ -121,6 +121,7 @@ export default function SidePanel({ options, header, footer, className }: Props)
         // Background turned off for now: 'bg-primary'
         'flex w-72 shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r border-base-300 bg-base-100 text-base-content transition-[width] duration-200 max-md:hidden max-lg:w-(--size-sidebar-retract) shadow-md',
         retracted && 'w-(--size-sidebar-retract)',
+        'overflow-hidden',
         className,
       )}
       // style={{
