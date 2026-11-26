@@ -54,7 +54,8 @@ export function ToasterProvider({ children }: { children: React.ReactNode }) {
     <Toast.Provider toastManager={toastManager} limit={4}>
       {children}
       <Toast.Portal>
-        <Toast.Viewport className="fixed top-[var(--size-main-toolbar,1rem)] right-4 z-[100] w-[calc(100vw-2rem)] sm:w-96">
+        {/* Full width less the 1rem gutters on phones. z-100 keeps toasts above dialogs (z-50). */}
+        <Toast.Viewport className="fixed top-(--size-main-toolbar,1rem) right-4 z-100 w-[calc(100vw-2rem)] sm:w-96">
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>

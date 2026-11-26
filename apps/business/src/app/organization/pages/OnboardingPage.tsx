@@ -19,6 +19,7 @@ export default function OnboardingPage() {
 
   if (invitation)
     return (
+      // pt-[6vh]: sits a little below the top on any screen height, not a fixed gap.
       <section className="mx-auto w-full max-w-md pt-[6vh] pb-6">
         <InvitationForm token={invitation} />
       </section>

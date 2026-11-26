@@ -152,6 +152,7 @@ function ClaimRing({ claimed, total }: { claimed: number; total: number }) {
           className="stroke-primary motion-safe:transition-[stroke-dashoffset] motion-safe:duration-500"
         />
       </svg>
+      {/* 10px: the percent must fit inside the ring, and text-xs (12px) doesn't at 100%. */}
       <span className="text-[0.625rem] font-semibold tabular-nums">{label}</span>
     </span>
   );
