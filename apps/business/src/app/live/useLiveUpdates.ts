@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { useAuth } from '@octap/shared/authentication';
@@ -30,7 +30,7 @@ class RetryLater extends Error {
  * Keeps this tab in step with the organization while it is open: Core's event stream (OCT-326)
  * says what changed, and the screens showing it reload. One stream per tab, opened once for the
  * whole workspace. It closes while the tab is hidden and, when the tab comes back, resumes from the
- * last event seen, so nothing is missed. If the stream can't be had, nothing breaks: screens
+ * last event seen, so nothing is missed. "Try now" and a new sign-in resume from it too. If the stream can't be had, nothing breaks: screens
  * refresh as they did before, on focus and on their own timers.
  */
 export function useLiveUpdates() {
@@ -41,12 +41,19 @@ export function useLiveUpdates() {
   const cache = useQueryClient();
   // "Try now" in the status bar: reopens the stream at once.
   const retryRequest = useLiveRetryRequest();
+  // The last event seen, kept across reopens so Core replays what came in between. Only for the
+  // organization it came from.
+  const lastEvent = useRef<{ organizationId: string; id: string }>(undefined);
 
   useEffect(() => {
     const token = getAccessToken();
     if (!token) return;
     const stop = new AbortController();
     let attempt = 0;
+    // Set once the stream is refused for good. Showing the tab again must not claim to connect.
+    let stopped = false;
+    const resumeFrom =
+      lastEvent.current?.organizationId === organizationId ? lastEvent.current.id : undefined;
 
     // Stale keys collected during a burst, flushed together.
     const pending = new Map<string, QueryKey>();
@@ -63,7 +70,9 @@ export function useLiveUpdates() {
     const reloadEverything = () =>
       void cache.invalidateQueries({ queryKey: ['console', 'organization', organizationId] });
 
-    const onVisibility = () => setLiveStatus(document.hidden ? 'off' : 'connecting');
+    const onVisibility = () => {
+      if (!stopped) setLiveStatus(document.hidden ? 'off' : 'connecting');
+    };
     document.addEventListener('visibilitychange', onVisibility);
     setLiveStatus(document.hidden ? 'off' : 'connecting');
 
@@ -71,7 +80,11 @@ export function useLiveUpdates() {
       `${apiBaseUrl.replace(/\/+$/, '')}/v1/console/organizations/${encodeURIComponent(organizationId)}/events`,
       {
         signal: stop.signal,
-        headers: { Authorization: `Bearer ${token}` },
+        // Lowercase, as the library names the header when it reconnects on its own.
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(resumeFrom && { 'last-event-id': resumeFrom }),
+        },
         // Closes while hidden and reopens with Last-Event-ID when the tab is shown again.
         openWhenHidden: false,
         async onopen(response) {
@@ -86,6 +99,7 @@ export function useLiveUpdates() {
           throw new RetryLater(response.status === 429 ? TOO_MANY_MS : undefined);
         },
         onmessage(message) {
+          if (message.id) lastEvent.current = { organizationId, id: message.id };
           if (message.event === STREAM_CONTROL.reset) return reloadEverything();
           if (message.event === STREAM_CONTROL.tokenExpired) throw new StopStream('signedOut');
           if (message.event === STREAM_CONTROL.accessRevoked) {
@@ -102,6 +116,8 @@ export function useLiveUpdates() {
         },
         onerror(error) {
           if (error instanceof StopStream) {
+            stopped = true;
+            document.removeEventListener('visibilitychange', onVisibility);
             setLiveStatus('paused', error.reason);
             throw error;
           }
