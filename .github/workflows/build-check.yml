@@ -60,6 +60,11 @@ jobs:
       - name: Type check
         run: npm run typecheck -w @octap/${{ matrix.app }} --if-present
 
+      # node:test on Node's own TypeScript support, no browser (the assistant conversation store)
+      - name: Unit tests
+        if: matrix.app == 'business'
+        run: npm test -w @octap/business
+
       # Confirms the app can actually be bundled
       - name: Build
         run: npm run build -w @octap/${{ matrix.app }} --if-present
