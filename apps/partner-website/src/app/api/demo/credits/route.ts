@@ -95,7 +95,11 @@ export async function POST(request: NextRequest) {
       const failure = [balance, history].find((result) => result.error);
       if (failure) return NextResponse.json(failure.data, { status: failure.status });
       return NextResponse.json(
-        { balance: balance.data, transactions: history.data },
+        {
+          balance: balance.data,
+          // Core now returns a page ({ items, nextCursor }); older Core returned a bare array.
+          transactions: Array.isArray(history.data) ? history.data : (history.data?.items ?? []),
+        },
         { headers: { 'Cache-Control': 'no-store' } },
       );
     }
