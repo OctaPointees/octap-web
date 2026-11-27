@@ -41,3 +41,17 @@ export const coreMessage = (error: unknown) =>
 /** Shown when a review has no submission id: the list was loaded before it was sent. */
 export const MISSING_APPROVAL =
   'This submission is not in the list yet. Reload the page and try again.';
+
+/**
+ * Core's answer when the organization's approval setting changed under the user: approval was
+ * turned on (activate refused, 403) or off (submit refused, 409). Says what to do now, or
+ * `undefined` for any other error.
+ */
+export function approvalChangeMessage(error: unknown): string | undefined {
+  if (!(error instanceof OctapError)) return undefined;
+  if (error.status === 403 && /requires approval/i.test(error.message))
+    return 'Approval is now required in this organization. Submit the voucher for approval instead.';
+  if (error.status === 409 && /does not require approval/i.test(error.message))
+    return 'Approval is now off in this organization. Activate the voucher instead.';
+  return undefined;
+}

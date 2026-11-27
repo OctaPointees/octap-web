@@ -3,9 +3,10 @@ import { OctapError } from '@octap/internal-sdk';
 import { unwrap, useAuth } from '@octap/shared/authentication';
 import { notify } from '@octap/shared/components';
 import { useOrganization } from '@/app/organization/hooks/useOrganization';
+import { organizationKeys } from '@/app/organization/utils';
 import { useLiveStatus } from '@/app/live/liveStatus';
 import { toRewardPatch, type Reward, type RewardInput } from '../domain/draft';
-import { coreMessage, MISSING_APPROVAL } from '../domain/errors';
+import { approvalChangeMessage, coreMessage, MISSING_APPROVAL } from '../domain/errors';
 import {
   availabilityPatch,
   rejectedFor,
@@ -197,10 +198,21 @@ export function useRewardAction(report: RewardReport) {
       report(saved, stageOf(saved) === 'publishing' ? 'Publishing on-chain' : DONE[action]);
     },
     onError: (error) => {
-      // A 409 can mean the voucher changed since it was shown: show it as it is now.
-      if (error instanceof OctapError && error.status === 409)
+      if (error instanceof OctapError && [403, 404, 409].includes(error.status ?? 0)) {
+        // The voucher may have changed or gone since it was shown: show it as it is now.
         void cache.invalidateQueries({ queryKey: rewardKeys.list(organizationId) });
-      notify.error(new Error(coreMessage(error)), 'Could not update the voucher');
+        // The Owner may have turned approval on (403) or off (409) since this page loaded: read the
+        // organization again, so the card offers Submit or Activate as it now should.
+        if (error.status !== 404)
+          void cache.invalidateQueries({
+            queryKey: organizationKeys.detail(organizationId),
+            exact: true,
+          });
+      }
+      notify.error(
+        new Error(approvalChangeMessage(error) ?? coreMessage(error)),
+        'Could not update the voucher',
+      );
     },
   });
 }
