@@ -4,3 +4,4 @@ import clsx, { type ClassArray } from 'clsx';
 export const cn = (...inputs: ClassArray) => {
   return twMerge(clsx(inputs));
 };
+export { wait } from './wait';

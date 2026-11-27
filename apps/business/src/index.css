@@ -1,21 +1,31 @@
-@import 'tailwindcss';
-@source "../../../packages/shared/src/authentication";
-@source "../../../packages/shared/src/components";
-@plugin "daisyui";
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+@import '@octap/shared/styles/index.css';
+
+@theme {
+  --font-sans: 'Manrope', 'Google Sans';
+  --font-mono: 'Space Mono';
+}
 
 :root {
-  --font-sans: 'Host Grotesk', 'Google Sans';
-  --font-mono: 'Space Mono';
-
-  --size-article: 1600px;
+  --size-article: 1280px;
   /* Width of the side panel when it is retracted to an icon rail. */
   --size-sidebar-retract: 4.5rem;
+
+  /* Height of the main toolbar (top navigation bar). */
+  --size-main-toolbar: 3.67rem;
+
+  /* Height of the status bar along the bottom of the window. */
+  --size-status-bar: 1.75rem;
+
+  --size-sidebar-thumb: 4Q;
 }
 
 html,
 body,
 #root {
   height: 100%;
+  font-weight: 500;
 }
 
 body {
@@ -56,10 +66,6 @@ body {
   @apply w-full h-full;
 }
 
-@utility place-center {
-  @apply items-center justify-center;
-}
-
 @utility bg-pattern-dots {
   background-image: radial-gradient(circle, rgba(0, 0, 0, 1) 1Q, transparent 1Q);
   background-size: 50px 50px;
@@ -70,4 +76,57 @@ body {
     linear-gradient(to right, #000 1Q, transparent 1Q),
     linear-gradient(to bottom, #000 1Q, transparent 1Q);
   background-size: 40px 40px;
+}
+
+@utility bg-pattern-blur-blobs {
+  background-image:
+    radial-gradient(circle at 30% 10%, rgba(173, 216, 230, 0.1), transparent 60%),
+    radial-gradient(circle at 70% 30%, rgba(255, 182, 193, 0.2), transparent 60%);
+}
+
+@utility bg-pattern-radial {
+  background-image: radial-gradient(
+    125% 125% at 50% 90%,
+    var(--color-base-100) 40%,
+    color-mix(in oklab, var(--color-primary), transparent 90%) 100%
+  );
+}
+
+/*
+ * A soft glow from the top center. It is the element's own background, so it needs no extra layer
+ * or z-index, and a fixed height keeps it the same size on short and long pages.
+ */
+@utility bg-pattern-top-glow {
+  background-image: radial-gradient(
+    ellipse 70% 100% at 50% 0%,
+    color-mix(in oklab, var(--color-primary) 5%, transparent),
+    transparent 75%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 28rem;
+}
+
+/*
+ * A diagonal grid that fades out from a corner. It sits on a layer behind the element, because a
+ * mask on the element itself would fade its content too. `--pattern-size` sets the grid's scale.
+ */
+@utility bg-pattern-left-corner-grid {
+  --c: var(--color-base-200);
+
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(45deg, transparent 49%, var(--c) 49%, var(--c) 51%, transparent 51%),
+      linear-gradient(-45deg, transparent 49%, var(--c) 49%, var(--c) 51%, transparent 51%);
+    background-size: var(--pattern-size, 40px) var(--pattern-size, 40px);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%);
+    mask-image: radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%);
+  }
 }

@@ -1,4 +1,5 @@
-import type { ConsoleIdentity } from '../../console-api/client';
+import type { OctapClient } from '@octap/internal-sdk';
+import type { ConsoleIdentity } from './core';
 import { verifyGoogleCredential } from './identity';
 
 /** What Google reports about a prompt. Under FedCM only some of these methods exist. */
@@ -93,11 +94,12 @@ export interface SignInResult {
  */
 export function silentGoogleSignIn({
   clientId,
-  apiBaseUrl = '',
+  api,
   timeoutMs = 30_000,
 }: {
   clientId: string;
-  apiBaseUrl?: string;
+  /** Verifies the token with Core. */
+  api: OctapClient;
   timeoutMs?: number;
 }): { result: Promise<SignInResult | null>; cancel: () => void } {
   const abort = new AbortController();
@@ -140,11 +142,7 @@ export function silentGoogleSignIn({
           void (async () => {
             try {
               assertLoginNonce(response.credential, nonce);
-              const identity = await verifyGoogleCredential(
-                apiBaseUrl,
-                response.credential,
-                AbortSignal.any([abort.signal, AbortSignal.timeout(30_000)]),
-              );
+              const identity = await verifyGoogleCredential(api, response.credential);
               finish({ identity, credential: response.credential });
             } catch (cause) {
               finish(

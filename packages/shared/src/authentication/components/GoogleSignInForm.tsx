@@ -1,4 +1,4 @@
-import type { ConsoleIdentity } from '../../console-api/client';
+import type { ConsoleIdentity } from '../lib/core';
 import { cn } from '../../utils';
 import { useAuth } from '../hooks/useAuth';
 import { useGoogleSignInButton } from '../hooks/useGoogleSignInButton';

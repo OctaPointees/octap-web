@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ConsoleIdentity } from '../../console-api/client';
+import type { ConsoleIdentity } from '../lib/core';
 import { assertLoginNonce, loadGoogleIdentity, newLoginNonce } from '../lib/google';
 import { verifyGoogleCredential } from '../lib/identity';
 import { useAuth } from './useAuth';
@@ -14,7 +14,7 @@ const buttonWidth = (available: number) => Math.round(Math.max(200, Math.min(400
 export function useGoogleSignInButton({
   onSignedIn,
 }: { onSignedIn?: (identity: ConsoleIdentity) => void } = {}) {
-  const { clientId, apiBaseUrl, signIn } = useAuth();
+  const { clientId, api, signIn } = useAuth();
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -28,7 +28,6 @@ export function useGoogleSignInButton({
     if (!clientId) return;
     let active = true;
     let submitting = false;
-    const abort = new AbortController();
     const nonce = newLoginNonce();
     let stopObserving = () => {};
     void loadGoogleIdentity()
@@ -46,11 +45,8 @@ export function useGoogleSignInButton({
             void (async () => {
               try {
                 assertLoginNonce(response.credential, nonce);
-                const identity = await verifyGoogleCredential(
-                  apiBaseUrl,
-                  response.credential,
-                  AbortSignal.any([abort.signal, AbortSignal.timeout(30_000)]),
-                );
+                // The SDK times the request out after 30 seconds.
+                const identity = await verifyGoogleCredential(api, response.credential);
                 if (!active) return;
                 signIn(identity, response.credential);
                 signedIn.current?.(identity);
@@ -100,10 +96,9 @@ export function useGoogleSignInButton({
       });
     return () => {
       active = false;
-      abort.abort();
       stopObserving();
     };
-  }, [clientId, apiBaseUrl, signIn, attempt]);
+  }, [clientId, api, signIn, attempt]);
 
   return {
     /** Attach to an empty element: Google draws its button inside it. */

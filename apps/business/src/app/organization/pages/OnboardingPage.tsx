@@ -8,13 +8,22 @@ import { useInvitationToken } from '../hooks/useInvitationToken';
 
 /**
  * `/onboarding`: create an organization, or accept the invitation that the login page passed
- * on in router state (an `?invitation=` here is moved out of the URL the same way). Sits on
- * the page background, capped at 1600px like the organization list.
+ * on in router state (an `?invitation=` here is moved out of the URL the same way). An invitation
+ * gets a single centered card; creating one sits on the page background, capped at 1600px like
+ * the organization list.
  */
 export default function OnboardingPage() {
   const { identity } = useAuth();
   const invitation = useInvitationToken();
   if (!identity) return null;
+
+  if (invitation)
+    return (
+      // pt-[6vh]: sits a little below the top on any screen height, not a fixed gap.
+      <section className="mx-auto w-full max-w-md pt-[6vh] pb-6">
+        <InvitationForm token={invitation} />
+      </section>
+    );
 
   return (
     <section className="mx-auto w-full max-w-(--size-article) pt-4 space-y-5">
@@ -26,9 +35,7 @@ export default function OnboardingPage() {
           >
             <ArrowLeft size={14} /> Back to organizations
           </Link>
-          <h1 className="text-2xl font-bold">
-            {invitation ? 'Accept a Developer invitation' : 'Create an organization'}
-          </h1>
+          <h1 className="text-2xl font-bold">Create an organization</h1>
           {identity.organizations.length === 0 && (
             <p>
               Your account has no active organization access. Request a new organization or accept
@@ -36,9 +43,9 @@ export default function OnboardingPage() {
             </p>
           )}
 
-          {invitation ? <InvitationForm token={invitation} /> : <OrganizationSetup />}
+          <OrganizationSetup />
         </div>
-        {!invitation && <OrganizationRequestList />}
+        <OrganizationRequestList />
       </div>
     </section>
   );

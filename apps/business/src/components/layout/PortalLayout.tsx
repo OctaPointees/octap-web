@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 import { cn } from '../../utils/cn';
 import MainToolbar, { type SearchResult } from './MainToolbar';
 import SidePanel, { type NavOption } from './SidePanel';
@@ -10,26 +10,30 @@ type Props = {
   nav: NavOption[];
   useSearch: (q: string) => { data?: SearchResult[]; isFetching: boolean };
   searchPlaceholder?: string;
+  /** Above the sidebar's pages; told whether the sidebar is a rail. */
+  sideHeader?: (retracted: boolean) => ReactNode;
   sideFooter?: ReactNode;
   /** Full-width pages such as the organization picker: no side panel, centered content. */
   hideSidebar?: boolean;
+  /** The bar along the bottom of the window. */
+  statusBar: ReactNode;
 };
 
-/**
- * The window scrolls: the full-width top bar sticks to the top, and the side panel sticks right
- * below it, flush with the window's left edge and bottom (`--toolbar` is the bar's height, its
- * bottom border included in `h-14`). Only the page content has padding.
- */
 export default function PortalLayout({
   subtitle,
   nav,
   useSearch,
   searchPlaceholder,
+  sideHeader,
   sideFooter,
   hideSidebar = false,
+  statusBar,
 }: Props) {
+  // `/organizations/:slug/<feature>`: a new feature fades in, its own sub-pages don't.
+  const feature = useLocation().pathname.split('/').slice(0, 4).join('/');
+
   return (
-    <div className="flex min-h-dvh flex-col bg-base-100 [--toolbar:3.5rem]">
+    <div className="flex min-h-dvh flex-col bg-base-200">
       <header className="sticky top-0 z-30 select-none">
         <MainToolbar
           nav={nav}
@@ -40,21 +44,27 @@ export default function PortalLayout({
         />
       </header>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         {!hideSidebar && (
           <SidePanel
             options={nav}
+            header={sideHeader}
             footer={sideFooter}
-            className="sticky top-(--toolbar) h-[calc(100dvh-var(--toolbar))]"
+            className="sticky top-(--size-main-toolbar) h-[calc(100dvh-var(--size-main-toolbar)-var(--size-status-bar))]"
           />
         )}
 
-        <main className={cn('min-w-0 flex-1 p-4', !hideSidebar && 'md:pl-6')}>
-          <div className="flex max-w-(--size-article) flex-col gap-4 mx-auto">
+        <main className={cn('min-w-0 flex-1 p-4 bg-pattern-top-glow', !hideSidebar && 'md:pl-6')}>
+          <div
+            key={feature}
+            className="animate-page-in flex max-w-(--size-article) flex-col gap-4 mx-auto"
+          >
             <Outlet />
           </div>
         </main>
       </div>
+
+      {statusBar}
     </div>
   );
 }

@@ -1,9 +1,17 @@
 <!doctype html>
-<html lang="en" data-theme="octap">
+<html lang="en" data-theme="octap-light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // The saved theme (see useTheme in @octap/shared), else light. Runs before the page paints,
+      // so a dark page never flashes light.
+      try {
+        if (localStorage.getItem('octap.theme') === 'octap-dark')
+          document.documentElement.dataset.theme = 'octap-dark';
+      } catch {}
+    </script>
     <title>OctaP Admin</title>
   </head>
   <body>

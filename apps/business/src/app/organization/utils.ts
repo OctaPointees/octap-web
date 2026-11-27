@@ -1,26 +1,20 @@
 import type { FormEvent } from 'react';
+import type { OrganizationType } from '@octap/internal-sdk';
 
-/** The two dashboards of an organization: Business (Owners) and Developer. */
-export type Panel = 'merchant' | 'developer';
+/** The organization's pages, one per feature, under `/organizations/:slug`. */
+export type OrganizationPage =
+  'vouchers' | 'members' | 'api-keys' | 'webhooks' | 'team' | 'settings';
 
-/** The dashboard a persona opens: Owners get Business, Developers get Developer. */
-export const panelFor = (persona: string): Panel =>
-  persona === 'BUSINESS_OWNER' ? 'merchant' : 'developer';
+/** `/organizations/:slug`, the dashboard, or one of its feature pages. */
+export const organizationPath = (slug: string, page?: OrganizationPage) =>
+  ['/organizations', slug, page].filter(Boolean).join('/');
 
-/** `/organizations/:organizationId`, then the panel and page when given. */
-export const organizationPath = (organizationId: string, panel?: Panel, page?: string) =>
-  ['/organizations', organizationId, panel, page].filter(Boolean).join('/');
+/** The dashboard of an organization the user belongs to. */
+export const dashboardPath = (org: { slug: string }) => organizationPath(org.slug);
 
-/** The dashboard to open for an organization the user belongs to. */
-export const dashboardPath = (org: { organizationId: string; persona: string }) =>
-  organizationPath(org.organizationId, panelFor(org.persona));
-
-/** Query keys for one organization's data. Signing out clears them all. */
+/** Query keys for one organization's data (the team's live in `app/team`). Sign-out clears them. */
 export const organizationKeys = {
   detail: (organizationId: string) => ['console', 'organization', organizationId] as const,
-  staff: (organizationId: string) => ['console', 'organization', organizationId, 'staff'] as const,
-  invitations: (organizationId: string) =>
-    ['console', 'organization', organizationId, 'invitations'] as const,
 };
 
 /** Stops a form submit and returns its fields. */
@@ -28,3 +22,11 @@ export function formFields(event: FormEvent<HTMLFormElement>) {
   event.preventDefault();
   return new FormData(event.currentTarget);
 }
+
+/** A readable name for Core's organization type. */
+export const organizationTypeLabel = (type?: OrganizationType | null) =>
+  type === 'COMPANY'
+    ? 'Company (registered legal entity)'
+    : type === 'INDIVIDUAL_HOUSEHOLD'
+      ? 'Individual / Household business'
+      : 'Type not set';

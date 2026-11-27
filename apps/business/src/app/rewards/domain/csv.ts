@@ -1,0 +1,191 @@
+import { emptyDraft, suggestCode, type RewardDraft } from './draft';
+import type { BenefitKind } from './kinds';
+
+/** At most this many rows per file: Core takes at most this many in one import batch. */
+export const MAX_IMPORT_ROWS = 100;
+
+const COLUMNS: { header: string; field: keyof RewardDraft }[] = [
+  { header: 'type', field: 'kind' },
+  { header: 'title', field: 'title' },
+  { header: 'code', field: 'code' },
+  { header: 'points_cost', field: 'pointsCost' },
+  { header: 'value', field: 'value' },
+  { header: 'max_discount_vnd', field: 'maxDiscountVnd' },
+  { header: 'min_order_vnd', field: 'minOrderVnd' },
+  { header: 'item', field: 'item' },
+  { header: 'buy_quantity', field: 'buyQuantity' },
+  { header: 'get_quantity', field: 'getQuantity' },
+  { header: 'price_vnd', field: 'priceVnd' },
+  { header: 'benefit', field: 'benefit' },
+  { header: 'applies_to', field: 'appliesTo' },
+  { header: 'total_supply', field: 'totalSupply' },
+  { header: 'per_member_limit', field: 'perMemberLimit' },
+  { header: 'claims_open_on', field: 'startsOn' },
+  { header: 'claims_close_on', field: 'closesOn' },
+  { header: 'valid_for_days', field: 'validForDays' },
+  { header: 'description', field: 'description' },
+];
+
+/** Headers of earlier templates, still read so an old file keeps working. */
+const LEGACY_HEADERS: Record<string, string> = {
+  starts_on: 'claims_open_on',
+  expires_on: 'claims_close_on',
+};
+
+const DATE_COLUMNS = new Set<keyof RewardDraft>(['startsOn', 'closesOn']);
+
+/** The CSV column a form field comes from, so a row's problem names a column the merchant sees. */
+export const columnOf = (field: string) => COLUMNS.find((c) => c.field === field)?.header ?? field;
+
+const KIND_ALIASES: Record<string, BenefitKind> = {
+  percent_off: 'PERCENT_OFF',
+  percent: 'PERCENT_OFF',
+  amount_off: 'AMOUNT_OFF',
+  amount: 'AMOUNT_OFF',
+  free_item: 'FREE_ITEM',
+  buy_x_get_y: 'BUY_X_GET_Y',
+  free_shipping: 'FREE_SHIPPING',
+  free_delivery: 'FREE_SHIPPING',
+  fixed_price: 'FIXED_PRICE',
+  special_price: 'FIXED_PRICE',
+  custom: 'CUSTOM',
+};
+
+/** The `type` of each kind as the template writes it; the Excel template offers these in a drop-down. */
+export const CSV_TYPES = [
+  'percent_off',
+  'amount_off',
+  'free_item',
+  'buy_x_get_y',
+  'free_shipping',
+  'fixed_price',
+  'custom',
+] as const;
+
+/**
+ * One example row per kind, so the template documents itself: a welcome-style reward that lasts
+ * 14 days from claiming, a coffee swap with no per-member limit, and so on.
+ */
+export const CSV_TEMPLATE = [
+  COLUMNS.map((c) => c.header).join(','),
+  'percent_off,20% off drinks,DRINKS-20,300,20,50000,200000,,,,,,Drinks only,100,1,,2027-12-31,14,',
+  'amount_off,30000 off,SAVE-30K,400,30000,,150000,,,,,,,,3,,2027-12-31,30,',
+  'free_item,A free latte,FREE-LATTE,500,,,,"Latte, size M",,,,,,50,,,2027-12-31,30,',
+  'buy_x_get_y,Buy 1 get 1 tea,B1G1-TEA,600,,,,Milk tea,1,1,,,,,1,,2027-12-31,,',
+  'free_shipping,Free delivery,FREE-SHIP,200,,20000,100000,,,,,,,,,,2027-12-31,,',
+  'fixed_price,Combo 99k,COMBO-99K,350,,,,Burger and drink,,,99000,,,,,,2027-12-31,7,',
+  'custom,Spa afternoon,SPA-PASS,2000,,,,,,,,One 60-minute treatment,,10,1,,2027-12-31,,Book 2 days ahead',
+].join('\n');
+
+/**
+ * A date cell as `YYYY-MM-DD`. Excel rewrites dates in the computer's own format when it saves a
+ * CSV (`12/31/2027` on a US Mac, `31/12/2027` in Vietnam), and a person may type either, so
+ * `D/M/YYYY` and `M/D/YYYY` are read too when only one of them is a real date. `05/02/2027` could
+ * be 5 February or 2 May, so it is refused rather than guessed.
+ */
+export function csvDate(cell: string): { day: string } | { problem: string } {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const real = (y: number, m: number, d: number) => {
+    const date = new Date(Date.UTC(y, m - 1, d));
+    return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+  };
+  const ok = (y: number, m: number, d: number) =>
+    real(y, m, d) ? { day: `${y}-${pad(m)}-${pad(d)}` } : undefined;
+  const unreadable = {
+    problem: `"${cell}" is not a date; write it as YYYY-MM-DD, e.g. 2027-12-31`,
+  };
+  const iso = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(cell);
+  if (iso) return ok(Number(iso[1]), Number(iso[2]), Number(iso[3])) ?? unreadable;
+  const local = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(cell);
+  if (!local) return unreadable;
+  const [a, b, year] = [Number(local[1]), Number(local[2]), Number(local[3])];
+  const dayFirst = ok(year, b, a);
+  const monthFirst = ok(year, a, b);
+  if (dayFirst && monthFirst && a !== b)
+    return {
+      problem: `"${cell}" could be ${dayFirst.day} or ${monthFirst.day}; write it as YYYY-MM-DD`,
+    };
+  return dayFirst ?? monthFirst ?? unreadable;
+}
+
+/** RFC 4180 CSV: quoted fields may hold commas, quotes ("") and line breaks. */
+export function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let quoted = false;
+  // A UTF-8 BOM, which Excel writes at the start of a CSV.
+  const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+  for (let i = 0; i < source.length; i += 1) {
+    const char = source[i];
+    if (quoted) {
+      if (char === '"' && source[i + 1] === '"') {
+        field += '"';
+        i += 1;
+      } else if (char === '"') quoted = false;
+      else field += char;
+    } else if (char === '"') quoted = true;
+    else if (char === ',') {
+      row.push(field);
+      field = '';
+    } else if (char === '\n' || char === '\r') {
+      if (char === '\r' && source[i + 1] === '\n') i += 1;
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = '';
+    } else field += char;
+  }
+  if (field || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows.filter((r) => r.some((cell) => cell.trim()));
+}
+
+export type ImportRow = { line: number; draft: RewardDraft; problem?: string };
+
+/** Turns a CSV file into reward drafts; a row it cannot read carries a `problem`. */
+export function draftsFromCsv(text: string): { rows: ImportRow[]; error?: string } {
+  const [header, ...body] = parseCsv(text);
+  if (!header) return { rows: [], error: 'The file is empty.' };
+  const index = header.map((h) => {
+    const name = h.trim().toLowerCase();
+    return LEGACY_HEADERS[name] ?? name;
+  });
+  const missing = ['type', 'title', 'points_cost'].filter((h) => !index.includes(h));
+  if (missing.length)
+    return { rows: [], error: `Missing column(s): ${missing.join(', ')}. Use the template.` };
+  if (body.length > MAX_IMPORT_ROWS)
+    return {
+      rows: [],
+      error: `At most ${MAX_IMPORT_ROWS} vouchers per file; this one has ${body.length}.`,
+    };
+  const rows = body.map((cells, i): ImportRow => {
+    const value = (header: string) => (cells[index.indexOf(header)] ?? '').trim();
+    const kind =
+      KIND_ALIASES[value('type').toLowerCase()] ??
+      KIND_ALIASES[value('type').toLowerCase().replace(/\s+/g, '_')];
+    const draft = emptyDraft(kind ?? 'CUSTOM');
+    const problems: string[] = kind ? [] : [`Unknown type "${value('type')}"`];
+    for (const { header: column, field } of COLUMNS) {
+      if (field === 'kind' || index.indexOf(column) < 0) continue;
+      const cell = value(column);
+      if (!cell) continue;
+      if (DATE_COLUMNS.has(field)) {
+        const date = csvDate(cell);
+        if ('problem' in date) problems.push(`${column}: ${date.problem}`);
+        else draft[field] = date.day as never;
+      } else draft[field] = cell as never;
+    }
+    // A number of days means each member's voucher lasts that long; empty means until claims close.
+    if (draft.validForDays) draft.expiry = 'days';
+    if (!draft.code) draft.code = suggestCode(draft.title);
+    return {
+      line: i + 2,
+      draft,
+      ...(problems.length ? { problem: problems.join('; ') } : {}),
+    };
+  });
+  return { rows };
+}

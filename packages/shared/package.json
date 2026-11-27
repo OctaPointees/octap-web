@@ -3,11 +3,13 @@
   "private": true,
   "peerDependencies": {
     "@base-ui/react": "^1.8.0",
+    "@tanstack/react-query": "^5.103.1",
+    "daisyui": "^5.7.42",
+    "date-fns": "^4.4.0",
     "phosphor-react": "^1.4.1",
     "react": "^19.2.4",
     "react-router": "^8.4.0",
-    "@tanstack/react-query": "^5.103.1",
-    "date-fns": "^4.4.0"
+    "tailwindcss": "^4.3.3"
   },
   "type": "module",
   "exports": {
@@ -15,12 +17,11 @@
     "./styles/*": "./src/styles/*",
     "./*": "./src/*/index.ts"
   },
-  "devDependencies": {
-    "daisyui": "^5.7.47"
-  },
   "dependencies": {
+    "@octap/internal-sdk": "*",
+    "@tanstack/react-table": "^8.21.3",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^3.7.0",
-    "@tanstack/react-table": "^8.21.3"
+    "recharts": "^3.11.0",
+    "tailwind-merge": "^3.7.0"
   }
 }

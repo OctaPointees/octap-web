@@ -8,6 +8,24 @@ export class ConsoleApi extends ApiGroup {
   constructor(http: HttpClient) {
     super(http);
   }
+  /** Sends a GET request to /v1/console/mcp/token. */
+  token(): Promise<OctapResponse<OpenApi.ConsoleMcpTokenTokenResponse>> {
+    return this.request<OpenApi.ConsoleMcpTokenTokenResponse>({
+      method: 'get',
+      url: `/v1/console/mcp/token`,
+    });
+  }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/assistant/messages. */
+  message(input: {
+    organizationId: string;
+    body: OpenApi.ConsoleAssistantMessageInput;
+  }): Promise<OctapResponse<unknown>> {
+    return this.request<unknown>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/assistant/messages`,
+      data: input.body,
+    });
+  }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/budget. */
   readIssuanceBudget(input: {
     organizationId: string;
@@ -163,10 +181,12 @@ export class ConsoleApi extends ApiGroup {
   approve(input: {
     organizationId: string;
     id: string;
+    body: OpenApi.ConsoleRewardsApproveInput;
   }): Promise<OctapResponse<OpenApi.VoucherDto>> {
     return this.request<OpenApi.VoucherDto>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}/approve`,
+      data: input.body,
     });
   }
   /** Sends a POST request to /v1/console/organizations/{organizationId}/vouchers/{id}/reject. */
@@ -179,6 +199,82 @@ export class ConsoleApi extends ApiGroup {
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/vouchers/${encodeURIComponent(input.id)}/reject`,
       data: input.body,
+    });
+  }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/voucher-batches. */
+  createVoucherBatches(input: {
+    organizationId: string;
+    body: OpenApi.ConsoleVoucherBatchesCreateInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesCreateResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesCreateResponse>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches`,
+      data: input.body,
+    });
+  }
+  /** Sends a GET request to /v1/console/organizations/{organizationId}/voucher-batches. */
+  listVoucherBatches(input: {
+    organizationId: string;
+    includeArchived?: 'false' | 'true';
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesListResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesListResponse>({
+      method: 'get',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches`,
+      params: {
+        includeArchived: input.includeArchived,
+      },
+    });
+  }
+  /** Sends a GET request to /v1/console/organizations/{organizationId}/voucher-batches/{batchId}. */
+  detailVoucherBatches(input: {
+    organizationId: string;
+    batchId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesDetailResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesDetailResponse>({
+      method: 'get',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches/${encodeURIComponent(input.batchId)}`,
+    });
+  }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/voucher-batches/{batchId}/activate. */
+  activate(input: {
+    organizationId: string;
+    batchId: string;
+    body: OpenApi.ConsoleVoucherBatchesActivateInput;
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesActivateResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesActivateResponse>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches/${encodeURIComponent(input.batchId)}/activate`,
+      data: input.body,
+    });
+  }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/voucher-batches/{batchId}/archive. */
+  archive(input: {
+    organizationId: string;
+    batchId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesArchiveResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesArchiveResponse>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches/${encodeURIComponent(input.batchId)}/archive`,
+    });
+  }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/voucher-batches/{batchId}/pause. */
+  pause(input: {
+    organizationId: string;
+    batchId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesPauseResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesPauseResponse>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches/${encodeURIComponent(input.batchId)}/pause`,
+    });
+  }
+  /** Sends a POST request to /v1/console/organizations/{organizationId}/voucher-batches/{batchId}/resume. */
+  resume(input: {
+    organizationId: string;
+    batchId: string;
+  }): Promise<OctapResponse<OpenApi.ConsoleVoucherBatchesResumeResponse>> {
+    return this.request<OpenApi.ConsoleVoucherBatchesResumeResponse>({
+      method: 'post',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/voucher-batches/${encodeURIComponent(input.batchId)}/resume`,
     });
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/refund-policy. */
@@ -279,10 +375,20 @@ export class ConsoleApi extends ApiGroup {
   replayDelivery(input: {
     organizationId: string;
     id: string;
-  }): Promise<OctapResponse<OpenApi.ConsoleWebhooksReplayDeliveryResponse>> {
-    return this.request<OpenApi.ConsoleWebhooksReplayDeliveryResponse>({
+  }): Promise<OctapResponse<OpenApi.WebhookDeliveryWithEvent>> {
+    return this.request<OpenApi.WebhookDeliveryWithEvent>({
       method: 'post',
       url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/webhooks/deliveries/${encodeURIComponent(input.id)}/replay`,
+    });
+  }
+  /** Sends a GET request to /v1/console/organizations/{organizationId}/events. */
+  stream(input: { organizationId: string; lastEventID?: string }): Promise<OctapResponse<unknown>> {
+    return this.request<unknown>({
+      method: 'get',
+      url: `/v1/console/organizations/${encodeURIComponent(input.organizationId)}/events`,
+      headers: {
+        ...(input.lastEventID !== undefined ? { 'Last-Event-ID': input.lastEventID } : {}),
+      },
     });
   }
   /** Sends a GET request to /v1/console/organizations/{organizationId}/api-credentials. */

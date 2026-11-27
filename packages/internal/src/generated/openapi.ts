@@ -27,6 +27,11 @@ export interface ConsoleApiCredentialsRevokeResponse {
   revoked: boolean;
 }
 
+export interface ConsoleAssistantMessageInput {
+  message: string;
+  history?: Array<AssistantTurn>;
+}
+
 export interface ConsoleChangeRequestsProposeInput {
   requestType: GovernanceRequestType;
   reason: string;
@@ -76,6 +81,8 @@ export interface ConsoleIdentityLoginResponse {
     name: string;
     slug: string;
     persona: OrganizationPersona;
+    organizationType: 'COMPANY' | 'INDIVIDUAL_HOUSEHOLD' | null;
+    representativeName: null | string;
   }>;
   expiresAt: string;
 }
@@ -93,6 +100,8 @@ export interface ConsoleIdentityMeResponse {
     name: string;
     slug: string;
     persona: OrganizationPersona;
+    organizationType: 'COMPANY' | 'INDIVIDUAL_HOUSEHOLD' | null;
+    representativeName: null | string;
   }>;
   expiresAt: string;
 }
@@ -106,6 +115,17 @@ export interface ConsoleIssuanceBudgetReadResponse {
   shards: Array<IssuanceBudgetShard>;
   recentTopUps: Array<IssuanceBudgetTopUp>;
   observedAt: string;
+}
+
+export interface ConsoleMcpTokenTokenResponse {
+  active: boolean;
+  clientId: string;
+  scopes: Array<string>;
+  userId: string;
+  organizationId: string;
+  persona: OrganizationPersona;
+  resource: string;
+  expiresAt: number;
 }
 
 export interface ConsoleOrganizationsAcceptResponse {
@@ -250,6 +270,10 @@ export interface ConsoleRefundPolicyPublishInput {
 
 export type ConsoleRefundPolicyPublishResponse = VoucherRefundPolicyDto;
 
+export interface ConsoleRewardsApproveInput {
+  approvalRequestId: string;
+}
+
 export type ConsoleRewardsApproveResponse = VoucherDto;
 
 export interface ConsoleRewardsCreateInput {
@@ -276,6 +300,7 @@ export type ConsoleRewardsDetailResponse = VoucherDto;
 export type ConsoleRewardsListResponse = Array<VoucherDto>;
 
 export interface ConsoleRewardsRejectInput {
+  approvalRequestId: string;
   reason: string;
 }
 
@@ -298,11 +323,69 @@ export interface ConsoleRewardsUpdateInput {
   validForDays?: null | number;
   metadata?: Record_string_unknown;
   status?: 'ACTIVE' | 'DRAFT' | 'PAUSED';
+  expectedUpdatedAt?: string;
 }
 
 export type ConsoleRewardsUpdateResponse = VoucherDto;
 
 export type ConsoleRewardsWithdrawResponse = VoucherDto;
+
+export interface ConsoleVoucherBatchesActivateInput {
+  seen?: Array<VoucherSeen>;
+}
+
+export interface ConsoleVoucherBatchesActivateResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
+export interface ConsoleVoucherBatchesArchiveResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
+export interface ConsoleVoucherBatchesCreateInput {
+  name?: string;
+  items: Array<VoucherBatchItem>;
+  dryRun?: boolean;
+}
+
+export interface ConsoleVoucherBatchesCreateResponse {
+  dryRun: boolean;
+  batch: VoucherBatchDto | null;
+  items: Array<VoucherBatchItemResult>;
+}
+
+export interface ConsoleVoucherBatchesDetailResponse {
+  vouchers: Array<VoucherDto>;
+  id: string;
+  organizationId: string;
+  name: null | string;
+  source: VoucherBatchSource;
+  createdBy: {
+    type: 'API_CREDENTIAL' | 'USER';
+    id: string;
+  } | null;
+  createdAt: string;
+  archivedAt: null | string;
+  statusCounts: VoucherBatchStatusCounts;
+}
+
+export interface ConsoleVoucherBatchesListParams {
+  includeArchived?: 'false' | 'true';
+}
+
+export type ConsoleVoucherBatchesListResponse = Array<VoucherBatchDto>;
+
+export interface ConsoleVoucherBatchesPauseResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
+export interface ConsoleVoucherBatchesResumeResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
 
 export interface ConsoleWebhooksDisableEndpointResponse {
   id: string;
@@ -324,20 +407,7 @@ export interface ConsoleWebhooksEnableEndpointResponse {
   updatedAt: string;
 }
 
-export type ConsoleWebhooksListDeliveriesResponse = Array<{
-  id: string;
-  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
-  createdAt: string;
-  updatedAt: string;
-  organizationId: string;
-  payload: unknown;
-  endpointId: string;
-  eventType: string;
-  attemptCount: number;
-  nextAttemptAt: string;
-  lastResponseStatus: null | number;
-  lastError: null | string;
-}>;
+export type ConsoleWebhooksListDeliveriesResponse = Array<WebhookDeliveryWithEvent>;
 
 export type ConsoleWebhooksListEndpointsResponse = Array<{
   id: string;
@@ -365,20 +435,7 @@ export interface ConsoleWebhooksRegisterEndpointResponse {
   updatedAt: string;
 }
 
-export interface ConsoleWebhooksReplayDeliveryResponse {
-  id: string;
-  organizationId: string;
-  endpointId: string;
-  eventType: string;
-  payload: unknown;
-  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
-  attemptCount: number;
-  nextAttemptAt: string;
-  lastResponseStatus: null | number;
-  lastError: null | string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type ConsoleWebhooksReplayDeliveryResponse = WebhookDeliveryWithEvent;
 
 export interface ConsoleWebhooksRotateSecretResponse {
   secret: string;
@@ -575,6 +632,92 @@ export type Iterable_string = Record<string, unknown>;
 export type LoyaltyTxStatus = 'CONFIRMED' | 'FAILED' | 'PENDING' | 'REVERSED';
 
 export type LoyaltyTxType = 'ADJUSTMENT' | 'EARN' | 'EXPIRY' | 'REDEEM' | 'REVERSAL' | 'TRANSFER';
+
+export interface McpOAuthAuthorizeParams {
+  response_type?: unknown;
+  client_id?: unknown;
+  redirect_uri?: unknown;
+  code_challenge?: unknown;
+  code_challenge_method?: unknown;
+  state?: unknown;
+  scope?: unknown;
+  resource?: unknown;
+}
+
+export type McpOAuthAuthorizeResponse = string;
+
+export interface McpOAuthGoogleInput {
+  requestId?: string;
+  credential?: string;
+}
+
+export type McpOAuthGoogleResponse =
+  | {
+      redirectTo: string;
+    }
+  | {
+      organizations: Array<{
+        organizationId: string;
+        name: string;
+        persona: OrganizationPersona;
+      }>;
+    };
+
+export interface McpOAuthMetadataResponse {
+  issuer: string;
+  authorization_endpoint: string;
+  token_endpoint: string;
+  registration_endpoint: string;
+  revocation_endpoint: string;
+  response_types_supported: Array<string>;
+  grant_types_supported: Array<string>;
+  code_challenge_methods_supported: Array<string>;
+  token_endpoint_auth_methods_supported: Array<string>;
+  revocation_endpoint_auth_methods_supported: Array<string>;
+  scopes_supported: Array<string>;
+}
+
+export interface McpOAuthOrganizationInput {
+  requestId?: string;
+  organizationId?: string;
+}
+
+export type McpOAuthOrganizationResponse =
+  | {
+      redirectTo: string;
+    }
+  | {
+      organizations: Array<{
+        organizationId: string;
+        name: string;
+        persona: OrganizationPersona;
+      }>;
+    };
+
+export type McpOAuthRegisterInput = Record_string_unknown;
+
+export interface McpOAuthRegisterResponse {
+  client_id: string;
+  client_id_issued_at: number;
+  client_name: string;
+  redirect_uris: Array<string>;
+  grant_types: Array<string>;
+  response_types: Array<string>;
+  token_endpoint_auth_method: string;
+}
+
+export type McpOAuthRevokeInput = Record_string_unknown;
+
+export type McpOAuthRevokeResponse = Record<string, never>;
+
+export type McpOAuthTokenInput = Record_string_unknown;
+
+export interface McpOAuthTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  scope: string;
+}
 
 export interface MembersDetailResponse {
   balance: CreditBalanceSnapshot;
@@ -1036,28 +1179,75 @@ export type SystemRole = 'SYSTEM_ADMIN' | 'SYSTEM_USER';
 
 export type VoucherApprovalStatus = 'APPROVED' | 'PENDING' | 'REJECTED' | 'WITHDRAWN';
 
+export type VoucherBatchItemErrorCode = 'DUPLICATE_IN_BATCH' | 'INVALID';
+
+export type VoucherBatchOutcome =
+  'archived' | 'failed' | 'paused' | 'pendingApproval' | 'publishing' | 'resumed' | 'skipped';
+
+export type VoucherBatchSource = 'API' | 'CONSOLE';
+
+export interface VoucherBatchesActivateResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
+export interface VoucherBatchesArchiveResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
+export interface VoucherBatchesCreateInput {
+  name?: string;
+  items: Array<VoucherBatchItem>;
+  dryRun?: boolean;
+}
+
+export interface VoucherBatchesCreateResponse {
+  dryRun: boolean;
+  batch: VoucherBatchDto | null;
+  items: Array<VoucherBatchItemResult>;
+}
+
+export interface VoucherBatchesDetailResponse {
+  vouchers: Array<VoucherDto>;
+  id: string;
+  organizationId: string;
+  name: null | string;
+  source: VoucherBatchSource;
+  createdBy: {
+    type: 'API_CREDENTIAL' | 'USER';
+    id: string;
+  } | null;
+  createdAt: string;
+  archivedAt: null | string;
+  statusCounts: VoucherBatchStatusCounts;
+}
+
+export interface VoucherBatchesListParams {
+  includeArchived?: 'false' | 'true';
+}
+
+export type VoucherBatchesListResponse = Array<VoucherBatchDto>;
+
+export interface VoucherBatchesPauseResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
+export interface VoucherBatchesResumeResponse {
+  batch: VoucherBatchDto;
+  vouchers: Array<VoucherBatchActionResult>;
+}
+
 export type VoucherOwnershipStatus =
   'AVAILABLE' | 'CANCELLED' | 'EXPIRED' | 'REDEEMED' | 'RESERVED';
 
 export type VoucherPublishStatus = 'FAILED' | 'NOT_PUBLISHED' | 'PUBLISHED' | 'PUBLISHING';
 
 export type VoucherStatus =
-  'ACTIVE' | 'DEPLETED' | 'DRAFT' | 'EXPIRED' | 'PAUSED' | 'PENDING_APPROVAL';
+  'ACTIVE' | 'ARCHIVED' | 'DEPLETED' | 'DRAFT' | 'EXPIRED' | 'PAUSED' | 'PENDING_APPROVAL';
 
-export type WebhooksListDeliveriesResponse = Array<{
-  id: string;
-  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
-  createdAt: string;
-  updatedAt: string;
-  organizationId: string;
-  payload: unknown;
-  endpointId: string;
-  eventType: string;
-  attemptCount: number;
-  nextAttemptAt: string;
-  lastResponseStatus: null | number;
-  lastError: null | string;
-}>;
+export type WebhooksListDeliveriesResponse = Array<WebhookDeliveryWithEvent>;
 
 export type WebhooksListEndpointsResponse = Array<{
   id: string;
@@ -1068,6 +1258,22 @@ export type WebhooksListEndpointsResponse = Array<{
   createdAt: string;
   updatedAt: string;
 }>;
+
+export interface WebhookDeliveryWithEvent {
+  id: string;
+  organizationId: string;
+  endpointId: string;
+  eventId: string;
+  eventType: string;
+  payload: unknown;
+  status: 'DEAD_LETTER' | 'DELIVERED' | 'PENDING';
+  attemptCount: number;
+  nextAttemptAt: string;
+  lastResponseStatus: null | number;
+  lastError: null | string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface DependencyCheck {
   status: 'down' | 'up';
@@ -1110,6 +1316,11 @@ export interface WorkerLag {
     deadLettered: number;
   };
   indexer: Array<IndexerLag>;
+}
+
+export interface AssistantTurn {
+  role: 'assistant' | 'user';
+  text: string;
 }
 
 export interface ConsoleCredential {
@@ -1173,7 +1384,13 @@ export interface LoyaltyTransactionDto {
   updatedAt: string;
 }
 
+export type VoucherActorRef = {
+  type: 'API_CREDENTIAL' | 'USER';
+  id: string;
+} | null;
+
 export interface VoucherApprovalDto {
+  id: string;
   status: VoucherApprovalStatus;
   submittedBy: {
     type: 'API_CREDENTIAL' | 'USER';
@@ -1183,6 +1400,109 @@ export interface VoucherApprovalDto {
   reviewedById: null | string;
   reviewedAt: null | string;
   reason: null | string;
+  snapshot: VoucherApprovalSnapshot | null;
+}
+
+export interface VoucherApprovalSnapshot {
+  code: string;
+  title: string;
+  description: null | string;
+  pointsCost: number;
+  discountType: null | string;
+  discountValue: null | string;
+  terms: Record_string_unknown | null;
+  totalSupply: null | number;
+  perMemberLimit: null | number;
+  startsAt: null | string;
+  expiresAt: null | string;
+  validForDays: null | number;
+}
+
+export interface VoucherBatchActionResult {
+  voucherId: string;
+  code: string;
+  outcome: VoucherBatchOutcome;
+  status: VoucherStatus;
+  reason: null | string;
+}
+
+export interface VoucherBatchDto {
+  id: string;
+  organizationId: string;
+  name: null | string;
+  source: VoucherBatchSource;
+  createdBy: {
+    type: 'API_CREDENTIAL' | 'USER';
+    id: string;
+  } | null;
+  createdAt: string;
+  archivedAt: null | string;
+  statusCounts: VoucherBatchStatusCounts;
+}
+
+export interface VoucherBatchItem {
+  code: string;
+  metadata?: Record_string_unknown;
+  title: string;
+  description?: string;
+  pointsCost?: number;
+  discountType?: 'FIXED_AMOUNT' | 'FREE_ITEM' | 'PERCENTAGE';
+  discountValue?: string;
+  terms?: Record_string_unknown;
+  totalSupply?: number | null;
+  perMemberLimit?: number | null;
+  startsAt?: null | string;
+  expiresAt?: null | string;
+  validForDays?: null | number;
+}
+
+export type VoucherBatchItemResult =
+  | {
+      index: number;
+      code: string;
+      status: string;
+      voucherId: null | string;
+    }
+  | {
+      index: number;
+      code: string;
+      status: string;
+      voucherId: string;
+      movedToBatch: boolean;
+    }
+  | {
+      index: number;
+      code: string;
+      status: string;
+      voucherId: string;
+      differences: Array<VoucherFieldDifference>;
+    }
+  | {
+      index: number;
+      code: string;
+      status: string;
+      voucherId: null | string;
+      differences: Array<VoucherFieldDifference>;
+    }
+  | {
+      index: number;
+      code: null | string;
+      status: string;
+      error: {
+        code: VoucherBatchItemErrorCode;
+        field: null | string;
+        message: string;
+      };
+    };
+
+export interface VoucherBatchStatusCounts {
+  DRAFT?: number;
+  PENDING_APPROVAL?: number;
+  ACTIVE?: number;
+  PAUSED?: number;
+  EXPIRED?: number;
+  DEPLETED?: number;
+  ARCHIVED?: number;
 }
 
 export interface VoucherDto {
@@ -1207,8 +1527,18 @@ export interface VoucherDto {
   validForDays: null | number;
   metadata?: Record_string_unknown | null;
   approval?: VoucherApprovalDto | null;
+  batchId?: null | string;
+  createdBy: VoucherActorRef;
+  activatedBy: VoucherActorRef;
+  activatedAt: null | string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface VoucherFieldDifference {
+  field: string;
+  stored: unknown;
+  sent: unknown;
 }
 
 export interface VoucherOwnershipDto {
@@ -1222,6 +1552,11 @@ export interface VoucherOwnershipDto {
   redeemedAt?: null | string;
   expiresAt?: null | string;
   voucher?: VoucherDto;
+}
+
+export interface VoucherSeen {
+  voucherId: string;
+  updatedAt: string;
 }
 
 export interface VoucherRefundPolicyDto {

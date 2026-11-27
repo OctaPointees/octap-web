@@ -1,14 +1,15 @@
 import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { X } from 'phosphor-react';
 import type { ReactNode } from 'react';
+import { Button } from './Button';
 import { cn } from '../utils';
 
 const backdrop =
-  'fixed inset-0 z-50 bg-black/40 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0';
+  'fixed inset-0 z-50 bg-black/40 transition-opacity duration-(--motion-base) ease-enter data-ending-style:duration-(--motion-fast) data-starting-style:opacity-0 data-ending-style:opacity-0';
+/** Capped by its size on smaller screens; half the window on wide ones (`xl` and up). */
 const popup =
-  'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-3rem)] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-box bg-base-100 shadow-2xl outline-none transition-[scale,opacity] duration-150 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0';
+  'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-3rem)] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-box bg-base-100 shadow-2xl outline-none transition-[scale,opacity] duration-(--motion-base) ease-enter data-ending-style:duration-(--motion-fast) xl:w-1/2 xl:max-w-none data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0';
 
 type ModalProps = {
   open: boolean;
@@ -18,9 +19,17 @@ type ModalProps = {
   children?: ReactNode;
   footer?: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** Runs once the close animation has finished: the time to clear what the dialog showed. */
+  onExited?: () => void;
 };
 
-const SIZES = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
+// The larger sizes keep their width where half the window would be narrower.
+const SIZES = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-xl xl:min-w-xl',
+  xl: 'max-w-2xl xl:min-w-2xl',
+};
 
 /**
  * A centered dialog built on Base UI: it animates in and out, traps focus, closes on Escape and
@@ -34,9 +43,14 @@ export function Modal({
   children,
   footer,
   size = 'md',
+  onExited,
 }: ModalProps) {
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => onOpenChange(o)}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(o) => onOpenChange(o)}
+      onOpenChangeComplete={(o) => !o && onExited?.()}
+    >
       <Dialog.Portal>
         <Dialog.Backdrop className={backdrop} />
         <Dialog.Popup className={cn(popup, SIZES[size])}>
@@ -49,9 +63,13 @@ export function Modal({
                 </Dialog.Description>
               )}
             </div>
-            <Dialog.Close className="btn btn-ghost btn-sm btn-square" aria-label="Close">
+            <Button
+              className="btn-ghost btn-sm btn-square min-w-0"
+              aria-label="Close"
+              onClick={() => onOpenChange(false)}
+            >
               <X size={18} />
-            </Dialog.Close>
+            </Button>
           </div>
           <div className="flex-1 overflow-y-auto p-5">{children}</div>
           {footer && (
@@ -64,7 +82,7 @@ export function Modal({
 }
 
 const panel =
-  'fixed inset-y-0 right-0 z-50 flex h-dvh w-full flex-col bg-base-100 shadow-2xl outline-none transition-transform duration-200 ease-out data-starting-style:translate-x-full data-ending-style:translate-x-full';
+  'fixed inset-y-0 right-0 z-50 flex h-dvh w-full flex-col bg-base-100 shadow-2xl outline-none transition-transform duration-(--motion-slow) ease-drawer data-ending-style:duration-(--motion-base) data-starting-style:translate-x-full data-ending-style:translate-x-full';
 
 /**
  * A dialog that slides in from the right and takes the full height, for forms too large for a
@@ -79,7 +97,7 @@ export function SidePanel({
   children,
   footer,
   className,
-}: Omit<ModalProps, 'size'> & { className?: string }) {
+}: Omit<ModalProps, 'size' | 'onExited'> & { className?: string }) {
   return (
     <Dialog.Root open={open} onOpenChange={(o) => onOpenChange(o)}>
       <Dialog.Portal>
@@ -94,9 +112,13 @@ export function SidePanel({
                 </Dialog.Description>
               )}
             </div>
-            <Dialog.Close className="btn btn-ghost btn-sm btn-square" aria-label="Close">
+            <Button
+              className="btn-ghost btn-sm btn-square min-w-0"
+              aria-label="Close"
+              onClick={() => onOpenChange(false)}
+            >
               <X size={18} />
-            </Dialog.Close>
+            </Button>
           </div>
           <div data-panel-body className="flex-1 overflow-y-auto px-6 py-3">
             {children}
@@ -121,6 +143,8 @@ type ConfirmProps = {
   tone?: 'primary' | 'error' | 'warning';
   loading?: boolean;
   onConfirm: () => void;
+  /** Turns the confirm button off, such as when what it would act on has changed. */
+  confirmDisabled?: boolean;
   children?: ReactNode;
 };
 
@@ -134,6 +158,7 @@ export function ConfirmDialog({
   tone = 'primary',
   loading,
   onConfirm,
+  confirmDisabled = false,
   children,
 }: ConfirmProps) {
   return (
@@ -147,17 +172,19 @@ export function ConfirmDialog({
           </AlertDialog.Description>
           {children}
           <div className="flex justify-end gap-2">
-            <AlertDialog.Close className="btn btn-ghost">Cancel</AlertDialog.Close>
+            <Button className="btn-ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
             <Button
-              className={cn('btn', {
+              className={cn({
                 'btn-primary': tone === 'primary',
                 'btn-error': tone === 'error',
                 'btn-warning': tone === 'warning',
               })}
-              disabled={loading}
+              loading={loading}
+              disabled={confirmDisabled}
               onClick={onConfirm}
             >
-              {loading && <span className="loading loading-spinner loading-sm" />}
               {confirmLabel}
             </Button>
           </div>
