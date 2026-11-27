@@ -252,14 +252,18 @@ export function OrganizationIdentityForm({
         if (reason.length < 3)
           return setError('Add a reason so a System Admin can review the change.');
         setError('');
-        run(async (api) => {
-          await unwrap(
-            api.console.propose({
-              organizationId: organization.id,
-              body: { requestType: 'UPDATE_IDENTITY', reason, payload: changes },
-            }),
-          );
-        }, 'Change sent for approval');
+        run(
+          async (api) => {
+            await unwrap(
+              api.console.propose({
+                organizationId: organization.id,
+                body: { requestType: 'UPDATE_IDENTITY', reason, payload: changes },
+              }),
+            );
+          },
+          'Change sent for approval',
+          () => setValues(initial),
+        );
       }}
     >
       {!readOnly && (

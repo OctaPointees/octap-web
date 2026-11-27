@@ -22,7 +22,7 @@ import {
   useRewards,
   type RewardReport,
 } from '../hooks/useRewards';
-import { MISSING_APPROVAL } from '../domain/errors';
+import { approvalChangeMessage, MISSING_APPROVAL } from '../domain/errors';
 import { SubmittedBy } from './RejectionNotice';
 
 export type RewardConfirmRequest = {
@@ -134,7 +134,14 @@ export function RewardConfirm({
         setSent(true);
         run.mutate(
           { reward, action, reason: reason.trim() },
-          { onSuccess: onClose, onError: () => setSent(false) },
+          {
+            onSuccess: onClose,
+            onError: (error) => {
+              setSent(false);
+              // The setting changed: this action is gone, and the card now offers the other one.
+              if (approvalChangeMessage(error)) onClose();
+            },
+          },
         );
       }}
     >

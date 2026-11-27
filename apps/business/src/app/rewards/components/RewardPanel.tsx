@@ -28,6 +28,7 @@ import { hasDiscountType, KIND_ORDER, KINDS, MAX_VALID_FOR_DAYS } from '../domai
 import { isLocked } from '../domain/stage';
 import { useSaveReward, type RewardReport } from '../hooks/useRewards';
 import { ApprovalNotice, RejectionNotice } from './RejectionNotice';
+import { useOrganization } from '@/app/organization/hooks/useOrganization';
 
 /** What the panel is for: a new reward (maybe from a copy), editing a draft, or viewing one. */
 export type RewardPanelMode =
@@ -124,6 +125,9 @@ export function RewardPanel({
   const mode = current ?? CREATE;
   const reward = mode.type === 'create' ? undefined : mode.reward;
   const readOnly = mode.type === 'view' || (reward ? isLocked(reward) : false);
+  // With approval on, a Developer's draft goes to the Owner, not straight on-chain.
+  const { owner, organization } = useOrganization();
+  const submits = !owner && organization.voucherApprovalRequired;
   const [draft, setDraft] = useState(() => initialDraft(mode));
   // What the form held when it opened or a template was applied: anything else was typed.
   const [baseline, setBaseline] = useState(draft);
@@ -193,7 +197,9 @@ export function RewardPanel({
       ? 'Published on-chain, so these terms never change. To offer something different, duplicate it.'
       : readOnly
         ? 'You can view this voucher. Only its draft can be edited.'
-        : 'Saved as a draft until it is activated. Activation publishes the locked parts on-chain for good, so leave out personal information.';
+        : submits
+          ? 'Saved as a draft until you submit it for approval. Once the Owner approves it, the locked parts are published on-chain for good, so leave out personal information.'
+          : 'Saved as a draft until it is activated. Activation publishes the locked parts on-chain for good, so leave out personal information.';
 
   const kind = KINDS[draft.kind];
   const showValue = draft.kind === 'PERCENT_OFF' || draft.kind === 'AMOUNT_OFF';

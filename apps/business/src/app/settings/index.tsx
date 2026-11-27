@@ -35,9 +35,21 @@ function SettingsSection({
  * Core allows, so anyone else gets the same sections read-only.
  */
 export default function SettingsPage() {
-  const { organization, owner, revision } = useOrganization();
-  // A save reloads the organization; the forms start again from what Core now has.
-  const key = `${organization.id}-${revision}`;
+  const { organization, owner } = useOrganization();
+  // Each form starts again only when what it shows changes in Core, so saving one form (which
+  // reloads the organization) never drops what someone is typing in another.
+  const keys = {
+    general: `${organization.id}-${organization.name}`,
+    identity: [
+      organization.id,
+      organization.organizationType,
+      organization.legalName,
+      organization.taxId,
+      organization.representativeName,
+      organization.nationalIdLast4,
+    ].join('-'),
+    approval: `${organization.id}-${organization.voucherApprovalRequired}`,
+  };
   const readOnly = !owner;
 
   return (
@@ -61,19 +73,31 @@ export default function SettingsPage() {
           title="General"
           description="How the organization appears in OctaP. The name saves straight away."
         >
-          <OrganizationGeneralForm key={key} organization={organization} readOnly={readOnly} />
+          <OrganizationGeneralForm
+            key={keys.general}
+            organization={organization}
+            readOnly={readOnly}
+          />
         </SettingsSection>
         <SettingsSection
           title="Legal identity"
           description="Who the organization is legally. A System Admin approves every change."
         >
-          <OrganizationIdentityForm key={key} organization={organization} readOnly={readOnly} />
+          <OrganizationIdentityForm
+            key={keys.identity}
+            organization={organization}
+            readOnly={readOnly}
+          />
         </SettingsSection>
         <SettingsSection
           title="Voucher approval"
           description="Whether vouchers a Developer creates wait for the Owner before members can claim them. Owners always activate their own."
         >
-          <VoucherApprovalForm key={key} organization={organization} readOnly={readOnly} />
+          <VoucherApprovalForm
+            key={keys.approval}
+            organization={organization}
+            readOnly={readOnly}
+          />
         </SettingsSection>
         {/* Core answers 403 to anyone else, reads included, so it has no read-only view. */}
         {owner && (
